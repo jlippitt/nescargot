@@ -6,7 +6,9 @@
   "license": "MIT",
   "scripts": {
     "build": "./node_modules/.bin/webpack",
-    "start": "./node_modules/.bin/http-server ./public"
+    "build:headless": "yarn tsc",
+    "start": "./node_modules/.bin/http-server ./public",
+    "start:headless": "NODE_PATH=./dist node ./dist/index.js"
   },
   "devDependencies": {
     "ts-loader": "^5.3.3",
