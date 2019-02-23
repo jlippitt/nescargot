@@ -8,15 +8,16 @@ module.exports = {
       {
         test: /\.tsx?$/,
         use: 'ts-loader',
-        exclude: /node_modules/
+        exclude: /node_modules/,
       }
     ]
   },
   resolve: {
-    extensions: ['.tsx', '.ts', '.jsx', '.js']
+    extensions: ['.tsx', '.ts', '.jsx', '.js'],
+    modules: ['./src', './node_modules'],
   },
   output: {
     filename: 'nescargot.js',
-    path: path.resolve(__dirname, 'public')
+    path: path.resolve(__dirname, 'public'),
   }
 };

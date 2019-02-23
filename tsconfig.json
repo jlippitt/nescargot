@@ -3,6 +3,7 @@
     "outDir": "./dist/",
     "module": "es6",
     "moduleResolution": "node",
+    "baseUrl": "./src/",
     "esModuleInterop": true,
     "target": "es6",
     "jsx": "react",
