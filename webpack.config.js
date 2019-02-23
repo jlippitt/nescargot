@@ -12,6 +12,9 @@ module.exports = {
       }
     ]
   },
+  node: {
+    fs: 'empty',
+  },
   resolve: {
     extensions: ['.tsx', '.ts', '.jsx', '.js'],
     modules: ['./src', './node_modules'],

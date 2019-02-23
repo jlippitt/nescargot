@@ -11,6 +11,7 @@
     "start:headless": "NODE_PATH=./dist node ./dist/index.js"
   },
   "devDependencies": {
+    "@types/node": "^11.9.5",
     "ts-loader": "^5.3.3",
     "typescript": "^3.3.3333",
     "webpack": "^4.29.5",
