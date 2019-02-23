@@ -1,6 +1,6 @@
-import { toHex } from 'hex';
 import Mapper from 'mapper';
 
+import { opMap } from './operation';
 import State from './state';
 
 export default class Cpu {
@@ -15,6 +15,6 @@ export default class Cpu {
 
     const nextOp = this.state.nextByte();
 
-    throw new Error(`Unknown op code ${toHex(nextOp, 2)}`);
+    opMap[nextOp](this.state);
   }
 }
