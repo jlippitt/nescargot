@@ -1,0 +1,16 @@
+{
+  "name": "nescargot",
+  "version": "0.1.0",
+  "repository": "git@github.com:jlippitt/nescargot",
+  "author": "James Lippitt <james.lippitt@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "build": "./node_modules/.bin/webpack"
+  },
+  "devDependencies": {
+    "ts-loader": "^5.3.3",
+    "typescript": "^3.3.3333",
+    "webpack": "^4.29.5",
+    "webpack-cli": "^3.2.3"
+  }
+}
