@@ -1,7 +1,7 @@
 import fs from 'fs';
 
 import Cpu from 'cpu';
-import Rom from 'rom';
+import { createMapper } from 'mapper';
 import Screen from 'screen';
 
 function run() {
@@ -26,8 +26,10 @@ function runHeadless() {
     throw new Error('No ROM specified');
   }
 
-  const rom = new Rom(fs.readFileSync(process.argv[2]));
-  const cpu = new Cpu(rom);
+  const romData = fs.readFileSync(process.argv[2]);
+
+  const mapper = createMapper(new Uint8Array(romData.buffer));
+  const cpu = new Cpu(mapper);
 
   while (true) {
     cpu.tick();
