@@ -5,12 +5,16 @@
   "author": "James Lippitt <james.lippitt@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "build": "./node_modules/.bin/webpack"
+    "build": "./node_modules/.bin/webpack",
+    "start": "./node_modules/.bin/http-server ./public"
   },
   "devDependencies": {
     "ts-loader": "^5.3.3",
     "typescript": "^3.3.3333",
     "webpack": "^4.29.5",
     "webpack-cli": "^3.2.3"
+  },
+  "dependencies": {
+    "http-server": "^0.11.1"
   }
 }
