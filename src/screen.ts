@@ -13,7 +13,7 @@ export default class Screen {
     }
 
     this.ctx = ctx;
-    this.image = this.ctx.getImageData(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+    this.image = this.ctx.createImageData(SCREEN_WIDTH, SCREEN_HEIGHT);
   }
 
   public update(): void {
