@@ -36,6 +36,12 @@ export default class State {
     this.ticks = 0;
   }
 
+  public nextByte(): number {
+    const value = this.mmu.getByte(this.regs.pc);
+    ++this.regs.pc;
+    return value;
+  }
+
   public toString(): string {
     return `A=${toHex(this.regs.a, 2)} ` +
       `X=${toHex(this.regs.x, 2)} ` +
