@@ -23,6 +23,16 @@ export const zeroPageX = {
   toString: (): string => 'z,x',
 };
 
+export const zeroPageY = {
+  lookup: (state: State): number => {
+    const { regs, clock } = state;
+    const immediate = state.nextByte();
+    clock.tick(2);
+    return (immediate + regs.y) & 0xff;
+  },
+  toString: (): string => 'z,y',
+};
+
 export const absolute = {
   lookup: (state: State): number => {
     state.clock.tick(2);

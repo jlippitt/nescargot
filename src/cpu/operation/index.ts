@@ -8,6 +8,7 @@ import {
   indirectY,
   zeroPage,
   zeroPageX,
+  zeroPageY,
 } from './addressMode';
 
 import { bcc, bcs, beq, bmi, bne, bpl, bvc, bvs } from './branch';
@@ -195,7 +196,7 @@ export const opMap: Operation[] = [
   xxx,
   sty(zeroPageX),
   sta(zeroPageX),
-  stx(zeroPageX),
+  stx(zeroPageY),
   xxx,
   tya,
   sta(absoluteY),
