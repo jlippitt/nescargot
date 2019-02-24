@@ -5,12 +5,12 @@
   "author": "James Lippitt <james.lippitt@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "build": "./node_modules/.bin/webpack",
+    "build": "webpack",
     "build:headless": "yarn tsc",
-    "format": "./node_modules/.bin/prettier --write './src/**/*'",
-    "lint": "./node_modules/.bin/tslint -c ./tslint.json './src/**/*'",
+    "format": "prettier --write './src/**/*'",
+    "lint": "tslint './src/**/*'",
     "precommit": "lint-staged",
-    "start": "./node_modules/.bin/http-server ./public",
+    "start": "http-server ./public",
     "start:headless": "NODE_PATH=./dist node ./dist/index.js"
   },
   "lint-staged": {
