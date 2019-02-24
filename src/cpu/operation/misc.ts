@@ -1,10 +1,11 @@
-import { debug, toHex } from 'log';
+import { debug } from 'log';
 
 import State from '../state';
 import AddressMode from './addressMode';
 
 export const bit = (addressMode: AddressMode) => (state: State) => {
   const { regs, mmu, flags, clock } = state;
+  debug(`BIT ${addressMode}`);
   const address = addressMode.lookup(state);
   const value = mmu.getByte(address);
   flags.zero = (regs.a & value) === 0;
