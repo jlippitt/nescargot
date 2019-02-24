@@ -1,14 +1,19 @@
 import { debug, toHex } from 'log';
 import Mapper from 'mapper';
+import PPU from 'ppu';
+
+import Hardware from './hardware';
 
 const RAM_SIZE = 2048;
 
 export default class MMU {
   private mapper: Mapper;
+  private ppu: PPU;
   private ram: Uint8Array;
 
-  constructor(mapper: Mapper) {
+  constructor({ mapper, ppu }: Hardware) {
     this.mapper = mapper;
+    this.ppu = ppu;
     this.ram = new Uint8Array(RAM_SIZE);
   }
 
@@ -20,8 +25,7 @@ export default class MMU {
         value = this.ram[offset % RAM_SIZE];
         break;
       case 0x2000:
-        // TODO: PPU registers
-        value = 0;
+        value = this.ppu.get(offset);
         break;
       case 0x4000:
         if (offset < 0x4018) {
@@ -52,7 +56,7 @@ export default class MMU {
         this.ram[offset % RAM_SIZE] = value;
         break;
       case 0x2000:
-        // TODO: PPU registers
+        this.ppu.set(offset, value);
         break;
       case 0x4000:
         if (offset < 0x4018) {

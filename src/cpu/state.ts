@@ -3,6 +3,7 @@ import Mapper from 'mapper';
 
 import Clock from './clock';
 import Flags from './flags';
+import Hardware from './hardware';
 import MMU from './mmu';
 
 const RESET_VECTOR = 0xfffc;
@@ -21,8 +22,8 @@ export default class State {
   public mmu: MMU;
   public clock: Clock;
 
-  constructor(mapper: Mapper) {
-    const mmu = new MMU(mapper);
+  constructor(hardware: Hardware) {
+    const mmu = new MMU(hardware);
 
     this.regs = {
       a: 0,

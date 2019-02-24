@@ -1,7 +1,8 @@
 import fs from 'fs';
 
-import Cpu from 'cpu';
+import CPU from 'cpu';
 import { createMapper } from 'mapper';
+import PPU from 'ppu';
 import Screen from 'screen';
 
 function run() {
@@ -29,7 +30,8 @@ function runHeadless() {
   const romData = fs.readFileSync(process.argv[2]);
 
   const mapper = createMapper(new Uint8Array(romData.buffer));
-  const cpu = new Cpu(mapper);
+  const ppu = new PPU();
+  const cpu = new CPU({ mapper, ppu });
 
   while (true) {
     cpu.tick();

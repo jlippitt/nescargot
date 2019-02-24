@@ -1,14 +1,16 @@
 import { debug } from 'log';
 import Mapper from 'mapper';
+import PPU from 'ppu';
 
+import Hardware from './hardware';
 import { opMap } from './operation';
 import State from './state';
 
-export default class Cpu {
+export default class CPU {
   private state: State;
 
-  constructor(mapper: Mapper) {
-    this.state = new State(mapper);
+  constructor(hardware: Hardware) {
+    this.state = new State(hardware);
   }
 
   public tick(): void {
