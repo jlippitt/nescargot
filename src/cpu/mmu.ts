@@ -1,4 +1,5 @@
 import Mapper from 'mapper';
+import { toHex } from 'hex';
 
 const RAM_SIZE = 2048;
 
@@ -12,22 +13,31 @@ export default class MMU {
   }
 
   public getByte(offset: number): number {
+    let value: number;
+
     switch (offset & 0xE000) {
       case 0x0000:
-        return this.ram[offset % RAM_SIZE];
+        value = this.ram[offset % RAM_SIZE];
+        break;
       case 0x2000:
         // TODO: PPU registers
-        return 0;
+        value = 0;
+        break;
       case 0x4000:
         if (offset < 0x4018) {
           // TODO: APU and I/O registers
-          return 0;
+          value = 0;
         } else {
-          return this.mapper.get(offset);
+          value = this.mapper.get(offset);
         }
+        break;
       default:
-        return this.mapper.get(offset);
+        value = this.mapper.get(offset);
     }
+
+    console.log(`Read: ${toHex(offset, 4)} => ${toHex(value, 2)}`);
+
+    return value;
   }
 
   public getWord(offset: number): number {
@@ -54,6 +64,8 @@ export default class MMU {
       default:
         this.mapper.set(offset, value);
     }
+
+    console.log(`Write: ${toHex(offset, 4)} <= ${toHex(value, 2)}`);
   }
 
   public setWord(offset: number, value: number): void {
