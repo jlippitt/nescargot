@@ -1,8 +1,20 @@
 import State from '../state';
 
+import {
+  zeroPage,
+  zeroPageX,
+  absolute,
+  absoluteX,
+  absoluteY,
+  indirectX,
+  indirectY,
+} from './addressMode';
+
 import { clc, cld, cli, clv, sec, sed, sei } from './flags';
 
 import { ldaImmediate, ldxImmediate, ldyImmediate } from './load';
+
+import { sta } from './store';
 
 type Operation = (state: State) => void;
 
@@ -52,15 +64,15 @@ export const opMap: Operation[] = [
   sei, xxx, xxx, xxx,
   xxx, xxx, xxx, xxx,
   // 0x80
+  xxx, sta(indirectX), xxx, xxx,
+  xxx, sta(zeroPage), xxx, xxx,
   xxx, xxx, xxx, xxx,
-  xxx, xxx, xxx, xxx,
-  xxx, xxx, xxx, xxx,
-  xxx, xxx, xxx, xxx,
+  xxx, sta(absolute), xxx, xxx,
   // 0x90
-  xxx, xxx, xxx, xxx,
-  xxx, xxx, xxx, xxx,
-  xxx, xxx, xxx, xxx,
-  xxx, xxx, xxx, xxx,
+  xxx, sta(indirectY), xxx, xxx,
+  xxx, sta(zeroPageX), xxx, xxx,
+  xxx, sta(absoluteY), xxx, xxx,
+  xxx, sta(absoluteX), xxx, xxx,
   // 0xA0
   ldyImmediate, xxx, ldxImmediate, xxx,
   xxx, xxx, xxx, xxx,

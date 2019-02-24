@@ -38,8 +38,12 @@ export default class State {
   }
 
   public nextByte(): number {
-    const value = this.mmu.getByte(this.regs.pc);
-    ++this.regs.pc;
+    return this.mmu.getByte(this.regs.pc++);
+  }
+
+  public nextWord(): number {
+    const value = this.mmu.getWord(this.regs.pc);
+    this.regs.pc += 2;
     return value;
   }
 
