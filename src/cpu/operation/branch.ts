@@ -10,7 +10,7 @@ function branch(state: State, condition: boolean) {
 
   if (condition) {
     const offset = state.nextByte();
-    const target = regs.pc + toSigned(offset);
+    const target = (regs.pc + toSigned(offset)) & 0xffff;
 
     if ((target & 0xff00) === (regs.pc & 0xff00)) {
       clock.tick(3);
