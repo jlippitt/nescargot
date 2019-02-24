@@ -20,6 +20,8 @@ import { clc, cld, cli, clv, sec, sed, sei } from './flags';
 
 import { jsr, rts } from './jump';
 
+import { bit } from './misc';
+
 import { lda, ldaImmediate, ldxImmediate, ldyImmediate } from './load';
 
 import { sta, stx, sty } from './store';
@@ -72,6 +74,7 @@ export const opMap: Operation[] = [
   xxx,
   xxx,
   xxx,
+  bit(zeroPage),
   xxx,
   xxx,
   xxx,
@@ -79,8 +82,7 @@ export const opMap: Operation[] = [
   xxx,
   xxx,
   xxx,
-  xxx,
-  xxx,
+  bit(absolute),
   xxx,
   xxx,
   xxx,
