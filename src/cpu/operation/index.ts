@@ -14,6 +14,8 @@ import { bcc, bcs, beq, bmi, bne, bpl, bvc, bvs } from './branch';
 
 import { cmpImmediate } from './compare';
 
+import { dex, dey } from './decrement';
+
 import { clc, cld, cli, clv, sec, sed, sei } from './flags';
 
 import { lda, ldaImmediate, ldxImmediate, ldyImmediate } from './load';
@@ -174,7 +176,7 @@ export const opMap: Operation[] = [
   sta(zeroPage),
   xxx,
   xxx,
-  xxx,
+  dey,
   xxx,
   txa,
   xxx,
@@ -244,7 +246,7 @@ export const opMap: Operation[] = [
   xxx,
   xxx,
   cmpImmediate,
-  xxx,
+  dex,
   xxx,
   xxx,
   xxx,
