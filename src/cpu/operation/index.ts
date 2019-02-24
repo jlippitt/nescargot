@@ -16,6 +16,8 @@ import { ldaImmediate, ldxImmediate, ldyImmediate } from './load';
 
 import { sta } from './store';
 
+import { tax, tay, tsx, txa, txs, tya } from './transfer';
+
 type Operation = (state: State) => void;
 
 function xxx() {
@@ -66,22 +68,22 @@ export const opMap: Operation[] = [
   // 0x80
   xxx, sta(indirectX), xxx, xxx,
   xxx, sta(zeroPage), xxx, xxx,
-  xxx, xxx, xxx, xxx,
+  xxx, xxx, txa, xxx,
   xxx, sta(absolute), xxx, xxx,
   // 0x90
   xxx, sta(indirectY), xxx, xxx,
   xxx, sta(zeroPageX), xxx, xxx,
-  xxx, sta(absoluteY), xxx, xxx,
+  tya, sta(absoluteY), txs, xxx,
   xxx, sta(absoluteX), xxx, xxx,
   // 0xA0
   ldyImmediate, xxx, ldxImmediate, xxx,
   xxx, xxx, xxx, xxx,
-  xxx, ldaImmediate, xxx, xxx,
+  tay, ldaImmediate, tax, xxx,
   xxx, xxx, xxx, xxx,
   // 0xB0
   xxx, xxx, xxx, xxx,
   xxx, xxx, xxx, xxx,
-  clv, xxx, xxx, xxx,
+  clv, xxx, tsx, xxx,
   xxx, xxx, xxx, xxx,
   // 0xC0
   xxx, xxx, xxx, xxx,
