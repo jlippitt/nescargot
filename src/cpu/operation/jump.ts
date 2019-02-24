@@ -10,3 +10,10 @@ export function jsr(state: State) {
   regs.pc = address;
   clock.tick(6);
 }
+
+export function rts(state: State) {
+  const { regs, clock } = state;
+  debug('RTS');
+  regs.pc = (state.pullWord() + 1) & 0xffff;
+  clock.tick(6);
+}

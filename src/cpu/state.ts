@@ -58,6 +58,17 @@ export default class State {
     this.pushByte(value & 0xff);
   }
 
+  public pullByte(): number {
+    this.regs.s = (this.regs.s + 1) & 0xff;
+    return this.mmu.getByte(this.regs.s);
+  }
+
+  public pullWord(): number {
+    const lower = this.pullByte();
+    const upper = this.pullByte();
+    return (upper << 8) | lower;
+  }
+
   public toString(): string {
     return (
       `A=${toHex(this.regs.a, 2)} ` +
