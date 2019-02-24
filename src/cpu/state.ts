@@ -49,7 +49,7 @@ export default class State {
   }
 
   public pushByte(value: number) {
-    this.mmu.setByte(this.regs.s, value);
+    this.mmu.setByte(0x0100 | this.regs.s, value);
     this.regs.s = (this.regs.s - 1) & 0xff;
   }
 
@@ -60,7 +60,7 @@ export default class State {
 
   public pullByte(): number {
     this.regs.s = (this.regs.s + 1) & 0xff;
-    return this.mmu.getByte(this.regs.s);
+    return this.mmu.getByte(0x0100 | this.regs.s);
   }
 
   public pullWord(): number {
