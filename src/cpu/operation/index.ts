@@ -19,6 +19,8 @@ import { dex, dey } from './decrement';
 
 import { clc, cld, cli, clv, sec, sed, sei } from './flags';
 
+import { inx, iny } from './increment';
+
 import { jsr, rts } from './jump';
 
 import { bit } from './misc';
@@ -249,7 +251,7 @@ export const opMap: Operation[] = [
   xxx,
   xxx,
   xxx,
-  xxx,
+  iny,
   cmpImmediate,
   dex,
   xxx,
@@ -283,7 +285,7 @@ export const opMap: Operation[] = [
   xxx,
   xxx,
   xxx,
-  xxx,
+  inx,
   xxx,
   xxx,
   xxx,
