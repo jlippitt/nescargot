@@ -15,6 +15,11 @@ export default class Flags {
     this.negative = false;
   }
 
+  setZeroAndNegative(value: number): void {
+    this.zero = value === 0;
+    this.negative = (value & 0x80) !== 0;
+  }
+
   public toString(): string {
     let flagString = '';
     flagString += this.negative ? 'N' : '-';

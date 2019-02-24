@@ -2,6 +2,8 @@ import State from '../state';
 
 import { clc, cld, cli, clv, sec, sed, sei } from './flags';
 
+import { ldaImmediate, ldxImmediate, ldyImmediate } from './load';
+
 type Operation = (state: State) => void;
 
 function xxx() {
@@ -60,9 +62,9 @@ export const opMap: Operation[] = [
   xxx, xxx, xxx, xxx,
   xxx, xxx, xxx, xxx,
   // 0xA0
+  ldyImmediate, xxx, ldxImmediate, xxx,
   xxx, xxx, xxx, xxx,
-  xxx, xxx, xxx, xxx,
-  xxx, xxx, xxx, xxx,
+  xxx, ldaImmediate, xxx, xxx,
   xxx, xxx, xxx, xxx,
   // 0xB0
   xxx, xxx, xxx, xxx,
