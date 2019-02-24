@@ -1,5 +1,5 @@
+import { toHex } from 'log';
 import Mapper from 'mapper';
-import { toHex } from 'hex';
 
 const RAM_SIZE = 2048;
 

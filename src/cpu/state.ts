@@ -1,4 +1,4 @@
-import { toHex } from 'hex';
+import { toHex } from 'log';
 import Mapper from 'mapper';
 
 import Clock from './clock';

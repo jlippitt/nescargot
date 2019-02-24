@@ -1,5 +1,3 @@
-import { toHex } from 'hex';
-
 import State from '../state';
 
 import { sei } from './flags';

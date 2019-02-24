@@ -1,3 +1,4 @@
+import { debug } from 'log';
 import Mapper from 'mapper';
 
 import { opMap } from './operation';
@@ -11,7 +12,7 @@ export default class Cpu {
   }
 
   public tick(): void {
-    console.log(this.state.toString());
+    debug(this.state.toString());
 
     const nextOp = this.state.nextByte();
 

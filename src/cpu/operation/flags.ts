@@ -1,7 +1,9 @@
+import { debug } from 'log';
+
 import State from '../state';
 
 export function sei({ flags, clock }: State) {
-  console.log('SEI');
+  debug('SEI');
   flags.interrupt = true;
   clock.tick(2);
 }
