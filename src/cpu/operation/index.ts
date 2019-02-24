@@ -22,7 +22,7 @@ import { jsr } from './jump';
 
 import { lda, ldaImmediate, ldxImmediate, ldyImmediate } from './load';
 
-import { sta } from './store';
+import { sta, stx, sty } from './store';
 
 import { tax, tay, tsx, txa, txs, tya } from './transfer';
 
@@ -174,26 +174,26 @@ export const opMap: Operation[] = [
   sta(indirectX),
   xxx,
   xxx,
-  xxx,
+  sty(zeroPage),
   sta(zeroPage),
-  xxx,
+  stx(zeroPage),
   xxx,
   dey,
   xxx,
   txa,
   xxx,
-  xxx,
+  sty(absolute),
   sta(absolute),
-  xxx,
+  stx(absolute),
   xxx,
   // 0x90
   bcc,
   sta(indirectY),
   xxx,
   xxx,
-  xxx,
+  sty(zeroPageX),
   sta(zeroPageX),
-  xxx,
+  stx(zeroPageX),
   xxx,
   tya,
   sta(absoluteY),
