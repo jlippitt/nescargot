@@ -12,7 +12,7 @@ import {
 
 import { bcc, bcs, beq, bmi, bne, bpl, bvc, bvs } from './branch';
 
-import { cmpImmediate } from './compare';
+import { cmpImmediate, cpxImmediate, cpyImmediate } from './compare';
 
 import { dex, dey } from './decrement';
 
@@ -238,7 +238,7 @@ export const opMap: Operation[] = [
   xxx,
   xxx,
   // 0xC0
-  xxx,
+  cpyImmediate,
   xxx,
   xxx,
   xxx,
@@ -272,7 +272,7 @@ export const opMap: Operation[] = [
   xxx,
   xxx,
   // 0xE0
-  xxx,
+  cpxImmediate,
   xxx,
   xxx,
   xxx,
