@@ -9,9 +9,13 @@
     "build:headless": "yarn tsc",
     "format": "prettier --write './src/**/*'",
     "lint": "tslint './src/**/*'",
-    "precommit": "lint-staged",
     "start": "http-server ./public",
     "start:headless": "NODE_PATH=./dist node ./dist/index.js"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
   },
   "lint-staged": {
     "src/**/*.{ts,tsx}": [
