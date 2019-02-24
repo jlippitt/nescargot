@@ -19,11 +19,11 @@ export default class Screen {
   public update(): void {
     const pixels = this.image.data;
 
-    for (let i = 0; i < pixels.length;) {
+    for (let i = 0; i < pixels.length; ) {
       pixels[i++] = 0x00;
       pixels[i++] = 0x00;
       pixels[i++] = 0x00;
-      pixels[i++] = 0xFF;
+      pixels[i++] = 0xff;
     }
 
     this.ctx.putImageData(this.image, 0, 0);

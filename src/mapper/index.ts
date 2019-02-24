@@ -2,7 +2,7 @@ import { isEqual } from 'lodash';
 
 import NROM from './nrom';
 
-const INES_CONSTANT = new Uint8Array([0x4E, 0x45, 0x53, 0x1A]);
+const INES_CONSTANT = new Uint8Array([0x4e, 0x45, 0x53, 0x1a]);
 
 const PRG_ROM_SIZE_MULTIPLIER = 16384;
 

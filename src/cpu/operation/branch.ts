@@ -3,7 +3,7 @@ import { debug } from 'log';
 import State from '../state';
 
 const toSigned = (value: number): number =>
-  value >= 128 ? (value - 256) : value;
+  value >= 128 ? value - 256 : value;
 
 function branch(state: State, condition: boolean) {
   const { regs, clock } = state;
@@ -12,14 +12,13 @@ function branch(state: State, condition: boolean) {
     const offset = state.nextByte();
     const target = regs.pc + toSigned(offset);
 
-    if ((target & 0xFF00) === (regs.pc & 0xFF00)) {
+    if ((target & 0xff00) === (regs.pc & 0xff00)) {
       clock.tick(3);
     } else {
       clock.tick(4);
     }
 
     regs.pc = target;
-
   } else {
     regs.pc += 1;
     clock.tick(2);

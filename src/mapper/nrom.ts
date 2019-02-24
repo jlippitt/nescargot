@@ -9,7 +9,7 @@ export default class NROM implements Mapper {
 
   public get(offset: number): number {
     if (offset >= 0x8000) {
-      return this.prgRom[(offset & 0x7FFF) % this.prgRom.length];
+      return this.prgRom[(offset & 0x7fff) % this.prgRom.length];
     } else if (offset >= 0x6000) {
       throw new Error('PRG RAM not yet implemented');
     } else {

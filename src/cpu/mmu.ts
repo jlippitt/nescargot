@@ -15,7 +15,7 @@ export default class MMU {
   public getByte(offset: number): number {
     let value: number;
 
-    switch (offset & 0xE000) {
+    switch (offset & 0xe000) {
       case 0x0000:
         value = this.ram[offset % RAM_SIZE];
         break;
@@ -47,7 +47,7 @@ export default class MMU {
   }
 
   public setByte(offset: number, value: number): void {
-    switch (offset & 0xE000) {
+    switch (offset & 0xe000) {
       case 0x0000:
         this.ram[offset % RAM_SIZE] = value;
         break;
@@ -69,7 +69,7 @@ export default class MMU {
   }
 
   public setWord(offset: number, value: number): void {
-    this.setByte(offset, value & 0xFF);
+    this.setByte(offset, value & 0xff);
     this.setByte(offset + 1, value >> 8);
   }
 }

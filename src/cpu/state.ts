@@ -5,7 +5,7 @@ import Clock from './clock';
 import Flags from './flags';
 import MMU from './mmu';
 
-const RESET_VECTOR = 0xFFFC;
+const RESET_VECTOR = 0xfffc;
 
 interface Registers {
   a: number;
@@ -48,12 +48,14 @@ export default class State {
   }
 
   public toString(): string {
-    return `A=${toHex(this.regs.a, 2)} ` +
+    return (
+      `A=${toHex(this.regs.a, 2)} ` +
       `X=${toHex(this.regs.x, 2)} ` +
       `Y=${toHex(this.regs.y, 2)} ` +
       `S=${toHex(this.regs.s, 2)} ` +
       `PC=${toHex(this.regs.pc, 4)} ` +
       `P=${this.flags} ` +
-      `T=${this.clock}`;
+      `T=${this.clock}`
+    );
   }
 }
