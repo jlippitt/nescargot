@@ -1,16 +1,16 @@
 import { debug, toHex } from 'log';
 
-import AddressMode from './addressMode';
 import State from '../state';
+import AddressMode from './addressMode';
 
-export const lda = (addressMode: AddressMode) => function lda(state: State) {
+export const lda = (addressMode: AddressMode) => (state: State) => {
   const { regs, flags, mmu, clock } = state;
   debug(`LDA ${addressMode}`);
   const address = addressMode.lookup(state, true);
   regs.a = mmu.getByte(address);
   flags.setZeroAndNegative(regs.a);
   clock.tick(2);
-}
+};
 
 export function ldaImmediate(state: State) {
   const { regs, flags, clock, nextByte } = state;

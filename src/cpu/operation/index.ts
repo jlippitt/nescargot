@@ -1,13 +1,13 @@
 import State from '../state';
 
 import {
-  zeroPage,
-  zeroPageX,
   absolute,
   absoluteX,
   absoluteY,
   indirectX,
   indirectY,
+  zeroPage,
+  zeroPageX,
 } from './addressMode';
 
 import { bcc, bcs, beq, bmi, bne, bpl, bvc, bvs } from './branch';
@@ -23,8 +23,8 @@ import { tax, tay, tsx, txa, txs, tya } from './transfer';
 type Operation = (state: State) => void;
 
 function xxx() {
-  throw new Error(`Unknown op code`);
-};
+  throw new Error('Unknown op code');
+}
 
 export const opMap: Operation[] = [
   // 0x00

@@ -1,4 +1,4 @@
-import { toHex } from 'log';
+import { debug, toHex } from 'log';
 import Mapper from 'mapper';
 
 const RAM_SIZE = 2048;
@@ -35,7 +35,7 @@ export default class MMU {
         value = this.mapper.get(offset);
     }
 
-    console.log(`Read: ${toHex(offset, 4)} => ${toHex(value, 2)}`);
+    debug(`Read: ${toHex(offset, 4)} => ${toHex(value, 2)}`);
 
     return value;
   }
@@ -65,7 +65,7 @@ export default class MMU {
         this.mapper.set(offset, value);
     }
 
-    console.log(`Write: ${toHex(offset, 4)} <= ${toHex(value, 2)}`);
+    debug(`Write: ${toHex(offset, 4)} <= ${toHex(value, 2)}`);
   }
 
   public setWord(offset: number, value: number): void {

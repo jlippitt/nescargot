@@ -15,7 +15,7 @@ export default class Flags {
     this.negative = false;
   }
 
-  setZeroAndNegative(value: number): void {
+  public setZeroAndNegative(value: number): void {
     this.zero = value === 0;
     this.negative = (value & 0x80) !== 0;
   }

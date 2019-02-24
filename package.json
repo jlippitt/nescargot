@@ -7,6 +7,7 @@
   "scripts": {
     "build": "./node_modules/.bin/webpack",
     "build:headless": "yarn tsc",
+    "lint": "./node_modules/.bin/tslint -c ./tslint.json './src/**/*'",
     "start": "./node_modules/.bin/http-server ./public",
     "start:headless": "NODE_PATH=./dist node ./dist/index.js"
   },
@@ -14,6 +15,7 @@
     "@types/lodash": "^4.14.121",
     "@types/node": "^11.9.5",
     "ts-loader": "^5.3.3",
+    "tslint": "^5.13.0",
     "typescript": "^3.3.3333",
     "webpack": "^4.29.5",
     "webpack-cli": "^3.2.3"

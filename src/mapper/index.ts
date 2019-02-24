@@ -24,7 +24,7 @@ export function createMapper(data: Uint8Array): Mapper {
 
   const hasTrainer = (data[6] & 0x04) !== 0;
 
-  const prgRomStart = 16 + (hasTrainer ? 512: 0);
+  const prgRomStart = 16 + (hasTrainer ? 512 : 0);
 
   const prgRom = data.slice(prgRomStart, prgRomStart + prgRomSize);
 

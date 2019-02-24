@@ -1,4 +1,4 @@
-import Mapper, { MapperOptions } from './index'
+import Mapper, { MapperOptions } from './index';
 
 export default class NROM implements Mapper {
   private prgRom: Uint8Array;

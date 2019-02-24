@@ -1,9 +1,9 @@
 import { debug, toHex } from 'log';
 
-import AddressMode from './addressMode';
 import State from '../state';
+import AddressMode from './addressMode';
 
-export const sta = (addressMode: AddressMode) => function sta(state: State) {
+export const sta = (addressMode: AddressMode) => (state: State) => {
   const { regs, mmu, clock } = state;
   debug(`STA ${addressMode}`);
   const address = addressMode.lookup(state);
