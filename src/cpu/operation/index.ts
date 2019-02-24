@@ -10,6 +10,8 @@ import {
   indirectY,
 } from './addressMode';
 
+import { bcc, bcs, beq, bmi, bne, bpl, bvc, bvs } from './branch';
+
 import { clc, cld, cli, clv, sec, sed, sei } from './flags';
 
 import { lda, ldaImmediate, ldxImmediate, ldyImmediate } from './load';
@@ -31,7 +33,7 @@ export const opMap: Operation[] = [
   xxx, xxx, xxx, xxx,
   xxx, xxx, xxx, xxx,
   // 0x10
-  xxx, xxx, xxx, xxx,
+  bpl, xxx, xxx, xxx,
   xxx, xxx, xxx, xxx,
   clc, xxx, xxx, xxx,
   xxx, xxx, xxx, xxx,
@@ -41,7 +43,7 @@ export const opMap: Operation[] = [
   xxx, xxx, xxx, xxx,
   xxx, xxx, xxx, xxx,
   // 0x30
-  xxx, xxx, xxx, xxx,
+  bmi, xxx, xxx, xxx,
   xxx, xxx, xxx, xxx,
   sec, xxx, xxx, xxx,
   xxx, xxx, xxx, xxx,
@@ -51,7 +53,7 @@ export const opMap: Operation[] = [
   xxx, xxx, xxx, xxx,
   xxx, xxx, xxx, xxx,
   // 0x50
-  xxx, xxx, xxx, xxx,
+  bvc, xxx, xxx, xxx,
   xxx, xxx, xxx, xxx,
   cli, xxx, xxx, xxx,
   xxx, xxx, xxx, xxx,
@@ -61,7 +63,7 @@ export const opMap: Operation[] = [
   xxx, xxx, xxx, xxx,
   xxx, xxx, xxx, xxx,
   // 0x70
-  xxx, xxx, xxx, xxx,
+  bvs, xxx, xxx, xxx,
   xxx, xxx, xxx, xxx,
   sei, xxx, xxx, xxx,
   xxx, xxx, xxx, xxx,
@@ -71,7 +73,7 @@ export const opMap: Operation[] = [
   xxx, xxx, txa, xxx,
   xxx, sta(absolute), xxx, xxx,
   // 0x90
-  xxx, sta(indirectY), xxx, xxx,
+  bcc, sta(indirectY), xxx, xxx,
   xxx, sta(zeroPageX), xxx, xxx,
   tya, sta(absoluteY), txs, xxx,
   xxx, sta(absoluteX), xxx, xxx,
@@ -81,7 +83,7 @@ export const opMap: Operation[] = [
   tay, ldaImmediate, tax, xxx,
   xxx, lda(absolute), xxx, xxx,
   // 0xB0
-  xxx, lda(indirectY), xxx, xxx,
+  bcs, lda(indirectY), xxx, xxx,
   xxx, lda(zeroPageX), xxx, xxx,
   clv, lda(absoluteY), tsx, xxx,
   xxx, lda(absoluteX), xxx, xxx,
@@ -91,7 +93,7 @@ export const opMap: Operation[] = [
   xxx, xxx, xxx, xxx,
   xxx, xxx, xxx, xxx,
   // 0xD0
-  xxx, xxx, xxx, xxx,
+  bne, xxx, xxx, xxx,
   xxx, xxx, xxx, xxx,
   cld, xxx, xxx, xxx,
   xxx, xxx, xxx, xxx,
@@ -101,7 +103,7 @@ export const opMap: Operation[] = [
   xxx, xxx, xxx, xxx,
   xxx, xxx, xxx, xxx,
   // 0xF0
-  xxx, xxx, xxx, xxx,
+  beq, xxx, xxx, xxx,
   xxx, xxx, xxx, xxx,
   sed, xxx, xxx, xxx,
   xxx, xxx, xxx, xxx,
