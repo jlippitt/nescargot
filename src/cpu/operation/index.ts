@@ -12,7 +12,7 @@ import {
 
 import { clc, cld, cli, clv, sec, sed, sei } from './flags';
 
-import { ldaImmediate, ldxImmediate, ldyImmediate } from './load';
+import { lda, ldaImmediate, ldxImmediate, ldyImmediate } from './load';
 
 import { sta } from './store';
 
@@ -76,15 +76,15 @@ export const opMap: Operation[] = [
   tya, sta(absoluteY), txs, xxx,
   xxx, sta(absoluteX), xxx, xxx,
   // 0xA0
-  ldyImmediate, xxx, ldxImmediate, xxx,
-  xxx, xxx, xxx, xxx,
+  ldyImmediate, lda(indirectX), ldxImmediate, xxx,
+  xxx, lda(zeroPage), xxx, xxx,
   tay, ldaImmediate, tax, xxx,
-  xxx, xxx, xxx, xxx,
+  xxx, lda(absolute), xxx, xxx,
   // 0xB0
-  xxx, xxx, xxx, xxx,
-  xxx, xxx, xxx, xxx,
-  clv, xxx, tsx, xxx,
-  xxx, xxx, xxx, xxx,
+  xxx, lda(indirectY), xxx, xxx,
+  xxx, lda(zeroPageX), xxx, xxx,
+  clv, lda(absoluteY), tsx, xxx,
+  xxx, lda(absoluteX), xxx, xxx,
   // 0xC0
   xxx, xxx, xxx, xxx,
   xxx, xxx, xxx, xxx,
