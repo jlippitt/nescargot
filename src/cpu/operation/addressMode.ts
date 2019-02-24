@@ -1,7 +1,7 @@
 import State from '../state';
 
 export default interface AddressMode {
-  lookup(state: State): number;
+  lookup(state: State, pageCheck?: boolean): number;
   toString(): string;
 }
 
@@ -32,21 +32,35 @@ export const absolute = {
 };
 
 export const absoluteX = {
-  lookup: (state: State): number => {
+  lookup: (state: State, pageCheck: boolean = false): number => {
     const { regs, clock } = state;
     const immediate = state.nextWord();
-    clock.tick(3);
-    return (immediate + regs.x) & 0xFFFF;
+    const address = (immediate + regs.x) & 0xFFFF;
+
+    if (pageCheck && (address & 0xFF00) === (immediate & 0xFF00)) {
+      clock.tick(2);
+    } else {
+      clock.tick(3);
+    }
+
+    return address;
   },
   toString: (): string => 'a,x',
 };
 
 export const absoluteY = {
-  lookup: (state: State): number => {
+  lookup: (state: State, pageCheck: boolean = false): number => {
     const { regs, clock } = state;
     const immediate = state.nextWord();
-    clock.tick(3);
-    return (immediate + regs.y) & 0xFFFF;
+    const address = (immediate + regs.y) & 0xFFFF;
+
+    if (pageCheck && (address & 0xFF00) === (immediate & 0xFF00)) {
+      clock.tick(2);
+    } else {
+      clock.tick(3);
+    }
+
+    return address;
   },
   toString: (): string => 'a,y',
 };
@@ -62,12 +76,19 @@ export const indirectX = {
 };
 
 export const indirectY = {
-  lookup: (state: State): number => {
+  lookup: (state: State, pageCheck: boolean = false): number => {
     const { regs, mmu, clock } = state;
     const immediate = state.nextByte();
     const pointer = mmu.getWord(immediate);
-    clock.tick(4);
-    return (pointer + regs.y) & 0xFFFF;
+    const address = (pointer + regs.y) & 0xFFFF;
+
+    if (pageCheck && (address & 0xFF00) === (pointer & 0xFF00)) {
+      clock.tick(3);
+    } else {
+      clock.tick(4);
+    }
+
+    return address;
   },
   toString: (): string => '(d),y',
 };
