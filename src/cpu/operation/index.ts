@@ -2,6 +2,8 @@ import { toHex } from 'hex';
 
 import State from '../state';
 
+import { sei } from './flags';
+
 type Operation = (state: State) => void;
 
 function xxx() {
@@ -47,7 +49,7 @@ export const opMap: Operation[] = [
   // 0x70
   xxx, xxx, xxx, xxx,
   xxx, xxx, xxx, xxx,
-  xxx, xxx, xxx, xxx,
+  sei, xxx, xxx, xxx,
   xxx, xxx, xxx, xxx,
   // 0x80
   xxx, xxx, xxx, xxx,

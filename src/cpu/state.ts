@@ -1,6 +1,7 @@
 import { toHex } from 'hex';
 import Mapper from 'mapper';
 
+import Clock from './clock';
 import Flags from './flags';
 import MMU from './mmu';
 
@@ -18,7 +19,7 @@ export default class State {
   public regs: Registers;
   public flags: Flags;
   public mmu: MMU;
-  public ticks: number;
+  public clock: Clock;
 
   constructor(mapper: Mapper) {
     const mmu = new MMU(mapper);
@@ -33,7 +34,7 @@ export default class State {
 
     this.flags = new Flags();
     this.mmu = mmu;
-    this.ticks = 0;
+    this.clock = new Clock();
   }
 
   public nextByte(): number {
@@ -49,6 +50,6 @@ export default class State {
       `S=${toHex(this.regs.s, 2)} ` +
       `PC=${toHex(this.regs.pc, 4)} ` +
       `P=${this.flags} ` +
-      `T=${this.ticks}`;
+      `T=${this.clock}`;
   }
 }

@@ -9,7 +9,7 @@ export default class Flags {
   constructor() {
     this.carry = false;
     this.zero = false;
-    this.interrupt = true;
+    this.interrupt = false;
     this.decimal = false;
     this.overflow = false;
     this.negative = false;
