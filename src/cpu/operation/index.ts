@@ -18,6 +18,8 @@ import { dex, dey } from './decrement';
 
 import { clc, cld, cli, clv, sec, sed, sei } from './flags';
 
+import { jsr } from './jump';
+
 import { lda, ldaImmediate, ldxImmediate, ldyImmediate } from './load';
 
 import { sta } from './store';
@@ -66,7 +68,7 @@ export const opMap: Operation[] = [
   xxx,
   xxx,
   // 0x20
-  xxx,
+  jsr,
   xxx,
   xxx,
   xxx,

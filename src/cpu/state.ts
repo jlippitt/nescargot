@@ -48,6 +48,16 @@ export default class State {
     return value;
   }
 
+  public pushByte(value: number) {
+    this.mmu.setByte(this.regs.s, value);
+    this.regs.s = (this.regs.s - 1) & 0xff;
+  }
+
+  public pushWord(value: number) {
+    this.pushByte(value >> 8);
+    this.pushByte(value & 0xff);
+  }
+
   public toString(): string {
     return (
       `A=${toHex(this.regs.a, 2)} ` +
