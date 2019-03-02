@@ -11,6 +11,8 @@ import {
   zeroPageY,
 } from './addressMode';
 
+import { andImmediate, bit, oraImmediate } from './bitwise';
+
 import { bcc, bcs, beq, bmi, bne, bpl, bvc, bvs } from './branch';
 
 import { cmpImmediate, cpxImmediate, cpyImmediate } from './compare';
@@ -22,8 +24,6 @@ import { clc, cld, cli, clv, sec, sed, sei } from './flags';
 import { inx, iny } from './increment';
 
 import { jsr, rts } from './jump';
-
-import { bit } from './misc';
 
 import { lda, ldaImmediate, ldxImmediate, ldyImmediate } from './load';
 
@@ -48,7 +48,7 @@ export const opMap: Operation[] = [
   xxx,
   xxx,
   xxx,
-  xxx,
+  oraImmediate,
   xxx,
   xxx,
   xxx,
@@ -82,7 +82,7 @@ export const opMap: Operation[] = [
   xxx,
   xxx,
   xxx,
-  xxx,
+  andImmediate,
   xxx,
   xxx,
   bit(absolute),
