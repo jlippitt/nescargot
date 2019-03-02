@@ -21,7 +21,7 @@ import { dex, dey } from './decrement';
 
 import { clc, cld, cli, clv, sec, sed, sei } from './flags';
 
-import { inx, iny } from './increment';
+import { inc, inx, iny } from './increment';
 
 import { jmpAbsolute, jsr, rts } from './jump';
 
@@ -283,7 +283,7 @@ export const opMap: Operation[] = [
   xxx,
   xxx,
   xxx,
-  xxx,
+  inc(zeroPage),
   xxx,
   inx,
   xxx,
@@ -291,7 +291,7 @@ export const opMap: Operation[] = [
   xxx,
   xxx,
   xxx,
-  xxx,
+  inc(absolute),
   xxx,
   // 0xF0
   beq,
@@ -300,7 +300,7 @@ export const opMap: Operation[] = [
   xxx,
   xxx,
   xxx,
-  xxx,
+  inc(zeroPageX),
   xxx,
   sed,
   xxx,
@@ -308,6 +308,6 @@ export const opMap: Operation[] = [
   xxx,
   xxx,
   xxx,
-  xxx,
+  inc(absoluteX),
   xxx,
 ];
