@@ -2,6 +2,14 @@ import { debug, toHex } from 'log';
 
 import State from '../state';
 
+export function jmpAbsolute(state: State) {
+  const { regs, clock } = state;
+  const address = state.nextWord();
+  debug(`JMP ${toHex(address, 4)}`);
+  regs.pc = address;
+  clock.tick(3);
+}
+
 export function jsr(state: State) {
   const { regs, clock } = state;
   const address = state.nextWord();
