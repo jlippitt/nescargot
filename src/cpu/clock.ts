@@ -9,6 +9,10 @@ export default class Clock {
     this.ticks += ticks;
   }
 
+  public getTicks(): number {
+    return this.ticks;
+  }
+
   public toString(): string {
     return this.ticks.toString();
   }

@@ -20,6 +20,18 @@ export default class Flags {
     this.negative = (value & 0x80) !== 0;
   }
 
+  public toByte(breakFlag: boolean): number {
+    let value = 0x20;
+    value &= this.negative ? 0x80 : 0x00;
+    value &= this.overflow ? 0x40 : 0x00;
+    value &= breakFlag ? 0x10 : 0x00;
+    value &= this.decimal ? 0x08 : 0x00;
+    value &= this.interrupt ? 0x04 : 0x00;
+    value &= this.zero ? 0x02 : 0x00;
+    value &= this.carry ? 0x01 : 0x00;
+    return value;
+  }
+
   public toString(): string {
     let flagString = '';
     flagString += this.negative ? 'N' : '-';
