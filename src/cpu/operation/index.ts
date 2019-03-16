@@ -47,7 +47,9 @@ import {
 import {
   aslAccumulator,
   lsrAccumulator,
+  rol,
   rolAccumulator,
+  ror,
   rorAccumulator,
 } from './shift';
 
@@ -105,7 +107,7 @@ export const opMap: Operation[] = [
   xxx,
   bit(zeroPage),
   and(zeroPage),
-  xxx,
+  rol(zeroPage),
   xxx,
   plp,
   andImmediate,
@@ -113,7 +115,7 @@ export const opMap: Operation[] = [
   xxx,
   bit(absolute),
   and(absolute),
-  xxx,
+  rol(absolute),
   xxx,
   // 0x30
   bmi,
@@ -122,7 +124,7 @@ export const opMap: Operation[] = [
   xxx,
   xxx,
   and(zeroPageX),
-  xxx,
+  rol(zeroPageX),
   xxx,
   sec,
   and(absoluteY),
@@ -130,7 +132,7 @@ export const opMap: Operation[] = [
   xxx,
   xxx,
   and(absoluteX),
-  xxx,
+  rol(absoluteX),
   xxx,
   // 0x40
   xxx,
@@ -173,7 +175,7 @@ export const opMap: Operation[] = [
   xxx,
   xxx,
   xxx,
-  xxx,
+  ror(zeroPage),
   xxx,
   pla,
   xxx,
@@ -181,7 +183,7 @@ export const opMap: Operation[] = [
   xxx,
   xxx,
   xxx,
-  xxx,
+  ror(absolute),
   xxx,
   // 0x70
   bvs,
@@ -190,7 +192,7 @@ export const opMap: Operation[] = [
   xxx,
   xxx,
   xxx,
-  xxx,
+  ror(zeroPageX),
   xxx,
   sei,
   xxx,
@@ -198,7 +200,7 @@ export const opMap: Operation[] = [
   xxx,
   xxx,
   xxx,
-  xxx,
+  ror(absoluteX),
   xxx,
   // 0x80
   xxx,
