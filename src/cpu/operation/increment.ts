@@ -1,29 +1,26 @@
 import { debug } from 'log';
 
+import Flags from '../flags';
 import State from '../state';
 import AddressMode from './addressMode';
+import { mutateMemory } from './helpers';
 
-export const inc = (addressMode: AddressMode) => (state: State) => {
-  const { mmu, flags, clock } = state;
-  debug(`INC ${addressMode}`);
-  const address = addressMode.lookup(state, false);
-  const value = mmu.getByte(address);
+function increment(value: number, flags: Flags): number {
   const result = (value + 1) & 0xff;
-  mmu.setByte(address, result);
   flags.setZeroAndNegative(result);
-  clock.tick(4);
-};
+  return result;
+}
+
+export const inc = mutateMemory('INC', increment);
 
 export function inx({ regs, flags, clock }: State) {
   debug('INX');
-  regs.x = (regs.x + 1) & 0xff;
-  flags.setZeroAndNegative(regs.x);
+  regs.x = increment(regs.x, flags);
   clock.tick(2);
 }
 
 export function iny({ regs, flags, clock }: State) {
   debug('INY');
-  regs.y = (regs.y + 1) & 0xff;
-  flags.setZeroAndNegative(regs.y);
+  regs.y = increment(regs.y, flags);
   clock.tick(2);
 }

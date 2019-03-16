@@ -3,6 +3,7 @@ import { debug } from 'log';
 import Flags from '../flags';
 import State from '../state';
 import AddressMode from './addressMode';
+import { mutateAccumulator, mutateMemory } from './helpers';
 
 function rotateLeft(value: number, flags: Flags): number {
   const oldCarry = flags.carry ? 0x01 : 0x00;
@@ -38,36 +39,7 @@ export function lsrAccumulator(state: State) {
   clock.tick(2);
 }
 
-export const rol = (addressMode: AddressMode) => (state: State) => {
-  const { flags, mmu, clock } = state;
-  debug(`ROL ${addressMode}`);
-  const address = addressMode.lookup(state, false);
-  const value = mmu.getByte(address);
-  const result = rotateLeft(value, flags);
-  mmu.setByte(address, result);
-  clock.tick(4);
-};
-
-export function rolAccumulator(state: State) {
-  const { regs, flags, clock } = state;
-  debug('ROL');
-  regs.a = rotateLeft(regs.a, flags);
-  clock.tick(2);
-}
-
-export const ror = (addressMode: AddressMode) => (state: State) => {
-  const { flags, mmu, clock } = state;
-  debug(`ROR ${addressMode}`);
-  const address = addressMode.lookup(state, false);
-  const value = mmu.getByte(address);
-  const result = rotateRight(value, flags);
-  mmu.setByte(address, result);
-  clock.tick(4);
-};
-
-export function rorAccumulator(state: State) {
-  const { regs, flags, clock } = state;
-  debug('ROR');
-  regs.a = rotateRight(regs.a, flags);
-  clock.tick(2);
-}
+export const rol = mutateMemory('ROL', rotateLeft);
+export const rolAccumulator = mutateAccumulator('ROL', rotateLeft);
+export const ror = mutateMemory('ROR', rotateRight);
+export const rorAccumulator = mutateAccumulator('ROR', rotateRight);
