@@ -34,7 +34,12 @@ import {
   ldyImmediate,
 } from './load';
 
-import { aslAccumulator, lsrAccumulator } from './shift';
+import {
+  aslAccumulator,
+  lsrAccumulator,
+  rolAccumulator,
+  rorAccumulator,
+} from './shift';
 
 import { pha, php, pla, plp } from './stack';
 
@@ -94,7 +99,7 @@ export const opMap: Operation[] = [
   xxx,
   plp,
   andImmediate,
-  xxx,
+  rolAccumulator,
   xxx,
   bit(absolute),
   xxx,
@@ -162,7 +167,7 @@ export const opMap: Operation[] = [
   xxx,
   pla,
   xxx,
-  xxx,
+  rorAccumulator,
   xxx,
   xxx,
   xxx,
