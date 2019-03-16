@@ -20,6 +20,15 @@ export default class Flags {
     this.negative = (value & 0x80) !== 0;
   }
 
+  public fromByte(value: number): void {
+    this.negative = (value & 0x80) !== 0;
+    this.overflow = (value & 0x40) !== 0;
+    this.decimal = (value & 0x08) !== 0;
+    this.interrupt = (value & 0x04) !== 0;
+    this.zero = (value & 0x02) !== 0;
+    this.carry = (value & 0x01) !== 0;
+  }
+
   public toByte(breakFlag: boolean): number {
     let value = 0x20;
     value &= this.negative ? 0x80 : 0x00;

@@ -36,6 +36,8 @@ import {
 
 import { aslAccumulator, lsrAccumulator } from './shift';
 
+import { pha, php, pla, plp } from './stack';
+
 import { sta, stx, sty } from './store';
 
 import { tax, tay, tsx, txa, txs, tya } from './transfer';
@@ -56,7 +58,7 @@ export const opMap: Operation[] = [
   xxx,
   xxx,
   xxx,
-  xxx,
+  php,
   oraImmediate,
   aslAccumulator,
   xxx,
@@ -90,7 +92,7 @@ export const opMap: Operation[] = [
   xxx,
   xxx,
   xxx,
-  xxx,
+  plp,
   andImmediate,
   xxx,
   xxx,
@@ -124,7 +126,7 @@ export const opMap: Operation[] = [
   xxx,
   xxx,
   xxx,
-  xxx,
+  pha,
   xxx,
   lsrAccumulator,
   xxx,
@@ -158,7 +160,7 @@ export const opMap: Operation[] = [
   xxx,
   xxx,
   xxx,
-  xxx,
+  pla,
   xxx,
   xxx,
   xxx,
