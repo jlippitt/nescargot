@@ -23,6 +23,15 @@ export const bit = (addressMode: AddressMode) => (state: State) => {
   clock.tick(2);
 };
 
+export const ora = (addressMode: AddressMode) => (state: State) => {
+  const { regs, flags, mmu, clock } = state;
+  debug(`ORA ${addressMode}`);
+  const address = addressMode.lookup(state);
+  regs.a |= mmu.getByte(address);
+  flags.setZeroAndNegative(regs.a);
+  clock.tick(2);
+};
+
 export function oraImmediate(state: State) {
   const { regs, flags, clock } = state;
   const value = state.nextByte();

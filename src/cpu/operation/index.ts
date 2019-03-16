@@ -11,7 +11,7 @@ import {
   zeroPageY,
 } from './addressMode';
 
-import { andImmediate, bit, oraImmediate } from './bitwise';
+import { andImmediate, bit, ora, oraImmediate } from './bitwise';
 
 import { bcc, bcs, beq, bmi, bne, bpl, bvc, bvs } from './branch';
 
@@ -51,11 +51,11 @@ function xxx() {
 export const opMap: Operation[] = [
   // 0x00
   xxx,
+  ora(indirectX),
   xxx,
   xxx,
   xxx,
-  xxx,
-  xxx,
+  ora(zeroPage),
   xxx,
   xxx,
   php,
@@ -63,24 +63,24 @@ export const opMap: Operation[] = [
   aslAccumulator,
   xxx,
   xxx,
-  xxx,
+  ora(absolute),
   xxx,
   xxx,
   // 0x10
   bpl,
+  ora(indirectY),
   xxx,
   xxx,
   xxx,
-  xxx,
-  xxx,
+  ora(zeroPageX),
   xxx,
   xxx,
   clc,
+  ora(absoluteY),
   xxx,
   xxx,
   xxx,
-  xxx,
-  xxx,
+  ora(absoluteX),
   xxx,
   xxx,
   // 0x20
