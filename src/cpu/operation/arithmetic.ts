@@ -8,7 +8,7 @@ function subtract(state: State, rhs: number) {
   const lhs = regs.a;
   regs.a = (lhs - rhs - (flags.carry ? 0 : 1)) & 0xff;
   flags.setZeroAndNegative(regs.a);
-  flags.carry = regs.a > lhs;
+  flags.carry = regs.a <= lhs;
   flags.overflow = ((lhs ^ regs.a) & (rhs ^ regs.a) & 0x80) !== 0;
   clock.tick(2);
 }
