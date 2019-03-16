@@ -25,7 +25,14 @@ import { inc, inx, iny } from './increment';
 
 import { jmpAbsolute, jsr, rts } from './jump';
 
-import { lda, ldaImmediate, ldxImmediate, ldyImmediate } from './load';
+import {
+  lda,
+  ldaImmediate,
+  ldx,
+  ldxImmediate,
+  ldy,
+  ldyImmediate,
+} from './load';
 
 import { sta, stx, sty } from './store';
 
@@ -213,34 +220,34 @@ export const opMap: Operation[] = [
   lda(indirectX),
   ldxImmediate,
   xxx,
-  xxx,
+  ldy(zeroPage),
   lda(zeroPage),
-  xxx,
+  ldx(zeroPage),
   xxx,
   tay,
   ldaImmediate,
   tax,
   xxx,
-  xxx,
+  ldy(absolute),
   lda(absolute),
-  xxx,
+  ldx(absolute),
   xxx,
   // 0xB0
   bcs,
   lda(indirectY),
   xxx,
   xxx,
-  xxx,
+  ldy(zeroPageX),
   lda(zeroPageX),
-  xxx,
+  ldx(zeroPageY),
   xxx,
   clv,
   lda(absoluteY),
   tsx,
   xxx,
-  xxx,
+  ldy(absoluteX),
   lda(absoluteX),
-  xxx,
+  ldx(absoluteY),
   xxx,
   // 0xC0
   cpyImmediate,

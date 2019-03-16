@@ -20,6 +20,15 @@ export function ldaImmediate(state: State) {
   clock.tick(2);
 }
 
+export const ldx = (addressMode: AddressMode) => (state: State) => {
+  const { regs, flags, mmu, clock } = state;
+  debug(`LDX ${addressMode}`);
+  const address = addressMode.lookup(state, true);
+  regs.x = mmu.getByte(address);
+  flags.setZeroAndNegative(regs.x);
+  clock.tick(2);
+};
+
 export function ldxImmediate(state: State) {
   const { regs, flags, clock, nextByte } = state;
   regs.x = state.nextByte();
@@ -27,6 +36,15 @@ export function ldxImmediate(state: State) {
   flags.setZeroAndNegative(regs.x);
   clock.tick(2);
 }
+
+export const ldy = (addressMode: AddressMode) => (state: State) => {
+  const { regs, flags, mmu, clock } = state;
+  debug(`LDY ${addressMode}`);
+  const address = addressMode.lookup(state, true);
+  regs.y = mmu.getByte(address);
+  flags.setZeroAndNegative(regs.y);
+  clock.tick(2);
+};
 
 export function ldyImmediate(state: State) {
   const { regs, flags, clock, nextByte } = state;
