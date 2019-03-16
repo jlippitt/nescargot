@@ -34,6 +34,8 @@ import {
   ldyImmediate,
 } from './load';
 
+import { aslAccumulator, lsrAccumulator } from './shift';
+
 import { sta, stx, sty } from './store';
 
 import { tax, tay, tsx, txa, txs, tya } from './transfer';
@@ -56,7 +58,7 @@ export const opMap: Operation[] = [
   xxx,
   xxx,
   oraImmediate,
-  xxx,
+  aslAccumulator,
   xxx,
   xxx,
   xxx,
@@ -124,7 +126,7 @@ export const opMap: Operation[] = [
   xxx,
   xxx,
   xxx,
-  xxx,
+  lsrAccumulator,
   xxx,
   jmpAbsolute,
   xxx,
