@@ -32,6 +32,24 @@ export const bit = (addressMode: AddressMode) => (state: State) => {
   clock.tick(2);
 };
 
+export const eor = (addressMode: AddressMode) => (state: State) => {
+  const { regs, flags, mmu, clock } = state;
+  debug(`EOR ${addressMode}`);
+  const address = addressMode.lookup(state, true);
+  regs.a ^= mmu.getByte(address);
+  flags.setZeroAndNegative(regs.a);
+  clock.tick(2);
+};
+
+export function eorImmediate(state: State) {
+  const { regs, flags, clock } = state;
+  const value = state.nextByte();
+  debug(`EOR ${toHex(value, 2)}`);
+  regs.a ^= value;
+  flags.setZeroAndNegative(regs.a);
+  clock.tick(2);
+}
+
 export const ora = (addressMode: AddressMode) => (state: State) => {
   const { regs, flags, mmu, clock } = state;
   debug(`ORA ${addressMode}`);

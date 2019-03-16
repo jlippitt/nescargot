@@ -13,7 +13,15 @@ import {
 
 import { sbc, sbcImmediate } from './arithmetic';
 
-import { and, andImmediate, bit, ora, oraImmediate } from './bitwise';
+import {
+  and,
+  andImmediate,
+  bit,
+  eor,
+  eorImmediate,
+  ora,
+  oraImmediate,
+} from './bitwise';
 
 import { bcc, bcs, beq, bmi, bne, bpl, bvc, bvs } from './branch';
 
@@ -126,36 +134,36 @@ export const opMap: Operation[] = [
   xxx,
   // 0x40
   xxx,
+  eor(indirectX),
   xxx,
   xxx,
   xxx,
-  xxx,
-  xxx,
+  eor(zeroPage),
   xxx,
   xxx,
   pha,
-  xxx,
+  eorImmediate,
   lsrAccumulator,
   xxx,
   jmpAbsolute,
-  xxx,
+  eor(absolute),
   xxx,
   xxx,
   // 0x50
   bvc,
+  eor(indirectY),
   xxx,
   xxx,
   xxx,
-  xxx,
-  xxx,
+  eor(zeroPageX),
   xxx,
   xxx,
   cli,
+  eor(absoluteY),
   xxx,
   xxx,
   xxx,
-  xxx,
-  xxx,
+  eor(absoluteX),
   xxx,
   xxx,
   // 0x60
