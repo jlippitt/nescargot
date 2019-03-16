@@ -19,7 +19,7 @@ import { bcc, bcs, beq, bmi, bne, bpl, bvc, bvs } from './branch';
 
 import { cmpImmediate, cpxImmediate, cpyImmediate } from './compare';
 
-import { dex, dey } from './decrement';
+import { dec, dex, dey } from './decrement';
 
 import { clc, cld, cli, clv, sec, sed, sei } from './flags';
 
@@ -267,7 +267,7 @@ export const opMap: Operation[] = [
   xxx,
   xxx,
   xxx,
-  xxx,
+  dec(zeroPage),
   xxx,
   iny,
   cmpImmediate,
@@ -275,7 +275,7 @@ export const opMap: Operation[] = [
   xxx,
   xxx,
   xxx,
-  xxx,
+  dec(absolute),
   xxx,
   // 0xD0
   bne,
@@ -284,7 +284,7 @@ export const opMap: Operation[] = [
   xxx,
   xxx,
   xxx,
-  xxx,
+  dec(zeroPageX),
   xxx,
   cld,
   xxx,
@@ -292,7 +292,7 @@ export const opMap: Operation[] = [
   xxx,
   xxx,
   xxx,
-  xxx,
+  dec(absoluteX),
   xxx,
   // 0xE0
   cpxImmediate,
