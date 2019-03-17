@@ -16,7 +16,6 @@ import { adc, adcImmediate, sbc, sbcImmediate } from './arithmetic';
 import {
   and,
   andImmediate,
-  bit,
   eor,
   eorImmediate,
   ora,
@@ -52,6 +51,8 @@ import {
   ldy,
   ldyImmediate,
 } from './load';
+
+import { bit, nop } from './misc';
 
 import {
   asl,
@@ -326,7 +327,7 @@ export const opMap: Operation[] = [
   xxx,
   inx,
   sbcImmediate,
-  xxx,
+  nop,
   xxx,
   cpx(absolute),
   sbc(absolute),
