@@ -10,6 +10,15 @@ export function jmpAbsolute(state: State) {
   clock.tick(3);
 }
 
+export function jmpIndirect(state: State) {
+  const { regs, mmu, clock } = state;
+  const address = state.nextWord();
+  debug(`JMP (${toHex(address, 4)})`);
+  const target = mmu.getWord(address);
+  regs.pc = target;
+  clock.tick(5);
+}
+
 export function jsr(state: State) {
   const { regs, clock } = state;
   const address = state.nextWord();

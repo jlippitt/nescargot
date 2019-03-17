@@ -33,7 +33,7 @@ import { clc, cld, cli, clv, sec, sed, sei } from './flags';
 
 import { inc, inx, iny } from './increment';
 
-import { jmpAbsolute, jsr, rts } from './jump';
+import { jmpAbsolute, jmpIndirect, jsr, rts } from './jump';
 
 import {
   lda,
@@ -183,7 +183,7 @@ export const opMap: Operation[] = [
   xxx,
   rorAccumulator,
   xxx,
-  xxx,
+  jmpIndirect,
   xxx,
   ror(absolute),
   xxx,
