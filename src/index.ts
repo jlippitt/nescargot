@@ -1,10 +1,8 @@
 import fs from 'fs';
 
-import CPU from 'cpu';
-import Interrupt from 'interrupt';
-import { createMapper } from 'mapper';
-import PPU from 'ppu';
-import Screen from 'screen';
+import { createHardware } from 'hardware';
+import CanvasScreen from 'screen/canvas';
+import DummyScreen from 'screen/dummy';
 
 function run() {
   const canvas = document.getElementById('nescargot');
@@ -13,7 +11,7 @@ function run() {
     throw new Error('No canvas found on page');
   }
 
-  const screen = new Screen(canvas);
+  const screen = new CanvasScreen(canvas);
 
   function renderFrame(): void {
     screen.update();
@@ -30,10 +28,10 @@ function runHeadless() {
 
   const romData = fs.readFileSync(process.argv[2]);
 
-  const mapper = createMapper(new Uint8Array(romData.buffer));
-  const interrupt = new Interrupt();
-  const ppu = new PPU(interrupt);
-  const cpu = new CPU({ mapper, interrupt, ppu });
+  const { cpu, ppu } = createHardware({
+    romData: new Uint8Array(romData.buffer),
+    screen: new DummyScreen(),
+  });
 
   while (true) {
     const ticks = cpu.tick();

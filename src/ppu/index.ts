@@ -1,4 +1,5 @@
-import Interrupt from '../interrupt';
+import Interrupt from 'interrupt';
+import Screen from 'screen';
 
 const TICKS_PER_LINE = 341;
 const TOTAL_LINES = 262;
@@ -14,7 +15,7 @@ export default class PPU {
   private vblank: boolean;
   private nmiEnabled: boolean;
 
-  constructor(interrupt: Interrupt) {
+  constructor(screen: Screen, interrupt: Interrupt) {
     this.interrupt = interrupt;
     this.clock = 0;
     this.oddFrame = false;

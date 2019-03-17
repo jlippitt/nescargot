@@ -1,7 +1,9 @@
+import Screen from './index';
+
 const SCREEN_WIDTH = 256;
 const SCREEN_HEIGHT = 240;
 
-export default class Screen {
+export default class CanvasScreen implements Screen {
   private ctx: CanvasRenderingContext2D;
   private image: ImageData;
 
