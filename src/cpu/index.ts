@@ -8,8 +8,6 @@ import { opMap } from './operation';
 import { nmi } from './operation/interrupt';
 import State from './state';
 
-const NMI_VECTOR = 0xfffa;
-
 export default class CPU {
   private state: State;
   private interrupt: Interrupt;
