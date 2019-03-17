@@ -45,7 +45,9 @@ import {
 } from './load';
 
 import {
+  asl,
   aslAccumulator,
+  lsr,
   lsrAccumulator,
   rol,
   rolAccumulator,
@@ -73,7 +75,7 @@ export const opMap: Operation[] = [
   xxx,
   xxx,
   ora(zeroPage),
-  xxx,
+  asl(zeroPage),
   xxx,
   php,
   oraImmediate,
@@ -81,7 +83,7 @@ export const opMap: Operation[] = [
   xxx,
   xxx,
   ora(absolute),
-  xxx,
+  asl(absolute),
   xxx,
   // 0x10
   bpl,
@@ -90,7 +92,7 @@ export const opMap: Operation[] = [
   xxx,
   xxx,
   ora(zeroPageX),
-  xxx,
+  asl(zeroPageX),
   xxx,
   clc,
   ora(absoluteY),
@@ -98,7 +100,7 @@ export const opMap: Operation[] = [
   xxx,
   xxx,
   ora(absoluteX),
-  xxx,
+  asl(absoluteX),
   xxx,
   // 0x20
   jsr,
@@ -141,7 +143,7 @@ export const opMap: Operation[] = [
   xxx,
   xxx,
   eor(zeroPage),
-  xxx,
+  lsr(zeroPage),
   xxx,
   pha,
   eorImmediate,
@@ -149,7 +151,7 @@ export const opMap: Operation[] = [
   xxx,
   jmpAbsolute,
   eor(absolute),
-  xxx,
+  lsr(absolute),
   xxx,
   // 0x50
   bvc,
@@ -158,7 +160,7 @@ export const opMap: Operation[] = [
   xxx,
   xxx,
   eor(zeroPageX),
-  xxx,
+  lsr(zeroPageX),
   xxx,
   cli,
   eor(absoluteY),
@@ -166,7 +168,7 @@ export const opMap: Operation[] = [
   xxx,
   xxx,
   eor(absoluteX),
-  xxx,
+  lsr(absoluteX),
   xxx,
   // 0x60
   rts,
