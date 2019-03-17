@@ -12,3 +12,11 @@ export function nmi(state: State) {
   regs.pc = mmu.getWord(NMI_VECTOR);
   clock.tick(7);
 }
+
+export function rti(state: State) {
+  const { regs, flags, clock } = state;
+  debug('RTI');
+  flags.fromByte(state.pullByte());
+  regs.pc = state.pullWord();
+  clock.tick(6);
+}

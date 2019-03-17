@@ -33,6 +33,8 @@ import { clc, cld, cli, clv, sec, sed, sei } from './flags';
 
 import { inc, inx, iny } from './increment';
 
+import { rti } from './interrupt';
+
 import { jmpAbsolute, jmpIndirect, jsr, rts } from './jump';
 
 import {
@@ -137,7 +139,7 @@ export const opMap: Operation[] = [
   rol(absoluteX),
   xxx,
   // 0x40
-  xxx,
+  rti,
   eor(indirectX),
   xxx,
   xxx,
