@@ -1,17 +1,37 @@
 import fs from 'fs';
 
 import { createHardware } from 'hardware';
+import { error } from 'log';
 import CanvasScreen from 'screen/canvas';
 import DummyScreen from 'screen/dummy';
 
-function run() {
+async function run() {
   const canvas = document.getElementById('nescargot');
 
   if (!(canvas instanceof HTMLCanvasElement)) {
     throw new Error('No canvas found on page');
   }
 
+  const romUrl = new URLSearchParams(location.search).get('url');
+
+  if (!romUrl) {
+    throw new Error('No ROM specified');
+  }
+
+  const response = await fetch(romUrl);
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch ROM data');
+  }
+
+  const romData = new Uint8Array(await response.arrayBuffer());
+
   const screen = new CanvasScreen(canvas);
+
+  const { cpu, ppu } = createHardware({
+    romData,
+    screen,
+  });
 
   function renderFrame(): void {
     screen.update();
@@ -40,7 +60,7 @@ function runHeadless() {
 }
 
 if (typeof window !== 'undefined') {
-  run();
+  run().catch(error);
 } else {
   runHeadless();
 }

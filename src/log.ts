@@ -3,6 +3,11 @@ export function debug(...args: any[]): void {
   console.log(...args);
 }
 
+export function error(...args: any[]): void {
+  // tslint:disable-next-line:no-console
+  console.error(...args);
+}
+
 export function toHex(value: number, width: number): string {
   return value
     .toString(16)
