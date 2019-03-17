@@ -11,7 +11,7 @@ import {
   zeroPageY,
 } from './addressMode';
 
-import { sbc, sbcImmediate } from './arithmetic';
+import { adc, adcImmediate, sbc, sbcImmediate } from './arithmetic';
 
 import {
   and,
@@ -172,36 +172,36 @@ export const opMap: Operation[] = [
   xxx,
   // 0x60
   rts,
+  adc(indirectX),
   xxx,
   xxx,
   xxx,
-  xxx,
-  xxx,
+  adc(zeroPage),
   ror(zeroPage),
   xxx,
   pla,
-  xxx,
+  adcImmediate,
   rorAccumulator,
   xxx,
   jmpIndirect,
-  xxx,
+  adc(absolute),
   ror(absolute),
   xxx,
   // 0x70
   bvs,
+  adc(indirectY),
   xxx,
   xxx,
   xxx,
-  xxx,
-  xxx,
+  adc(zeroPageX),
   ror(zeroPageX),
   xxx,
   sei,
+  adc(absoluteY),
   xxx,
   xxx,
   xxx,
-  xxx,
-  xxx,
+  adc(absoluteX),
   ror(absoluteX),
   xxx,
   // 0x80
