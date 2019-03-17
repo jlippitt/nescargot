@@ -34,7 +34,15 @@ export async function runInBrowser(): Promise<void> {
   });
 
   function renderFrame(): void {
+    let done = false;
+
+    while (!done) {
+      const ticks = cpu.tick();
+      done = ppu.tick(ticks);
+    }
+
     screen.update();
+
     window.requestAnimationFrame(renderFrame);
   }
 

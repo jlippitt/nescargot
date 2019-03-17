@@ -53,7 +53,7 @@ export default class PPU {
     }
   }
 
-  public tick(ticks: number): void {
+  public tick(ticks: number): boolean {
     this.clock += ticks * 3;
 
     if (this.clock >= this.ticksForCurrentLine) {
@@ -69,6 +69,7 @@ export default class PPU {
         // Ensure this is always reset at the start of a frame (don't need to
         // check if odd or even)
         this.ticksForCurrentLine = TICKS_PER_LINE;
+        return true;
       } else if (this.line === VBLANK_LINE) {
         this.vblank = true;
       } else if (
@@ -84,5 +85,7 @@ export default class PPU {
         this.interrupt.triggerNmi();
       }
     }
+
+    return false;
   }
 }
