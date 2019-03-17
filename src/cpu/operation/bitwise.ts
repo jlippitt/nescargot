@@ -4,10 +4,9 @@ import AddressMode from '../addressMode';
 import State from '../state';
 
 export const and = (addressMode: AddressMode) => (state: State) => {
-  const { regs, flags, mmu, clock } = state;
+  const { regs, flags, clock } = state;
   debug(`AND ${addressMode}`);
-  const address = addressMode.lookup(state, true);
-  regs.a &= mmu.getByte(address);
+  regs.a &= state.getByte(addressMode, true);
   flags.setZeroAndNegative(regs.a);
   clock.tick(2);
 };
@@ -22,10 +21,9 @@ export function andImmediate(state: State) {
 }
 
 export const bit = (addressMode: AddressMode) => (state: State) => {
-  const { regs, mmu, flags, clock } = state;
+  const { regs, flags, clock } = state;
   debug(`BIT ${addressMode}`);
-  const address = addressMode.lookup(state, false);
-  const value = mmu.getByte(address);
+  const value = state.getByte(addressMode, false);
   flags.zero = (regs.a & value) === 0;
   flags.overflow = (value & 0x40) !== 0;
   flags.negative = (value & 0x80) !== 0;
@@ -33,10 +31,9 @@ export const bit = (addressMode: AddressMode) => (state: State) => {
 };
 
 export const eor = (addressMode: AddressMode) => (state: State) => {
-  const { regs, flags, mmu, clock } = state;
+  const { regs, flags, clock } = state;
   debug(`EOR ${addressMode}`);
-  const address = addressMode.lookup(state, true);
-  regs.a ^= mmu.getByte(address);
+  regs.a ^= state.getByte(addressMode, true);
   flags.setZeroAndNegative(regs.a);
   clock.tick(2);
 };
@@ -51,10 +48,9 @@ export function eorImmediate(state: State) {
 }
 
 export const ora = (addressMode: AddressMode) => (state: State) => {
-  const { regs, flags, mmu, clock } = state;
+  const { regs, flags, clock } = state;
   debug(`ORA ${addressMode}`);
-  const address = addressMode.lookup(state, true);
-  regs.a |= mmu.getByte(address);
+  regs.a |= state.getByte(addressMode, true);
   flags.setZeroAndNegative(regs.a);
   clock.tick(2);
 };

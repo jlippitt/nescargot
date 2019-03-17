@@ -4,10 +4,9 @@ import AddressMode from '../addressMode';
 import State from '../state';
 
 export const lda = (addressMode: AddressMode) => (state: State) => {
-  const { regs, flags, mmu, clock } = state;
+  const { regs, flags, clock } = state;
   debug(`LDA ${addressMode}`);
-  const address = addressMode.lookup(state, true);
-  regs.a = mmu.getByte(address);
+  regs.a = state.getByte(addressMode, true);
   flags.setZeroAndNegative(regs.a);
   clock.tick(2);
 };
@@ -21,10 +20,9 @@ export function ldaImmediate(state: State) {
 }
 
 export const ldx = (addressMode: AddressMode) => (state: State) => {
-  const { regs, flags, mmu, clock } = state;
+  const { regs, flags, clock } = state;
   debug(`LDX ${addressMode}`);
-  const address = addressMode.lookup(state, true);
-  regs.x = mmu.getByte(address);
+  regs.x = state.getByte(addressMode, true);
   flags.setZeroAndNegative(regs.x);
   clock.tick(2);
 };
@@ -38,10 +36,9 @@ export function ldxImmediate(state: State) {
 }
 
 export const ldy = (addressMode: AddressMode) => (state: State) => {
-  const { regs, flags, mmu, clock } = state;
+  const { regs, flags, clock } = state;
   debug(`LDY ${addressMode}`);
-  const address = addressMode.lookup(state, true);
-  regs.y = mmu.getByte(address);
+  regs.y = state.getByte(addressMode, true);
   flags.setZeroAndNegative(regs.y);
   clock.tick(2);
 };

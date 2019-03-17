@@ -1,6 +1,7 @@
 import { toHex } from 'log';
 import Mapper from 'mapper';
 
+import AddressMode from './addressMode';
 import Clock from './clock';
 import Flags from './flags';
 import Hardware from './hardware';
@@ -36,6 +37,11 @@ export default class State {
     this.flags = new Flags();
     this.mmu = mmu;
     this.clock = new Clock();
+  }
+
+  public getByte(addressMode: AddressMode, boundaryCheck: boolean): number {
+    const address = addressMode.lookup(this, boundaryCheck);
+    return this.mmu.getByte(address);
   }
 
   public nextByte(): number {

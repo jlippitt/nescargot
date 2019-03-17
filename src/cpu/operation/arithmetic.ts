@@ -24,10 +24,8 @@ function subtract(state: State, rhs: number) {
 }
 
 export const adc = (addressMode: AddressMode) => (state: State) => {
-  const { mmu } = state;
   debug(`ADC ${addressMode}`);
-  const address = addressMode.lookup(state, true);
-  const value = mmu.getByte(address);
+  const value = state.getByte(addressMode, true);
   add(state, value);
 };
 
@@ -38,10 +36,8 @@ export function adcImmediate(state: State) {
 }
 
 export const sbc = (addressMode: AddressMode) => (state: State) => {
-  const { mmu } = state;
   debug(`SBC ${addressMode}`);
-  const address = addressMode.lookup(state, true);
-  const value = mmu.getByte(address);
+  const value = state.getByte(addressMode, true);
   subtract(state, value);
 };
 
