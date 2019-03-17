@@ -1,33 +1,54 @@
 import { debug, toHex } from 'log';
 
+import AddressMode from '../addressMode';
 import State from '../state';
 
+function compare(state: State, lhs: number, rhs: number) {
+  const { flags, clock } = state;
+  const result = (lhs - rhs) & 0xff;
+  flags.setZeroAndNegative(result);
+  flags.carry = lhs >= rhs;
+  clock.tick(2);
+}
+
+export const cmp = (addressMode: AddressMode) => (state: State) => {
+  const { regs } = state;
+  debug(`CMP ${addressMode}`);
+  const value = state.getByte(addressMode, true);
+  compare(state, regs.a, value);
+};
+
 export function cmpImmediate(state: State) {
-  const { regs, flags, clock } = state;
+  const { regs } = state;
   const value = state.nextByte();
   debug(`CMP ${toHex(value, 2)}`);
-  const result = (regs.a - value) & 0xff;
-  flags.setZeroAndNegative(result);
-  flags.carry = regs.a >= value;
-  clock.tick(2);
+  compare(state, regs.a, value);
 }
+
+export const cpx = (addressMode: AddressMode) => (state: State) => {
+  const { regs } = state;
+  debug(`CPX ${addressMode}`);
+  const value = state.getByte(addressMode, true);
+  compare(state, regs.x, value);
+};
 
 export function cpxImmediate(state: State) {
-  const { regs, flags, clock } = state;
+  const { regs } = state;
   const value = state.nextByte();
   debug(`CPX ${toHex(value, 2)}`);
-  const result = (regs.x - value) & 0xff;
-  flags.setZeroAndNegative(result);
-  flags.carry = regs.x >= value;
-  clock.tick(2);
+  compare(state, regs.x, value);
 }
 
+export const cpy = (addressMode: AddressMode) => (state: State) => {
+  const { regs } = state;
+  debug(`CPY ${addressMode}`);
+  const value = state.getByte(addressMode, true);
+  compare(state, regs.y, value);
+};
+
 export function cpyImmediate(state: State) {
-  const { regs, flags, clock } = state;
+  const { regs } = state;
   const value = state.nextByte();
   debug(`CPY ${toHex(value, 2)}`);
-  const result = (regs.y - value) & 0xff;
-  flags.setZeroAndNegative(result);
-  flags.carry = regs.y >= value;
-  clock.tick(2);
+  compare(state, regs.y, value);
 }
