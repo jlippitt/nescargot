@@ -40,7 +40,7 @@ import { clc, cld, cli, clv, sec, sed, sei } from './flags';
 
 import { inc, inx, iny } from './increment';
 
-import { rti } from './interrupt';
+import { brk, rti } from './interrupt';
 
 import { jmpAbsolute, jmpIndirect, jsr, rts } from './jump';
 
@@ -78,7 +78,7 @@ function xxx() {
 
 export const opMap: Operation[] = [
   // 0x00
-  xxx,
+  brk,
   ora(indirectX),
   xxx,
   xxx,
