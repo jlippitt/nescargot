@@ -1,8 +1,8 @@
 import { debug } from 'log';
 
+import AddressMode from '../addressMode';
 import Flags from '../flags';
 import State from '../state';
-import AddressMode from './addressMode';
 
 type Mutator = (value: number, flags: Flags) => number;
 

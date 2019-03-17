@@ -1,7 +1,7 @@
 import { debug, toHex } from 'log';
 
+import AddressMode from '../addressMode';
 import State from '../state';
-import AddressMode from './addressMode';
 
 function add(state: State, rhs: number) {
   const { flags, regs, clock } = state;

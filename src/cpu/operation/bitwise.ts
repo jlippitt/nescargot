@@ -1,7 +1,7 @@
 import { debug, toHex } from 'log';
 
+import AddressMode from '../addressMode';
 import State from '../state';
-import AddressMode from './addressMode';
 
 export const and = (addressMode: AddressMode) => (state: State) => {
   const { regs, flags, mmu, clock } = state;

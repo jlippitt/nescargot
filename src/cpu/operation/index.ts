@@ -9,7 +9,7 @@ import {
   zeroPage,
   zeroPageX,
   zeroPageY,
-} from './addressMode';
+} from '../addressMode';
 
 import { adc, adcImmediate, sbc, sbcImmediate } from './arithmetic';
 
