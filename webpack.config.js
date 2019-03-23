@@ -25,11 +25,6 @@ module.exports = {
       }
     ]
   },
-  plugins: [
-    new webpack.DefinePlugin({
-      'process.env.BROWSER': '"true"',
-    }),
-  ],
   node: {
     fs: 'empty',
   },

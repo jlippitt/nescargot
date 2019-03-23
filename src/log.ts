@@ -1,11 +1,7 @@
-function dummyDebug(...args: any[]): void {}
-
-function consoleDebug(...args: any[]): void {
+export function debug(...args: any[]): void {
   // tslint:disable-next-line:no-console
   console.log(...args);
 }
-
-export const debug = process.env.BROWSER ? dummyDebug : consoleDebug;
 
 export function error(...args: any[]): void {
   // tslint:disable-next-line:no-console
