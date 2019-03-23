@@ -8,7 +8,19 @@ module.exports = {
     rules: [
       {
         test: /\.tsx?$/,
-        use: 'ts-loader',
+        use: [
+          {
+            loader: 'ts-loader',
+          },
+          {
+            loader: 'string-replace-loader',
+            options: {
+              search: 'debug\\(.*\\);',
+              replace: '',
+              flags: 'g',
+            },
+          },
+        ],
         exclude: /node_modules/,
       }
     ]
