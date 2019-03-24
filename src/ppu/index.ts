@@ -45,6 +45,8 @@ export default class PPU {
         this.vblank = false;
         return status;
       }
+      case 7:
+        return this.vram.getDataByte();
       default:
         return 0;
     }
@@ -52,15 +54,22 @@ export default class PPU {
 
   public set(offset: number, value: number): void {
     switch (offset % 8) {
-      case 0: {
+      case 0:
         this.nmiEnabled = (value & 0x80) !== 0;
 
         if (this.nmiEnabled && this.vblank) {
           this.interrupt.triggerNmi();
         }
 
+        this.vram.setIncrementType((value & 0x40) !== 0);
         break;
-      }
+
+      case 6:
+        this.vram.setAddressByte(value);
+        break;
+
+      case 7:
+        this.vram.setDataByte(value);
     }
   }
 
