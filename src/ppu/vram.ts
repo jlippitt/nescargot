@@ -1,6 +1,8 @@
 import { debug, toHex } from 'log';
 import Mapper from 'mapper';
 
+import PaletteTable from './paletteTable';
+
 const HORIZONTAL_INCREMENT = 1;
 const VERTICAL_INCREMENT = 32;
 
@@ -8,11 +10,13 @@ export default class VRAM {
   private mapper: Mapper;
   private address: number;
   private incrementAmount: number;
+  private paletteTable: PaletteTable;
 
   constructor(mapper: Mapper) {
     this.mapper = mapper;
     this.address = 0x0000;
     this.incrementAmount = HORIZONTAL_INCREMENT;
+    this.paletteTable = new PaletteTable();
   }
 
   public setIncrementType(vertical: boolean): void {
@@ -35,8 +39,7 @@ export default class VRAM {
       // TODO: Nametables
       value = 0;
     } else {
-      // TODO: Palettes
-      value = 0;
+      value = this.paletteTable.getByte(this.address);
     }
 
     debug(`VRAM Read: ${toHex(this.address, 4)} => ${toHex(value, 2)}`);
@@ -52,7 +55,7 @@ export default class VRAM {
     } else if (this.address < 0x3f00) {
       // TODO: Nametables
     } else {
-      // TODO: Palettes
+      this.paletteTable.setByte(this.address, value);
     }
 
     debug(`VRAM Write: ${toHex(this.address, 4)} <= ${toHex(value, 2)}`);
