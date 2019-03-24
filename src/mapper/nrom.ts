@@ -1,4 +1,5 @@
 import PatternTable from 'ppu/patternTable';
+
 import Mapper, { ROM } from './index';
 
 export default class NROM implements Mapper {
@@ -25,16 +26,14 @@ export default class NROM implements Mapper {
   }
 
   public getChrByte(offset: number): number {
-    // TODO
-    return 0;
+    return this.rom.chrRom[(offset & 0x1000) >> 12].getByte(offset & 0x1fff);
   }
 
   public setChrByte(offset: number, value: number): void {
-    // TODO
+    this.rom.chrRom[(offset & 0x1000) >> 12].setByte(offset & 0x1fff, value);
   }
 
   public getPatternTable(index: number): PatternTable {
-    // TODO
-    return this.rom.chrRom[0];
+    return this.rom.chrRom[index];
   }
 }
