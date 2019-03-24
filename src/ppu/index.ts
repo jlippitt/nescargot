@@ -1,12 +1,22 @@
 import Interrupt from 'interrupt';
+import Mapper from 'mapper';
 import Screen from 'screen';
+
+import VRAM from './vram';
 
 const TICKS_PER_LINE = 341;
 const TOTAL_LINES = 262;
 const VBLANK_LINE = 240;
 
+export interface PPUOptions {
+  screen: Screen;
+  interrupt: Interrupt;
+  mapper: Mapper;
+}
+
 export default class PPU {
   private interrupt: Interrupt;
+  private vram: VRAM;
   private clock: number;
   private oddFrame: boolean;
   private line: number;
@@ -15,8 +25,9 @@ export default class PPU {
   private vblank: boolean;
   private nmiEnabled: boolean;
 
-  constructor(screen: Screen, interrupt: Interrupt) {
+  constructor({ screen, interrupt, mapper }: PPUOptions) {
     this.interrupt = interrupt;
+    this.vram = new VRAM(mapper);
     this.clock = 0;
     this.oddFrame = false;
     this.line = 0;

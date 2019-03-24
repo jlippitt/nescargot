@@ -1,15 +1,18 @@
-import Mapper, { MapperOptions } from './index';
+import PatternTable from 'ppu/patternTable';
+import Mapper, { ROM } from './index';
 
 export default class NROM implements Mapper {
-  private prgRom: Uint8Array;
+  private rom: ROM;
 
-  constructor(options: MapperOptions) {
-    this.prgRom = options.prgRom;
+  constructor(rom: ROM) {
+    this.rom = rom;
   }
 
-  public get(offset: number): number {
+  public getPrgByte(offset: number): number {
+    const { prgRom } = this.rom;
+
     if (offset >= 0x8000) {
-      return this.prgRom[(offset & 0x7fff) % this.prgRom.length];
+      return prgRom[(offset & 0x7fff) % prgRom.length];
     } else if (offset >= 0x6000) {
       throw new Error('PRG RAM not yet implemented');
     } else {
@@ -17,7 +20,21 @@ export default class NROM implements Mapper {
     }
   }
 
-  public set(offset: number, value: number): void {
-    throw new Error('Writes not yet implemented');
+  public setPrgByte(offset: number, value: number): void {
+    throw new Error('PRG writes not yet implemented');
+  }
+
+  public getChrByte(offset: number): number {
+    // TODO
+    return 0;
+  }
+
+  public setChrByte(offset: number, value: number): void {
+    // TODO
+  }
+
+  public getPatternTable(index: number): PatternTable {
+    // TODO
+    return this.rom.chrRom[0];
   }
 }

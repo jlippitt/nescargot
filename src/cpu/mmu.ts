@@ -32,11 +32,11 @@ export default class MMU {
           // TODO: APU and I/O registers
           value = 0;
         } else {
-          value = this.mapper.get(offset);
+          value = this.mapper.getPrgByte(offset);
         }
         break;
       default:
-        value = this.mapper.get(offset);
+        value = this.mapper.getPrgByte(offset);
     }
 
     debug(`Read: ${toHex(offset, 4)} => ${toHex(value, 2)}`);
@@ -62,11 +62,11 @@ export default class MMU {
         if (offset < 0x4018) {
           // TODO: APU and I/O registers
         } else {
-          this.mapper.set(offset, value);
+          this.mapper.setPrgByte(offset, value);
         }
         break;
       default:
-        this.mapper.set(offset, value);
+        this.mapper.setPrgByte(offset, value);
     }
 
     debug(`Write: ${toHex(offset, 4)} <= ${toHex(value, 2)}`);
