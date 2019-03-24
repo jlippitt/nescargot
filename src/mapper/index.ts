@@ -1,5 +1,5 @@
 import { isEqual } from 'lodash';
-import PatternTable, { initChrRom } from 'ppu/patternTable';
+import PatternTable, { createPatternTables } from 'ppu/patternTable';
 
 import NROM from './nrom';
 
@@ -39,6 +39,6 @@ export function createMapper(data: Uint8Array): Mapper {
 
   return new NROM({
     prgRom: prgRomData,
-    chrRom: initChrRom(chrRomData),
+    chrRom: createPatternTables(chrRomData),
   });
 }
