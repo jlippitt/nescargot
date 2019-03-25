@@ -37,8 +37,8 @@ export default class VRAM {
       value = this.mapper.getChrByte(this.address);
     } else if (this.address < 0x3f00) {
       value = this.mapper
-        .getNameTable((this.address & 0x0c00) >> 10)
-        .getByte(this.address & 0x03ff);
+        .getNameTables()
+        [(this.address & 0x0c00) >> 10].getByte(this.address & 0x03ff);
     } else {
       value = this.paletteTable.getByte(this.address);
     }
@@ -57,8 +57,8 @@ export default class VRAM {
       this.mapper.setChrByte(this.address, value);
     } else if (this.address < 0x3f00) {
       this.mapper
-        .getNameTable((this.address & 0x0c00) >> 10)
-        .setByte(this.address & 0x03ff, value);
+        .getNameTables()
+        [(this.address & 0x0c00) >> 10].setByte(this.address & 0x03ff, value);
     } else {
       this.paletteTable.setByte(this.address, value);
     }

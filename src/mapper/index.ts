@@ -15,7 +15,7 @@ export default interface Mapper {
   getChrByte(offset: number): number;
   setChrByte(offset: number, value: number): void;
   getPatternTable(index: number): PatternTable;
-  getNameTable(index: number): NameTable;
+  getNameTables(): NameTable[];
 }
 
 export enum NameTableMirroring {

@@ -38,11 +38,13 @@ export default class NROM implements Mapper {
     return this.rom.chrRom[index];
   }
 
-  public getNameTable(index: number): NameTable {
+  public getNameTables(): NameTable[] {
+    const { ciRam } = this.rom;
+
     if (this.rom.nameTableMirroring === NameTableMirroring.Vertical) {
-      return this.rom.ciRam[index & 0x01];
+      return [ciRam[0], ciRam[1], ciRam[0], ciRam[1]];
     } else {
-      return this.rom.ciRam[(index & 0x02) >> 1];
+      return [ciRam[0], ciRam[0], ciRam[1], ciRam[1]];
     }
   }
 }
