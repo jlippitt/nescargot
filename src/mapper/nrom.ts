@@ -1,6 +1,7 @@
+import NameTable from 'ppu/nameTable';
 import PatternTable from 'ppu/patternTable';
 
-import Mapper, { ROM } from './index';
+import Mapper, { NameTableMirroring, ROM } from './index';
 
 export default class NROM implements Mapper {
   private rom: ROM;
@@ -35,5 +36,13 @@ export default class NROM implements Mapper {
 
   public getPatternTable(index: number): PatternTable {
     return this.rom.chrRom[index];
+  }
+
+  public getNameTable(index: number): NameTable {
+    if (this.rom.nameTableMirroring === NameTableMirroring.Vertical) {
+      return this.rom.ciRam[index & 0x01];
+    } else {
+      return this.rom.ciRam[(index & 0x02) >> 1];
+    }
   }
 }

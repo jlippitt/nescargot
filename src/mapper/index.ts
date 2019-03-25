@@ -1,4 +1,5 @@
 import { isEqual } from 'lodash';
+import NameTable, { createNameTables } from 'ppu/nameTable';
 import PatternTable, { createPatternTables } from 'ppu/patternTable';
 
 import NROM from './nrom';
@@ -14,11 +15,19 @@ export default interface Mapper {
   getChrByte(offset: number): number;
   setChrByte(offset: number, value: number): void;
   getPatternTable(index: number): PatternTable;
+  getNameTable(index: number): NameTable;
+}
+
+export enum NameTableMirroring {
+  Horizontal,
+  Vertical,
 }
 
 export interface ROM {
   prgRom: Uint8Array;
   chrRom: PatternTable[];
+  ciRam: NameTable[];
+  nameTableMirroring: NameTableMirroring;
 }
 
 export function createMapper(data: Uint8Array): Mapper {
@@ -37,8 +46,17 @@ export function createMapper(data: Uint8Array): Mapper {
   const prgRomData = data.slice(prgRomStart, chrRomStart);
   const chrRomData = data.slice(chrRomStart, chrRomStart + chrRomSize);
 
+  const nameTableCount = (data[6] & 0x08) !== 0 ? 4 : 2;
+
+  const nameTableMirroring =
+    (data[6] & 0x01) !== 0
+      ? NameTableMirroring.Vertical
+      : NameTableMirroring.Horizontal;
+
   return new NROM({
     prgRom: prgRomData,
     chrRom: createPatternTables(chrRomData),
+    ciRam: createNameTables(nameTableCount),
+    nameTableMirroring,
   });
 }

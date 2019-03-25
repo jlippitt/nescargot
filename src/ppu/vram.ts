@@ -36,8 +36,9 @@ export default class VRAM {
     if (this.address < 0x2000) {
       value = this.mapper.getChrByte(this.address);
     } else if (this.address < 0x3f00) {
-      // TODO: Nametables
-      value = 0;
+      value = this.mapper
+        .getNameTable((this.address & 0x0c00) >> 10)
+        .getByte(this.address & 0x03ff);
     } else {
       value = this.paletteTable.getByte(this.address);
     }
@@ -50,15 +51,17 @@ export default class VRAM {
   }
 
   public setDataByte(value: number): void {
+    debug(`VRAM Write: ${toHex(this.address, 4)} <= ${toHex(value, 2)}`);
+
     if (this.address < 0x2000) {
       this.mapper.setChrByte(this.address, value);
     } else if (this.address < 0x3f00) {
-      // TODO: Nametables
+      this.mapper
+        .getNameTable((this.address & 0x0c00) >> 10)
+        .setByte(this.address & 0x03ff, value);
     } else {
       this.paletteTable.setByte(this.address, value);
     }
-
-    debug(`VRAM Write: ${toHex(this.address, 4)} <= ${toHex(value, 2)}`);
 
     this.address = (this.address + this.incrementAmount) & 0x3fff;
   }
