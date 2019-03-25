@@ -14,7 +14,7 @@ export default interface Mapper {
   setPrgByte(offset: number, value: number): void;
   getChrByte(offset: number): number;
   setChrByte(offset: number, value: number): void;
-  getPatternTable(index: number): PatternTable;
+  getPatternTables(): PatternTable[];
   getNameTables(): NameTable[];
 }
 

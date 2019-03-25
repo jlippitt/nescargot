@@ -34,8 +34,9 @@ export default class NROM implements Mapper {
     this.rom.chrRom[(offset & 0x1000) >> 12].setByte(offset & 0x1fff, value);
   }
 
-  public getPatternTable(index: number): PatternTable {
-    return this.rom.chrRom[index];
+  public getPatternTables(): PatternTable[] {
+    const { chrRom } = this.rom;
+    return [chrRom[0], chrRom[1]];
   }
 
   public getNameTables(): NameTable[] {
