@@ -93,6 +93,14 @@ export default class PaletteTable {
     this.spritePalettes = Array(4).fill([0, 0, 0, 0]);
   }
 
+  public getBackgroundColor(): Color {
+    return this.backgroundColor;
+  }
+
+  public getBackgroundPalettes(): Palette[] {
+    return this.backgroundPalettes;
+  }
+
   public getByte(offset: number): number {
     return this.ram[offset];
   }

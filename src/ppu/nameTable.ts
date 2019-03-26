@@ -24,6 +24,10 @@ export default class NameTable {
     );
   }
 
+  public getTile(x: number, y: number): Tile {
+    return this.tiles[y][x];
+  }
+
   public getByte(offset: number): number {
     return this.ram[offset];
   }

@@ -29,6 +29,10 @@ export default class PatternTable {
     this.patterns = times(256, () => times(8, () => Array(8).fill(0)));
   }
 
+  public getPattern(index: number): Pattern {
+    return this.patterns[index];
+  }
+
   public getByte(offset: number): number {
     return this.ram[offset];
   }

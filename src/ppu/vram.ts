@@ -1,7 +1,9 @@
 import { debug, toHex } from 'log';
 import Mapper from 'mapper';
 
+import NameTable from './nameTable';
 import PaletteTable from './paletteTable';
+import PatternTable from './patternTable';
 
 const HORIZONTAL_INCREMENT = 1;
 const VERTICAL_INCREMENT = 32;
@@ -17,6 +19,18 @@ export default class VRAM {
     this.address = 0x0000;
     this.incrementAmount = HORIZONTAL_INCREMENT;
     this.paletteTable = new PaletteTable();
+  }
+
+  public getPatternTables(): PatternTable[] {
+    return this.mapper.getPatternTables();
+  }
+
+  public getNameTables(): NameTable[] {
+    return this.mapper.getNameTables();
+  }
+
+  public getPaletteTable(): PaletteTable {
+    return this.paletteTable;
   }
 
   public setIncrementType(vertical: boolean): void {
