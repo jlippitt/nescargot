@@ -14,9 +14,7 @@ export function jmpIndirect(state: State) {
   const { regs, mmu, clock } = state;
   const address = state.nextWord();
   debug(`JMP (${toHex(address, 4)})`);
-  const lower = mmu.getByte(address);
-  const upper = mmu.getByte((address & 0xff00) | ((address + 1) & 0x00ff));
-  regs.pc = (upper << 8) | lower;
+  regs.pc = mmu.getWordWithinPage(address);
   clock.tick(5);
 }
 

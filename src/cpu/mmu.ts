@@ -50,6 +50,12 @@ export default class MMU {
     return (upper << 8) | lower;
   }
 
+  public getWordWithinPage(offset: number): number {
+    const lower = this.getByte(offset);
+    const upper = this.getByte((offset & 0xff00) | ((offset + 1) & 0x00ff));
+    return (upper << 8) | lower;
+  }
+
   public setByte(offset: number, value: number): void {
     switch (offset & 0xe000) {
       case 0x0000:
@@ -70,10 +76,5 @@ export default class MMU {
     }
 
     debug(`Write: ${toHex(offset, 4)} <= ${toHex(value, 2)}`);
-  }
-
-  public setWord(offset: number, value: number): void {
-    this.setByte(offset, value & 0xff);
-    this.setByte(offset + 1, value >> 8);
   }
 }

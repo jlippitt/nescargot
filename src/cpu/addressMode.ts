@@ -80,7 +80,7 @@ export const indirectX = {
     const { regs, mmu, clock } = state;
     const immediate = state.nextByte();
     clock.tick(4);
-    return mmu.getWord((immediate + regs.x) & 0xff);
+    return mmu.getWordWithinPage((immediate + regs.x) & 0xff);
   },
   toString: (): string => '(d,x)',
 };
@@ -89,9 +89,7 @@ export const indirectY = {
   lookup: (state: State, pageCheck: boolean = false): number => {
     const { regs, mmu, clock } = state;
     const immediate = state.nextByte();
-    const lower = mmu.getByte(immediate);
-    const upper = mmu.getByte((immediate & 0xff00) | ((immediate + 1) & 0xff));
-    const pointer = (upper << 8) | lower;
+    const pointer = mmu.getWordWithinPage(immediate);
     const address = (pointer + regs.y) & 0xffff;
 
     if (pageCheck && (address & 0xff00) === (pointer & 0xff00)) {
