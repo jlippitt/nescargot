@@ -17,7 +17,6 @@ export default class NROM implements Mapper {
       return prgRom[(offset & 0x7fff) % prgRom.length];
     } else if (offset >= 0x6000) {
       return prgRam[offset & 0x1fff];
-      throw new Error('PRG RAM not yet implemented');
     } else {
       throw new Error('Attempted read from unexpected mapper location');
     }
