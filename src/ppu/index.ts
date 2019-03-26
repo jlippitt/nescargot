@@ -18,6 +18,8 @@ export interface PPUState {
   line: number;
   vram: VRAM;
   control: {
+    backgroundNameTableIndex: number;
+    backgroundPatternTableIndex: number;
     nmiEnabled: boolean;
   };
   mask: {
@@ -43,6 +45,8 @@ export default class PPU {
       line: 0,
       vram: new VRAM(mapper),
       control: {
+        backgroundNameTableIndex: 0,
+        backgroundPatternTableIndex: 0,
         nmiEnabled: false,
       },
       mask: {
@@ -81,13 +85,14 @@ export default class PPU {
 
     switch (offset % 8) {
       case 0:
+        control.backgroundNameTableIndex = value & 0x03;
+        control.backgroundPatternTableIndex = (value & 0x10) >> 4;
+        vram.setIncrementType((value & 0x40) !== 0);
         control.nmiEnabled = (value & 0x80) !== 0;
 
         if (control.nmiEnabled && status.vblank) {
           this.interrupt.triggerNmi();
         }
-
-        vram.setIncrementType((value & 0x40) !== 0);
         break;
 
       case 1:
