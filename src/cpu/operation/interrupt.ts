@@ -5,19 +5,25 @@ import State from '../state';
 const IRQ_VECTOR = 0xfffe;
 const NMI_VECTOR = 0xfffa;
 
-const interrupt = (instruction: string, vector: number, breakFlag: boolean) => (
-  state: State,
-) => {
+function interrupt(state: State, vector: number, breakFlag: boolean) {
   const { regs, flags, mmu, clock } = state;
-  debug(instruction);
   state.pushWord(regs.pc);
   state.pushByte(flags.toByte(breakFlag));
   regs.pc = mmu.getWord(vector);
   clock.tick(7);
-};
+}
 
-export const brk = interrupt('BRK', IRQ_VECTOR, true);
-export const nmi = interrupt('NMI', NMI_VECTOR, false);
+export function brk(state: State) {
+  const { regs } = state;
+  debug('BRK');
+  ++regs.pc;
+  interrupt(state, IRQ_VECTOR, true);
+}
+
+export function nmi(state: State) {
+  debug('NMI');
+  interrupt(state, NMI_VECTOR, false);
+}
 
 export function rti(state: State) {
   const { regs, flags, clock } = state;
