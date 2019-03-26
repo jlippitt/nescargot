@@ -29,6 +29,10 @@ export interface PPUState {
   status: {
     vblank: boolean;
   };
+  scroll: {
+    x: number;
+    y: number;
+  };
 }
 
 export default class PPU {
@@ -37,6 +41,7 @@ export default class PPU {
   private clock: number;
   private oddFrame: boolean;
   private ticksForCurrentLine: number;
+  private oddScrollWrite: boolean;
 
   constructor({ screen, interrupt, mapper }: PPUOptions) {
     this.interrupt = interrupt;
@@ -56,11 +61,16 @@ export default class PPU {
       status: {
         vblank: false,
       },
+      scroll: {
+        x: 0,
+        y: 0,
+      },
     };
 
     this.clock = 0;
     this.oddFrame = false;
     this.ticksForCurrentLine = TICKS_PER_LINE;
+    this.oddScrollWrite = false;
   }
 
   public get(offset: number): number {
@@ -81,13 +91,13 @@ export default class PPU {
   }
 
   public set(offset: number, value: number): void {
-    const { vram, control, mask, status } = this.state;
+    const { vram, control, mask, status, scroll } = this.state;
 
     switch (offset % 8) {
       case 0:
         control.backgroundNameTableIndex = value & 0x03;
+        vram.setIncrementType((value & 0x04) !== 0);
         control.backgroundPatternTableIndex = (value & 0x10) >> 4;
-        vram.setIncrementType((value & 0x40) !== 0);
         control.nmiEnabled = (value & 0x80) !== 0;
 
         if (control.nmiEnabled && status.vblank) {
@@ -98,6 +108,15 @@ export default class PPU {
       case 1:
         mask.backgroundEnabled = (value & 0x08) !== 0;
         mask.spritesEnabled = (value & 0x10) !== 0;
+        break;
+
+      case 5:
+        if (this.oddScrollWrite) {
+          scroll.y = value;
+        } else {
+          scroll.x = value;
+        }
+        this.oddScrollWrite = !this.oddScrollWrite;
         break;
 
       case 6:
