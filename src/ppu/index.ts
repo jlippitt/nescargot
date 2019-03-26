@@ -137,11 +137,14 @@ export default class PPU {
       const { control, mask, status } = state;
 
       this.clock -= this.ticksForCurrentLine;
-      ++state.line;
 
       if (state.line < VBLANK_LINE) {
         renderLine(state);
-      } else if (state.line === VBLANK_LINE) {
+      }
+
+      ++state.line;
+
+      if (state.line === VBLANK_LINE) {
         status.vblank = true;
         if (control.nmiEnabled) {
           this.interrupt.triggerNmi();
