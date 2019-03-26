@@ -89,7 +89,9 @@ export const indirectY = {
   lookup: (state: State, pageCheck: boolean = false): number => {
     const { regs, mmu, clock } = state;
     const immediate = state.nextByte();
-    const pointer = mmu.getWord(immediate);
+    const lower = mmu.getByte(immediate);
+    const upper = mmu.getByte((immediate & 0xff00) | ((immediate + 1) & 0xff));
+    const pointer = (upper << 8) | lower;
     const address = (pointer + regs.y) & 0xffff;
 
     if (pageCheck && (address & 0xff00) === (pointer & 0xff00)) {
