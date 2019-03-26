@@ -11,11 +11,12 @@ export default class NROM implements Mapper {
   }
 
   public getPrgByte(offset: number): number {
-    const { prgRom } = this.rom;
+    const { prgRom, prgRam } = this.rom;
 
     if (offset >= 0x8000) {
       return prgRom[(offset & 0x7fff) % prgRom.length];
     } else if (offset >= 0x6000) {
+      return prgRam[offset & 0x1fff];
       throw new Error('PRG RAM not yet implemented');
     } else {
       throw new Error('Attempted read from unexpected mapper location');
@@ -23,7 +24,11 @@ export default class NROM implements Mapper {
   }
 
   public setPrgByte(offset: number, value: number): void {
-    throw new Error('PRG writes not yet implemented');
+    if (offset >= 0x6000 && offset < 0x8000) {
+      this.rom.prgRam[offset & 0x1fff] = value;
+    } else {
+      throw new Error('Attempted write to unexpected mapper location');
+    }
   }
 
   public getChrByte(offset: number): number {

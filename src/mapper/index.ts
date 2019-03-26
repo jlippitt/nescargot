@@ -25,6 +25,7 @@ export enum NameTableMirroring {
 
 export interface ROM {
   prgRom: Uint8Array;
+  prgRam: Uint8Array;
   chrRom: PatternTable[];
   ciRam: NameTable[];
   nameTableMirroring: NameTableMirroring;
@@ -55,6 +56,7 @@ export function createMapper(data: Uint8Array): Mapper {
 
   return new NROM({
     prgRom: prgRomData,
+    prgRam: new Uint8Array(8192),
     chrRom: createPatternTables(chrRomData),
     ciRam: createNameTables(nameTableCount),
     nameTableMirroring,
