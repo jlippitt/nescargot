@@ -31,7 +31,7 @@ function renderBackground(state: PPUState): void {
 }
 
 export default function renderLine(state: PPUState): void {
-  const { mask, vram } = state;
+  const { screen, mask, vram } = state;
 
   debug(`** Rendering line ${state.line} **`);
 
@@ -42,4 +42,6 @@ export default function renderLine(state: PPUState): void {
   if (mask.backgroundEnabled) {
     renderBackground(state);
   }
+
+  screen.drawLine(lineBuffer);
 }

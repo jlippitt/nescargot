@@ -1,1 +1,3 @@
-export default interface Screen {}
+export default interface Screen {
+  drawLine(lineBuffer: number[]): void;
+}

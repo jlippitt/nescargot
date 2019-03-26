@@ -6,6 +6,8 @@ const SCREEN_HEIGHT = 240;
 export default class CanvasScreen implements Screen {
   private ctx: CanvasRenderingContext2D;
   private image: ImageData;
+  private pixels: Uint32Array;
+  private position: number;
 
   constructor(canvas: HTMLCanvasElement) {
     const ctx = canvas.getContext('2d');
@@ -16,18 +18,21 @@ export default class CanvasScreen implements Screen {
 
     this.ctx = ctx;
     this.image = this.ctx.createImageData(SCREEN_WIDTH, SCREEN_HEIGHT);
+    this.pixels = new Uint32Array(this.image.data);
+    this.position = 0;
+  }
+
+  public drawLine(lineBuffer: number[]): void {
+    for (let i = 0; i < SCREEN_WIDTH; ++i) {
+      this.pixels[this.position++] = lineBuffer[i];
+    }
+
+    if (this.position >= SCREEN_WIDTH * SCREEN_HEIGHT) {
+      this.position = 0;
+    }
   }
 
   public update(): void {
-    const pixels = this.image.data;
-
-    for (let i = 0; i < pixels.length; ) {
-      pixels[i++] = 0x00;
-      pixels[i++] = 0x00;
-      pixels[i++] = 0x00;
-      pixels[i++] = 0xff;
-    }
-
     this.ctx.putImageData(this.image, 0, 0);
   }
 }

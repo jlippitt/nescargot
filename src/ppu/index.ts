@@ -16,6 +16,7 @@ export interface PPUOptions {
 }
 
 export interface PPUState {
+  screen: Screen;
   line: number;
   vram: VRAM;
   control: {
@@ -48,6 +49,7 @@ export default class PPU {
     this.interrupt = interrupt;
 
     this.state = {
+      screen,
       line: 0,
       vram: new VRAM(mapper),
       control: {
