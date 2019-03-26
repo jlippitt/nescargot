@@ -3,29 +3,36 @@ import { debug } from 'log';
 import { PPUState } from './index';
 
 const RENDER_WIDTH = 256;
+const RENDER_HEIGHT = 240;
+const NAME_TABLE_WIDTH = 32;
 const TILE_SIZE = 8;
 
 const lineBuffer = Array(RENDER_WIDTH).fill(0);
 
 function renderBackground(state: PPUState): void {
-  const { control, scroll, vram } = state;
+  const { control, vram } = state;
 
   const patternTable = vram.getPatternTables()[
     control.backgroundPatternTableIndex
   ];
+
   const nameTable = vram.getNameTables()[control.backgroundNameTableIndex];
+
   const palettes = vram.getPaletteTable().getBackgroundPalettes();
 
-  const y = state.line + scroll.y;
+  const nameTableX = control.backgroundNameTableIndex & 0x01;
+  const nameTableY = (control.backgroundNameTableIndex & 0x02) >> 1;
 
-  for (let i = 0; i < RENDER_WIDTH; ++i) {
-    const x = i + scroll.x;
-    const { patternIndex, paletteIndex } = nameTable.getTile(x, y);
+  for (let x = 0; x < RENDER_WIDTH; ++x) {
+    const { patternIndex, paletteIndex } = nameTable.getTile(
+      x >> 3,
+      state.line >> 3,
+    );
     const pattern = patternTable.getPattern(patternIndex);
-    const pixel = pattern[y % TILE_SIZE][x % TILE_SIZE];
+    const pixel = pattern[state.line % TILE_SIZE][x % TILE_SIZE];
 
     if (pixel > 0) {
-      lineBuffer[i] = palettes[paletteIndex][pixel];
+      lineBuffer[x] = palettes[paletteIndex][pixel];
     }
   }
 }
