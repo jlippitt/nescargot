@@ -2,6 +2,7 @@ import Interrupt from 'interrupt';
 import Mapper from 'mapper';
 import Screen from 'screen';
 
+import renderLine from './renderLine';
 import VRAM from './vram';
 
 const TICKS_PER_LINE = 341;
@@ -138,16 +139,8 @@ export default class PPU {
       this.clock -= this.ticksForCurrentLine;
       ++state.line;
 
-      if (state.line === TOTAL_LINES) {
-        // New frame
-        state.line = 0;
-        this.oddFrame = !this.oddFrame;
-        status.vblank = false;
-
-        // Ensure this is always reset at the start of a frame (don't need to
-        // check if odd or even)
-        this.ticksForCurrentLine = TICKS_PER_LINE;
-        return true;
+      if (state.line < VBLANK_LINE) {
+        renderLine(state);
       } else if (state.line === VBLANK_LINE) {
         status.vblank = true;
         if (control.nmiEnabled) {
@@ -160,6 +153,16 @@ export default class PPU {
       ) {
         // Skip a clock cycle at the end of this line
         this.ticksForCurrentLine = TICKS_PER_LINE - 1;
+      } else if (state.line === TOTAL_LINES) {
+        // New frame
+        state.line = 0;
+        this.oddFrame = !this.oddFrame;
+        status.vblank = false;
+
+        // Ensure this is always reset at the start of a frame (don't need to
+        // check if odd or even)
+        this.ticksForCurrentLine = TICKS_PER_LINE;
+        return true;
       }
     }
 
