@@ -150,6 +150,9 @@ export default class PPU {
         return true;
       } else if (state.line === VBLANK_LINE) {
         status.vblank = true;
+        if (control.nmiEnabled) {
+          this.interrupt.triggerNmi();
+        }
       } else if (
         state.line === TOTAL_LINES - 1 &&
         this.oddFrame &&
@@ -157,10 +160,6 @@ export default class PPU {
       ) {
         // Skip a clock cycle at the end of this line
         this.ticksForCurrentLine = TICKS_PER_LINE - 1;
-      }
-
-      if (status.vblank && control.nmiEnabled) {
-        this.interrupt.triggerNmi();
       }
     }
 
