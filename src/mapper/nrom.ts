@@ -27,11 +27,11 @@ export default class NROM implements Mapper {
   }
 
   public getChrByte(offset: number): number {
-    return this.rom.chrRom[(offset & 0x1000) >> 12].getByte(offset & 0x1fff);
+    return this.rom.chrRom[(offset & 0x1000) >> 12].getByte(offset & 0x0fff);
   }
 
   public setChrByte(offset: number, value: number): void {
-    this.rom.chrRom[(offset & 0x1000) >> 12].setByte(offset & 0x1fff, value);
+    this.rom.chrRom[(offset & 0x1000) >> 12].setByte(offset & 0x0fff, value);
   }
 
   public getPatternTables(): PatternTable[] {
