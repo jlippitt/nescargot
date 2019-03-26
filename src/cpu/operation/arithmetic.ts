@@ -14,16 +14,6 @@ function add(state: State, rhs: number) {
   clock.tick(2);
 }
 
-function subtract(state: State, rhs: number) {
-  const { flags, regs, clock } = state;
-  const lhs = regs.a;
-  regs.a = (lhs - rhs - (flags.carry ? 0 : 1)) & 0xff;
-  flags.setZeroAndNegative(regs.a);
-  flags.carry = regs.a <= lhs;
-  flags.overflow = ((lhs ^ regs.a) & (rhs ^ regs.a) & 0x80) !== 0;
-  clock.tick(2);
-}
-
 export const adc = (addressMode: AddressMode) => (state: State) => {
   debug(`ADC ${addressMode}`);
   const value = state.getByte(addressMode, true);
@@ -39,11 +29,11 @@ export function adcImmediate(state: State) {
 export const sbc = (addressMode: AddressMode) => (state: State) => {
   debug(`SBC ${addressMode}`);
   const value = state.getByte(addressMode, true);
-  subtract(state, value);
+  add(state, value ^ 0xff);
 };
 
 export function sbcImmediate(state: State) {
   const value = state.nextByte();
   debug(`SBC ${toHex(value, 2)}`);
-  subtract(state, value);
+  add(state, value ^ 0xff);
 }
