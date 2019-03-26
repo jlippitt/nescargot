@@ -14,62 +14,82 @@ export interface PPUOptions {
   mapper: Mapper;
 }
 
+export interface PPUState {
+  line: number;
+  vram: VRAM;
+  control: {
+    renderingEnabled: boolean;
+    nmiEnabled: boolean;
+  };
+  status: {
+    vblank: boolean;
+  };
+}
+
 export default class PPU {
   private interrupt: Interrupt;
-  private vram: VRAM;
+  private state: PPUState;
   private clock: number;
   private oddFrame: boolean;
-  private line: number;
   private ticksForCurrentLine: number;
-  private renderingEnabled: boolean;
-  private vblank: boolean;
-  private nmiEnabled: boolean;
 
   constructor({ screen, interrupt, mapper }: PPUOptions) {
     this.interrupt = interrupt;
-    this.vram = new VRAM(mapper);
+
+    this.state = {
+      line: 0,
+      vram: new VRAM(mapper),
+      control: {
+        nmiEnabled: false,
+        renderingEnabled: false,
+      },
+      status: {
+        vblank: false,
+      },
+    };
+
     this.clock = 0;
     this.oddFrame = false;
-    this.line = 0;
     this.ticksForCurrentLine = TICKS_PER_LINE;
-    this.renderingEnabled = false;
-    this.vblank = false;
-    this.nmiEnabled = false;
   }
 
   public get(offset: number): number {
+    const { vram, status } = this.state;
+
     switch (offset % 8) {
       case 2: {
-        const status = this.vblank ? 0x80 : 0x00;
+        const value = status.vblank ? 0x80 : 0x00;
         // TODO: Rest of the status
-        this.vblank = false;
-        return status;
+        status.vblank = false;
+        return value;
       }
       case 7:
-        return this.vram.getDataByte();
+        return vram.getDataByte();
       default:
         return 0;
     }
   }
 
   public set(offset: number, value: number): void {
+    const { vram, control, status } = this.state;
+
     switch (offset % 8) {
       case 0:
-        this.nmiEnabled = (value & 0x80) !== 0;
+        control.nmiEnabled = (value & 0x80) !== 0;
 
-        if (this.nmiEnabled && this.vblank) {
+        if (control.nmiEnabled && status.vblank) {
           this.interrupt.triggerNmi();
         }
 
-        this.vram.setIncrementType((value & 0x40) !== 0);
+        vram.setIncrementType((value & 0x40) !== 0);
         break;
 
       case 6:
-        this.vram.setAddressByte(value);
+        vram.setAddressByte(value);
         break;
 
       case 7:
-        this.vram.setDataByte(value);
+        vram.setDataByte(value);
     }
   }
 
@@ -77,31 +97,34 @@ export default class PPU {
     this.clock += ticks * 3;
 
     if (this.clock >= this.ticksForCurrentLine) {
-      this.clock -= this.ticksForCurrentLine;
-      ++this.line;
+      const { state } = this;
+      const { control, status } = state;
 
-      if (this.line === TOTAL_LINES) {
+      this.clock -= this.ticksForCurrentLine;
+      ++state.line;
+
+      if (state.line === TOTAL_LINES) {
         // New frame
-        this.line = 0;
+        state.line = 0;
         this.oddFrame = !this.oddFrame;
-        this.vblank = false;
+        status.vblank = false;
 
         // Ensure this is always reset at the start of a frame (don't need to
         // check if odd or even)
         this.ticksForCurrentLine = TICKS_PER_LINE;
         return true;
-      } else if (this.line === VBLANK_LINE) {
-        this.vblank = true;
+      } else if (state.line === VBLANK_LINE) {
+        status.vblank = true;
       } else if (
-        this.line === TOTAL_LINES - 1 &&
+        state.line === TOTAL_LINES - 1 &&
         this.oddFrame &&
-        this.renderingEnabled
+        control.renderingEnabled
       ) {
         // Skip a clock cycle at the end of this line
         this.ticksForCurrentLine = TICKS_PER_LINE - 1;
       }
 
-      if (this.vblank && this.nmiEnabled) {
+      if (status.vblank && control.nmiEnabled) {
         this.interrupt.triggerNmi();
       }
     }
