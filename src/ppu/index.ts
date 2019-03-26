@@ -18,8 +18,11 @@ export interface PPUState {
   line: number;
   vram: VRAM;
   control: {
-    renderingEnabled: boolean;
     nmiEnabled: boolean;
+  };
+  mask: {
+    backgroundEnabled: boolean;
+    spritesEnabled: boolean;
   };
   status: {
     vblank: boolean;
@@ -41,7 +44,10 @@ export default class PPU {
       vram: new VRAM(mapper),
       control: {
         nmiEnabled: false,
-        renderingEnabled: false,
+      },
+      mask: {
+        backgroundEnabled: false,
+        spritesEnabled: false,
       },
       status: {
         vblank: false,
@@ -71,7 +77,7 @@ export default class PPU {
   }
 
   public set(offset: number, value: number): void {
-    const { vram, control, status } = this.state;
+    const { vram, control, mask, status } = this.state;
 
     switch (offset % 8) {
       case 0:
@@ -82,6 +88,11 @@ export default class PPU {
         }
 
         vram.setIncrementType((value & 0x40) !== 0);
+        break;
+
+      case 1:
+        mask.backgroundEnabled = (value & 0x08) !== 0;
+        mask.spritesEnabled = (value & 0x10) !== 0;
         break;
 
       case 6:
@@ -98,7 +109,7 @@ export default class PPU {
 
     if (this.clock >= this.ticksForCurrentLine) {
       const { state } = this;
-      const { control, status } = state;
+      const { control, mask, status } = state;
 
       this.clock -= this.ticksForCurrentLine;
       ++state.line;
@@ -118,7 +129,7 @@ export default class PPU {
       } else if (
         state.line === TOTAL_LINES - 1 &&
         this.oddFrame &&
-        control.renderingEnabled
+        (mask.backgroundEnabled || mask.spritesEnabled)
       ) {
         // Skip a clock cycle at the end of this line
         this.ticksForCurrentLine = TICKS_PER_LINE - 1;
