@@ -12,7 +12,7 @@ export function pha(state: State) {
 export function php(state: State) {
   const { flags, clock } = state;
   debug('PHP');
-  state.pushByte(flags.toByte(false));
+  state.pushByte(flags.toByte(true));
   clock.tick(3);
 }
 
