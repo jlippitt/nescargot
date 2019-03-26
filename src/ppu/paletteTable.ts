@@ -112,10 +112,10 @@ export default class PaletteTable {
 
     if ((offset & 0x03) !== 0) {
       if ((offset & 0x10) === 0) {
-        this.backgroundPalettes[(offset & 0xc0) >> 2][offset & 0x03] =
+        this.backgroundPalettes[(offset & 0x0c) >> 2][offset & 0x03] =
           colorMap[colorIndex];
       } else {
-        this.spritePalettes[(offset & 0xc0) >> 2][offset & 0x03] =
+        this.spritePalettes[(offset & 0x0c) >> 2][offset & 0x03] =
           colorMap[colorIndex];
       }
     } else if ((offset & 0x1f) === 0) {
