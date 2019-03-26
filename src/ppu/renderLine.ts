@@ -20,9 +20,6 @@ function renderBackground(state: PPUState): void {
 
   const palettes = vram.getPaletteTable().getBackgroundPalettes();
 
-  const nameTableX = control.backgroundNameTableIndex & 0x01;
-  const nameTableY = (control.backgroundNameTableIndex & 0x02) >> 1;
-
   for (let x = 0; x < RENDER_WIDTH; ++x) {
     const { patternIndex, paletteIndex } = nameTable.getTile(
       x >> 3,
