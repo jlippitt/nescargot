@@ -1,12 +1,46 @@
+interface ButtonMap {
+  [key: string]: number;
+}
+
+// prettier-ignore
+const buttonMap: ButtonMap = {
+  'Z': 0,
+  'X': 1,
+  ' ': 2,
+  'Enter': 3,
+  'ArrowUp': 4,
+  'ArrowDown': 5,
+  'ArrowLeft': 6,
+  'ArrowRight': 7,
+  'Up': 4,
+  'Down': 5,
+  'Left': 6,
+  'Right': 7,
+};
+
 export default class Joypad {
   private buttonState: boolean[];
   private buttonIndex: number;
   private strobe: boolean;
 
   constructor() {
-    this.buttonState = Array(8).fill(0);
+    this.buttonState = Array(8).fill(false);
     this.buttonIndex = 0;
     this.strobe = false;
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('keydown', (event: KeyboardEvent) => {
+        if (buttonMap.hasOwnProperty(event.key)) {
+          this.buttonState[buttonMap[event.key]] = true;
+        }
+      });
+
+      window.addEventListener('keyup', (event: KeyboardEvent) => {
+        if (buttonMap.hasOwnProperty(event.key)) {
+          this.buttonState[buttonMap[event.key]] = false;
+        }
+      });
+    }
   }
 
   public getByte(offset: number): number {
