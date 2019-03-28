@@ -2,7 +2,7 @@ import Interrupt from 'interrupt';
 import Mapper from 'mapper';
 import Screen from 'screen';
 
-import renderLine from './renderLine';
+import Renderer from './renderer';
 import VRAM from './vram';
 
 const TICKS_PER_LINE = 341;
@@ -40,6 +40,7 @@ export interface PPUState {
 export default class PPU {
   private interrupt: Interrupt;
   private state: PPUState;
+  private renderer: Renderer;
   private clock: number;
   private oddFrame: boolean;
   private ticksForCurrentLine: number;
@@ -69,6 +70,8 @@ export default class PPU {
         y: 0,
       },
     };
+
+    this.renderer = new Renderer(screen, this.state);
 
     this.clock = 0;
     this.oddFrame = false;
@@ -141,7 +144,7 @@ export default class PPU {
       this.clock -= this.ticksForCurrentLine;
 
       if (state.line < VBLANK_LINE) {
-        renderLine(state);
+        this.renderer.renderLine();
       }
 
       ++state.line;
