@@ -23,7 +23,7 @@ export default class Renderer {
   public renderLine(): void {
     const { screen, mask, vram } = this.state;
 
-    debug(`** Rendering line ${state.line} **`);
+    debug(`** Rendering line ${this.state.line} **`);
 
     const paletteTable = vram.getPaletteTable();
 

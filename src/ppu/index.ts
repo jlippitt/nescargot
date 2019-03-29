@@ -2,6 +2,7 @@ import Interrupt from 'interrupt';
 import Mapper from 'mapper';
 import Screen from 'screen';
 
+import OAM from './oam';
 import Renderer from './renderer';
 import VRAM from './vram';
 
@@ -18,6 +19,7 @@ export interface PPUOptions {
 export interface PPUState {
   screen: Screen;
   line: number;
+  oam: OAM;
   vram: VRAM;
   control: {
     backgroundNameTableIndex: number;
@@ -52,6 +54,7 @@ export default class PPU {
     this.state = {
       screen,
       line: 0,
+      oam: new OAM(),
       vram: new VRAM(mapper),
       control: {
         backgroundNameTableIndex: 0,
@@ -80,7 +83,7 @@ export default class PPU {
   }
 
   public get(offset: number): number {
-    const { vram, status } = this.state;
+    const { oam, vram, status } = this.state;
 
     switch (offset % 8) {
       case 2: {
@@ -89,15 +92,20 @@ export default class PPU {
         status.vblank = false;
         return value;
       }
+
+      case 4:
+        return oam.getByte();
+
       case 7:
         return vram.getDataByte();
+
       default:
         return 0;
     }
   }
 
   public set(offset: number, value: number): void {
-    const { vram, control, mask, status, scroll } = this.state;
+    const { oam, vram, control, mask, status, scroll } = this.state;
 
     switch (offset % 8) {
       case 0:
@@ -115,6 +123,13 @@ export default class PPU {
         mask.backgroundEnabled = (value & 0x08) !== 0;
         mask.spritesEnabled = (value & 0x10) !== 0;
         break;
+
+      case 3:
+        oam.setAddress(value);
+        break;
+
+      case 4:
+        oam.setByte(value);
 
       case 5:
         if (this.oddScrollWrite) {
