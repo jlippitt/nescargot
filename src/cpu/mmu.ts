@@ -3,6 +3,7 @@ import { debug, toHex } from 'log';
 import Mapper from 'mapper';
 import PPU from 'ppu';
 
+import DMA from './dma';
 import Hardware from './hardware';
 
 const RAM_SIZE = 2048;
@@ -11,12 +12,14 @@ export default class MMU {
   private mapper: Mapper;
   private ppu: PPU;
   private joypad: Joypad;
+  private dma: DMA;
   private ram: Uint8Array;
 
-  constructor({ mapper, ppu, joypad }: Hardware) {
+  constructor({ mapper, ppu, joypad, dma }: Hardware) {
     this.mapper = mapper;
     this.ppu = ppu;
     this.joypad = joypad;
+    this.dma = dma;
     this.ram = new Uint8Array(RAM_SIZE);
   }
 
@@ -31,11 +34,21 @@ export default class MMU {
         value = this.ppu.get(offset);
         break;
       case 0x4000:
-        if (offset < 0x4016) {
-          // TODO: APU registers
-          value = 0;
-        } else if (offset < 0x4020) {
-          value = this.joypad.getByte(offset);
+        if (offset < 0x4020) {
+          switch (offset) {
+            case 0x4014:
+              // Cannot read DMA
+              value = 0;
+              break;
+            case 0x4016:
+            case 0x4017:
+              value = this.joypad.getByte(offset);
+              break;
+            default:
+              // TODO: APU registers
+              value = 0;
+              break;
+          }
         } else {
           value = this.mapper.getPrgByte(offset);
         }
@@ -70,10 +83,19 @@ export default class MMU {
         this.ppu.set(offset, value);
         break;
       case 0x4000:
-        if (offset < 0x4016) {
-          // TODO: APU registers
-        } else if (offset < 0x4020) {
-          this.joypad.setByte(offset, value);
+        if (offset < 0x4020) {
+          switch (offset) {
+            case 0x4014:
+              this.dma.begin(value);
+              break;
+            case 0x4016:
+            case 0x4017:
+              this.joypad.setByte(offset, value);
+              break;
+            default:
+              // TODO: APU registers
+              break;
+          }
         } else {
           this.mapper.setPrgByte(offset, value);
         }

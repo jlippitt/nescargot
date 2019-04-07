@@ -82,6 +82,10 @@ export default class PPU {
     this.oddScrollWrite = false;
   }
 
+  public getOam(): OAM {
+    return this.state.oam;
+  }
+
   public get(offset: number): number {
     const { oam, vram, status } = this.state;
 
@@ -94,7 +98,7 @@ export default class PPU {
       }
 
       case 4:
-        return oam.getByte();
+        return oam.getDataByte();
 
       case 7:
         return vram.getDataByte();
@@ -125,11 +129,11 @@ export default class PPU {
         break;
 
       case 3:
-        oam.setAddress(value);
+        oam.setAddressByte(value);
         break;
 
       case 4:
-        oam.setByte(value);
+        oam.setDataByte(value);
 
       case 5:
         if (this.oddScrollWrite) {

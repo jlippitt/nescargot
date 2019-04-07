@@ -1,4 +1,5 @@
 import CPU from 'cpu';
+import DMA from 'cpu/dma';
 import Interrupt from 'interrupt';
 import Joypad from 'joypad';
 import { createMapper } from 'mapper';
@@ -21,6 +22,7 @@ export function createHardware({ romData, screen }: Options): Hardware {
   const interrupt = new Interrupt();
   const ppu = new PPU({ screen, interrupt, mapper });
   const joypad = new Joypad();
-  const cpu = new CPU({ mapper, interrupt, ppu, joypad });
+  const dma = new DMA(ppu.getOam(), interrupt);
+  const cpu = new CPU({ mapper, interrupt, ppu, joypad, dma });
   return { cpu, ppu, joypad };
 }

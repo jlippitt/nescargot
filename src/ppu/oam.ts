@@ -2,7 +2,8 @@ import { times } from 'lodash';
 import { debug, toHex } from 'log';
 
 const NUM_SPRITES = 64;
-const RAM_SIZE = NUM_SPRITES * 4;
+
+export const OAM_SIZE = NUM_SPRITES * 4;
 
 export enum Priority {
   Front,
@@ -26,7 +27,7 @@ export default class OAM {
   private address: number;
 
   constructor() {
-    this.ram = Array(RAM_SIZE).fill(0);
+    this.ram = Array(OAM_SIZE).fill(0);
 
     this.sprites = times(NUM_SPRITES, () => ({
       x: 0,
@@ -42,26 +43,31 @@ export default class OAM {
     this.address = 0;
   }
 
-  public setAddress(value: number): void {
+  public setAddressByte(value: number): void {
     debug(`OAM Address: ${toHex(value, 2)}`);
     this.address = value;
   }
 
-  public getByte(): number {
+  public getDataByte(): number {
     // Note: Reads do not increment address
     const value = this.ram[this.address];
     debug(`OAM Read: ${toHex(this.address, 2)} => ${toHex(value, 2)}`);
     return value;
   }
 
-  public setByte(value: number): void {
-    debug(`OAM Write: ${toHex(this.address, 2)} <= ${toHex(value, 2)}`);
+  public setDataByte(value: number): void {
+    this.setDmaByte(this.address, value);
+    this.address = (this.address + 1) & OAM_SIZE;
+  }
 
-    this.ram[this.address] = value;
+  public setDmaByte(offset: number, value: number): void {
+    debug(`OAM Write: ${toHex(offset, 2)} <= ${toHex(value, 2)}`);
 
-    const sprite = this.sprites[(this.address >> 2) & NUM_SPRITES];
+    this.ram[offset] = value;
 
-    switch (this.address & 0x03) {
+    const sprite = this.sprites[(offset >> 2) & NUM_SPRITES];
+
+    switch (offset & 0x03) {
       case 0:
         sprite.y = value;
         break;
@@ -81,7 +87,5 @@ export default class OAM {
       default:
       // Can't happen
     }
-
-    this.address = (this.address + 1) & RAM_SIZE;
   }
 }
