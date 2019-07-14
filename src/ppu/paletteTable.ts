@@ -101,6 +101,10 @@ export default class PaletteTable {
     return this.backgroundPalettes;
   }
 
+  public getSpritePalettes(): Palette[] {
+    return this.spritePalettes;
+  }
+
   public getByte(offset: number): number {
     return this.ram[offset];
   }

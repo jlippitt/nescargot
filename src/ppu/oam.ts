@@ -14,7 +14,7 @@ export interface Sprite {
   x: number;
   y: number;
   patternTableIndex: number;
-  tileIndex: number;
+  patternIndex: number;
   paletteIndex: number;
   priority: Priority;
   flipX: boolean;
@@ -33,7 +33,7 @@ export default class OAM {
       x: 0,
       y: 0,
       patternTableIndex: 0,
-      tileIndex: 0,
+      patternIndex: 0,
       paletteIndex: 0,
       priority: Priority.Front,
       flipX: false,
@@ -73,7 +73,7 @@ export default class OAM {
         break;
       case 1:
         sprite.patternTableIndex = value & 0x01;
-        sprite.tileIndex = value & 0xfe;
+        sprite.patternIndex = value & 0xfe;
         break;
       case 2:
         sprite.paletteIndex = value & 0x03;
@@ -87,5 +87,9 @@ export default class OAM {
       default:
       // Can't happen
     }
+  }
+
+  public getSprites(): Sprite[] {
+    return this.sprites;
   }
 }
