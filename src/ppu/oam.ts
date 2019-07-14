@@ -63,7 +63,7 @@ export default class OAM {
 
     this.ram[offset] = value;
 
-    const sprite = this.sprites[(offset >> 2) & NUM_SPRITES];
+    const sprite = this.sprites[(offset & 0xff) >> 2];
 
     switch (offset & 0x03) {
       case 0:
