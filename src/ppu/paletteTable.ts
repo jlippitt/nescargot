@@ -1,3 +1,4 @@
+import { times } from 'lodash';
 import { debug, toHex } from 'log';
 
 export type Color = number;
@@ -91,8 +92,8 @@ export default class PaletteTable {
   constructor() {
     this.ram = Array(32).fill(0);
     this.backgroundColor = 0;
-    this.backgroundPalettes = Array(4).fill([0, 0, 0, 0]);
-    this.spritePalettes = Array(4).fill([0, 0, 0, 0]);
+    this.backgroundPalettes = times(4, () => [0, 0, 0, 0]);
+    this.spritePalettes = times(4, () => [0, 0, 0, 0]);
   }
 
   public getBackgroundColor(): Color {
