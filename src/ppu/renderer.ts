@@ -131,7 +131,7 @@ export default class Renderer {
       const sprite = this.selectedSprites[i];
 
       if (!sprite) {
-        break;
+        continue;
       }
 
       const patternTable = patternTables[control.spritePatternTableIndex];
