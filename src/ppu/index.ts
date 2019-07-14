@@ -32,6 +32,7 @@ export interface PPUState {
   };
   status: {
     vblank: boolean;
+    spriteHit: boolean;
   };
   scroll: {
     x: number;
@@ -67,6 +68,7 @@ export default class PPU {
       },
       status: {
         vblank: false,
+        spriteHit: false,
       },
       scroll: {
         x: 0,
@@ -163,7 +165,8 @@ export default class PPU {
       this.clock -= this.ticksForCurrentLine;
 
       if (state.line < VBLANK_LINE) {
-        this.renderer.renderLine();
+        const spriteHit = this.renderer.renderLine();
+        status.spriteHit = status.spriteHit || spriteHit;
       }
 
       ++state.line;
@@ -185,6 +188,7 @@ export default class PPU {
         state.line = 0;
         this.oddFrame = !this.oddFrame;
         status.vblank = false;
+        status.spriteHit = false;
 
         // Ensure this is always reset at the start of a frame (don't need to
         // check if odd or even)

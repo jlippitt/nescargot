@@ -33,7 +33,7 @@ export default class Renderer {
     this.priorityBuffer = Array(RENDER_WIDTH).fill(undefined);
   }
 
-  public renderLine(): void {
+  public renderLine(): boolean {
     const { screen, mask, vram } = this.state;
 
     debug(`** Rendering line ${this.state.line} **`);
@@ -47,13 +47,18 @@ export default class Renderer {
       this.renderBackground();
     }
 
+    let spriteHit = false;
+
     if (mask.spritesEnabled) {
       this.selectSprites();
       this.renderSprites();
       this.combineSpritesWithBackground();
+      spriteHit = this.detectSpriteHit();
     }
 
     this.screen.drawLine(this.lineBuffer);
+
+    return spriteHit;
   }
 
   private renderBackground(): void {
@@ -163,5 +168,29 @@ export default class Renderer {
           break;
       }
     }
+  }
+
+  private detectSpriteHit(): boolean {
+    const { line, oam, vram } = this.state;
+
+    const sprite = oam.getSprites()[0];
+
+    if (!isOnLine(sprite, line) || sprite.x === 255) {
+      return false;
+    }
+
+    const patternTables = vram.getPatternTables();
+    const patternTable = patternTables[sprite.patternTableIndex];
+    const pattern = patternTable.getPattern(sprite.patternIndex);
+
+    const y = line - sprite.y;
+
+    for (let x = 0; x < TILE_SIZE; ++x) {
+      if (this.opacityBuffer[sprite.x + x] && pattern[y][x] > 0) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }
