@@ -93,7 +93,8 @@ export default class PPU {
 
     switch (offset % 8) {
       case 2: {
-        const value = status.vblank ? 0x80 : 0x00;
+        let value = status.vblank ? 0x80 : 0x00;
+        value |= status.spriteHit ? 0x40 : 0x00;
         // TODO: Rest of the status
         status.vblank = false;
         return value;
