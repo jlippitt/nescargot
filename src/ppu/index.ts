@@ -99,7 +99,7 @@ export default class PPU {
         value |= status.spriteHit ? 0x40 : 0x00;
         // TODO: Rest of the status
         status.vblank = false;
-        vram.resetAddressByte();
+        vram.resetAddressLatch();
         return value;
       }
 

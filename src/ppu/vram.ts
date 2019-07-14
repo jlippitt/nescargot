@@ -11,14 +11,14 @@ const VERTICAL_INCREMENT = 32;
 export default class VRAM {
   private mapper: Mapper;
   private address: number;
-  private addressByteIndex: number;
+  private addressLatch: boolean;
   private incrementAmount: number;
   private paletteTable: PaletteTable;
 
   constructor(mapper: Mapper) {
     this.mapper = mapper;
     this.address = 0x0000;
-    this.addressByteIndex = 0;
+    this.addressLatch = false;
     this.incrementAmount = HORIZONTAL_INCREMENT;
     this.paletteTable = new PaletteTable();
   }
@@ -40,29 +40,21 @@ export default class VRAM {
     debug(`VRAM Increment: ${this.incrementAmount}`);
   }
 
-  public resetAddressByte(): void {
-    this.addressByteIndex = 0;
+  public resetAddressLatch(): void {
+    this.addressLatch = false;
   }
 
   public setAddressByte(value: number): void {
     // 16-bit address is set by writing two 8-bit values separately
-    switch (this.addressByteIndex) {
-      case 0:
-        // Set high byte
-        this.address = (value & 0x3f) << 8;
-        ++this.addressByteIndex;
-        break;
-
-      case 1:
-        // Set low byte
-        this.address |= value;
-        ++this.addressByteIndex;
-        break;
-
-      default:
-        // Do nothing
-        break;
+    if (this.addressLatch) {
+      // Set low byte
+      this.address = (this.address & 0x3f00) | value;
+    } else {
+      // Set high byte
+      this.address = (this.address & 0xff) | ((value & 0x3f) << 8);
     }
+
+    this.addressLatch = !this.addressLatch;
 
     debug(`VRAM Address: ${toHex(this.address, 4)}`);
   }
