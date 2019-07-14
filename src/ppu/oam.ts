@@ -69,7 +69,7 @@ export default class OAM {
 
     switch (offset & 0x03) {
       case 0:
-        sprite.y = value;
+        sprite.y = value + 1;
         break;
       case 1:
         sprite.patternTableIndex = value & 0x01;
