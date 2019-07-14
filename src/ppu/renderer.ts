@@ -119,7 +119,7 @@ export default class Renderer {
   }
 
   private renderSprites(): void {
-    const { line, vram } = this.state;
+    const { control, line, vram } = this.state;
 
     this.spriteBuffer.fill(0);
     this.priorityBuffer.fill(undefined);
@@ -134,7 +134,7 @@ export default class Renderer {
         break;
       }
 
-      const patternTable = patternTables[sprite.patternTableIndex];
+      const patternTable = patternTables[control.spritePatternTableIndex];
       const pattern = patternTable.getPattern(sprite.patternIndex);
       const palette = palettes[sprite.paletteIndex];
 
@@ -171,7 +171,7 @@ export default class Renderer {
   }
 
   private detectSpriteHit(): boolean {
-    const { line, oam, vram } = this.state;
+    const { control, line, oam, vram } = this.state;
 
     const sprite = oam.getSprites()[0];
 
@@ -180,7 +180,7 @@ export default class Renderer {
     }
 
     const patternTables = vram.getPatternTables();
-    const patternTable = patternTables[sprite.patternTableIndex];
+    const patternTable = patternTables[control.spritePatternTableIndex];
     const pattern = patternTable.getPattern(sprite.patternIndex);
 
     const y = line - sprite.y;

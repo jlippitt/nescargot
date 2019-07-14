@@ -13,7 +13,6 @@ export enum Priority {
 export interface Sprite {
   x: number;
   y: number;
-  patternTableIndex: number;
   patternIndex: number;
   paletteIndex: number;
   priority: Priority;
@@ -32,7 +31,6 @@ export default class OAM {
     this.sprites = times(NUM_SPRITES, () => ({
       x: 0,
       y: 0,
-      patternTableIndex: 0,
       patternIndex: 0,
       paletteIndex: 0,
       priority: Priority.Front,
@@ -72,8 +70,7 @@ export default class OAM {
         sprite.y = value + 1;
         break;
       case 1:
-        sprite.patternTableIndex = value & 0x01;
-        sprite.patternIndex = value & 0xfe;
+        sprite.patternIndex = value;
         break;
       case 2:
         sprite.paletteIndex = value & 0x03;

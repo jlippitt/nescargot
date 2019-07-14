@@ -24,6 +24,7 @@ export interface PPUState {
   control: {
     backgroundNameTableIndex: number;
     backgroundPatternTableIndex: number;
+    spritePatternTableIndex: number;
     nmiEnabled: boolean;
   };
   mask: {
@@ -60,6 +61,7 @@ export default class PPU {
       control: {
         backgroundNameTableIndex: 0,
         backgroundPatternTableIndex: 0,
+        spritePatternTableIndex: 0,
         nmiEnabled: false,
       },
       mask: {
@@ -118,6 +120,7 @@ export default class PPU {
       case 0:
         control.backgroundNameTableIndex = value & 0x03;
         vram.setIncrementType((value & 0x04) !== 0);
+        control.spritePatternTableIndex = (value & 0x08) >> 4;
         control.backgroundPatternTableIndex = (value & 0x10) >> 4;
         control.nmiEnabled = (value & 0x80) !== 0;
 
