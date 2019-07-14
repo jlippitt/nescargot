@@ -1,3 +1,5 @@
+import { debug, toHex } from 'log';
+
 export type Color = number;
 
 export type Palette = Color[];
@@ -110,6 +112,8 @@ export default class PaletteTable {
   }
 
   public setByte(offset: number, value: number) {
+    debug(`Palette Write: ${toHex(offset, 4)} <= ${toHex(value, 2)}`);
+
     const colorIndex = value & 0x3f;
 
     this.ram[offset] = colorIndex;
