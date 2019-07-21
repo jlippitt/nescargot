@@ -22,7 +22,8 @@ export interface PPUState {
   oam: OAM;
   vram: VRAM;
   control: {
-    backgroundNameTableIndex: number;
+    backgroundNameTableX: number;
+    backgroundNameTableY: number;
     backgroundPatternTableIndex: number;
     spritePatternTableIndex: number;
     nmiEnabled: boolean;
@@ -59,7 +60,8 @@ export default class PPU {
       oam: new OAM(),
       vram: new VRAM(mapper),
       control: {
-        backgroundNameTableIndex: 0,
+        backgroundNameTableX: 0,
+        backgroundNameTableY: 0,
         backgroundPatternTableIndex: 0,
         spritePatternTableIndex: 0,
         nmiEnabled: false,
@@ -119,7 +121,8 @@ export default class PPU {
 
     switch (offset % 8) {
       case 0:
-        control.backgroundNameTableIndex = value & 0x03;
+        control.backgroundNameTableX = value & 0x01;
+        control.backgroundNameTableY = (value & 0x02) >> 1;
         vram.setIncrementType((value & 0x04) !== 0);
         control.spritePatternTableIndex = (value & 0x08) >> 3;
         control.backgroundPatternTableIndex = (value & 0x10) >> 4;
@@ -144,7 +147,8 @@ export default class PPU {
 
       case 5:
         if (this.oddScrollWrite) {
-          scroll.y = value;
+          // TODO: It's possible for scrollY to be negative (sort of?)
+          scroll.y = value & 0xef;
         } else {
           scroll.x = value;
         }
