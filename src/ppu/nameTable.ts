@@ -49,9 +49,9 @@ export default class NameTable {
 
           if ((x & 0x02) === 0 && (y & 0x02) === 0) {
             tile.paletteIndex = value & 0x03;
-          } else if ((x & 0x02) === 0) {
-            tile.paletteIndex = (value & 0x0c) >> 2;
           } else if ((y & 0x02) === 0) {
+            tile.paletteIndex = (value & 0x0c) >> 2;
+          } else if ((x & 0x02) === 0) {
             tile.paletteIndex = (value & 0x30) >> 4;
           } else {
             tile.paletteIndex = (value & 0xc0) >> 6;
