@@ -109,7 +109,7 @@ export default class PaletteTable {
   }
 
   public getByte(offset: number): number {
-    return this.ram[offset];
+    return this.ram[offset & 0x1f];
   }
 
   public setByte(offset: number, value: number) {
@@ -117,7 +117,7 @@ export default class PaletteTable {
 
     const colorIndex = value & 0x3f;
 
-    this.ram[offset] = colorIndex;
+    this.ram[offset & 0x1f] = colorIndex;
 
     if ((offset & 0x03) !== 0) {
       if ((offset & 0x10) === 0) {
