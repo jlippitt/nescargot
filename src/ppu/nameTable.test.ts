@@ -21,29 +21,29 @@ describe('setByte', () => {
   });
 
   it('should set the palette for a 4x4 tile area when address is >= 0x03c0', () => {
-    // Address 18. Should correspond to (2,2), or block (8-11,8-11).
-    nameTable.setByte(0x03d2, 0xe9);
+    // Address 17. Should correspond to (1,2), or block (4-7,8-11).
+    nameTable.setByte(0x03d1, 0xe9);
 
     // Expecting:
     // - Top left = 1
     // - Top right = 2
     // - Bottom left = 2
     // - Bottom right = 3
-    expect(nameTable.getTile(8, 8).paletteIndex).toBe(1);
-    expect(nameTable.getTile(8, 9).paletteIndex).toBe(1);
-    expect(nameTable.getTile(8, 10).paletteIndex).toBe(2);
-    expect(nameTable.getTile(8, 11).paletteIndex).toBe(2);
-    expect(nameTable.getTile(9, 8).paletteIndex).toBe(1);
-    expect(nameTable.getTile(9, 9).paletteIndex).toBe(1);
-    expect(nameTable.getTile(9, 10).paletteIndex).toBe(2);
-    expect(nameTable.getTile(9, 11).paletteIndex).toBe(2);
-    expect(nameTable.getTile(10, 8).paletteIndex).toBe(2);
-    expect(nameTable.getTile(10, 9).paletteIndex).toBe(2);
-    expect(nameTable.getTile(10, 10).paletteIndex).toBe(3);
-    expect(nameTable.getTile(10, 11).paletteIndex).toBe(3);
-    expect(nameTable.getTile(11, 8).paletteIndex).toBe(2);
-    expect(nameTable.getTile(11, 9).paletteIndex).toBe(2);
-    expect(nameTable.getTile(11, 10).paletteIndex).toBe(3);
-    expect(nameTable.getTile(11, 11).paletteIndex).toBe(3);
+    expect(nameTable.getTile(4, 8).paletteIndex).toBe(1);
+    expect(nameTable.getTile(4, 9).paletteIndex).toBe(1);
+    expect(nameTable.getTile(4, 10).paletteIndex).toBe(2);
+    expect(nameTable.getTile(4, 11).paletteIndex).toBe(2);
+    expect(nameTable.getTile(5, 8).paletteIndex).toBe(1);
+    expect(nameTable.getTile(5, 9).paletteIndex).toBe(1);
+    expect(nameTable.getTile(5, 10).paletteIndex).toBe(2);
+    expect(nameTable.getTile(5, 11).paletteIndex).toBe(2);
+    expect(nameTable.getTile(6, 8).paletteIndex).toBe(2);
+    expect(nameTable.getTile(6, 9).paletteIndex).toBe(2);
+    expect(nameTable.getTile(6, 10).paletteIndex).toBe(3);
+    expect(nameTable.getTile(6, 11).paletteIndex).toBe(3);
+    expect(nameTable.getTile(7, 8).paletteIndex).toBe(2);
+    expect(nameTable.getTile(7, 9).paletteIndex).toBe(2);
+    expect(nameTable.getTile(7, 10).paletteIndex).toBe(3);
+    expect(nameTable.getTile(7, 11).paletteIndex).toBe(3);
   });
 });
