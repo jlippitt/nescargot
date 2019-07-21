@@ -11,7 +11,7 @@ const rgbToColor = ([red, green, blue]: RGB): Color =>
   (red << 24) | (green << 16) | (blue << 8) | 0xff;
 
 export const colorToRgb = (color: Color) => [
-  color >> 24,
+  ((color >> 24) + 256) % 256,
   (color & 0xff0000) >> 16,
   (color & 0xff00) >> 8,
 ];
