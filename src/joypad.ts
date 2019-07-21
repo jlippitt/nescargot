@@ -4,8 +4,8 @@ interface ButtonMap {
 
 // prettier-ignore
 const buttonMap: ButtonMap = {
-  'Z': 0,
-  'X': 1,
+  'z': 0,
+  'x': 1,
   ' ': 2,
   'Enter': 3,
   'ArrowUp': 4,
