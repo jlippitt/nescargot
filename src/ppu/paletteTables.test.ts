@@ -132,4 +132,32 @@ describe('setByte', () => {
     expect(colorToRgb(palette[2])).toEqual([8, 124, 0]);
     expect(colorToRgb(palette[3])).toEqual([48, 50, 236]);
   });
+
+  it('should mirror RAM writes for 0x3f00 to 0x3f10', () => {
+    paletteTable.setByte(0x3f00, 1);
+    expect(paletteTable.getByte(0x3f10)).toBe(1);
+    paletteTable.setByte(0x3f10, 2);
+    paletteTable.setByte(0x3f00, 2);
+  });
+
+  it('should mirror RAM writes for 0x3f04 to 0x3f14', () => {
+    paletteTable.setByte(0x3f04, 1);
+    expect(paletteTable.getByte(0x3f14)).toBe(1);
+    paletteTable.setByte(0x3f14, 2);
+    paletteTable.setByte(0x3f04, 2);
+  });
+
+  it('should mirror RAM writes for 0x3f04 to 0x3f18', () => {
+    paletteTable.setByte(0x3f08, 1);
+    expect(paletteTable.getByte(0x3f18)).toBe(1);
+    paletteTable.setByte(0x3f18, 2);
+    paletteTable.setByte(0x3f08, 2);
+  });
+
+  it('should mirror RAM writes for 0x3f0c to 0x3f1c', () => {
+    paletteTable.setByte(0x3f0c, 1);
+    expect(paletteTable.getByte(0x3f1c)).toBe(1);
+    paletteTable.setByte(0x3f1c, 2);
+    paletteTable.setByte(0x3f0c, 2);
+  });
 });

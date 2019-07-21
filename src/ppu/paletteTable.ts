@@ -115,15 +115,17 @@ export default class PaletteTable {
   }
 
   public getByte(offset: number): number {
-    return this.ram[offset & 0x1f];
+    if ((offset & 0x03) !== 0) {
+      return this.ram[offset & 0x1f];
+    } else {
+      return this.ram[offset & 0x0f];
+    }
   }
 
   public setByte(offset: number, value: number) {
     debug(`Palette Write: ${toHex(offset, 4)} <= ${toHex(value, 2)}`);
 
     const colorIndex = value & 0x3f;
-
-    this.ram[offset & 0x1f] = colorIndex;
 
     if ((offset & 0x03) !== 0) {
       if ((offset & 0x10) === 0) {
@@ -133,8 +135,14 @@ export default class PaletteTable {
         this.spritePalettes[(offset & 0x0c) >> 2][offset & 0x03] =
           colorMap[colorIndex];
       }
-    } else if ((offset & 0x0f) === 0) {
-      this.backgroundColor = colorMap[colorIndex];
+
+      this.ram[offset & 0x1f] = colorIndex;
+    } else {
+      if ((offset & 0x0f) === 0) {
+        this.backgroundColor = colorMap[colorIndex];
+      }
+
+      this.ram[offset & 0x0f] = colorIndex;
     }
   }
 }
