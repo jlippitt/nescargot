@@ -14,6 +14,9 @@ const SPRITES_PER_LINE = 8;
 const isOnLine = (sprite: Sprite, line: number) =>
   line >= sprite.y && line < sprite.y + TILE_SIZE;
 
+const flip = (shouldFlip: boolean, pixel: number) =>
+  shouldFlip ? TILE_SIZE - pixel - 1 : pixel;
+
 export default class Renderer {
   private screen: Screen;
   private state: PPUState;
@@ -138,10 +141,12 @@ export default class Renderer {
       const pattern = patternTable.getPattern(sprite.patternIndex);
       const palette = palettes[sprite.paletteIndex];
 
-      const y = line - sprite.y;
+      const spriteY = flip(sprite.flipY, line - sprite.y);
 
       for (let x = 0; x < TILE_SIZE; ++x) {
-        const pixel = pattern[y][x];
+        const spriteX = flip(sprite.flipX, x);
+
+        const pixel = pattern[spriteY][spriteX];
 
         if (pixel > 0) {
           const bufferIndex = sprite.x + x;
@@ -183,10 +188,12 @@ export default class Renderer {
     const patternTable = patternTables[control.spritePatternTableIndex];
     const pattern = patternTable.getPattern(sprite.patternIndex);
 
-    const y = line - sprite.y;
+    const spriteY = flip(sprite.flipY, line - sprite.y);
 
     for (let x = 0; x < TILE_SIZE; ++x) {
-      if (this.opacityBuffer[sprite.x + x] && pattern[y][x] > 0) {
+      const spriteX = flip(sprite.flipX, x);
+
+      if (this.opacityBuffer[sprite.x + x] && pattern[spriteY][spriteX] > 0) {
         return true;
       }
     }
