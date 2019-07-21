@@ -1,3 +1,5 @@
+import { Color } from 'ppu/paletteTable';
+
 export default interface Screen {
-  drawLine(lineBuffer: number[]): void;
+  drawLine(lineBuffer: Color[]): void;
 }

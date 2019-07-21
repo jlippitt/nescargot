@@ -1,4 +1,4 @@
-import PaletteTable, { colorToRgb } from './paletteTable';
+import PaletteTable from './paletteTable';
 
 let paletteTable: PaletteTable;
 
@@ -16,17 +16,13 @@ describe('setByte', () => {
   it('should set the background color at 0x3f00', () => {
     // Light blue
     paletteTable.setByte(0x3f00, 0x21);
-    expect(colorToRgb(paletteTable.getBackgroundColor())).toEqual([
-      76,
-      154,
-      236,
-    ]);
+    expect(paletteTable.getBackgroundColor()).toEqual([76, 154, 236]);
   });
 
   it('should set the background color at 0x3f10', () => {
     // Medium blue
     paletteTable.setByte(0x3f10, 0x11);
-    expect(colorToRgb(paletteTable.getBackgroundColor())).toEqual([8, 76, 196]);
+    expect(paletteTable.getBackgroundColor()).toEqual([8, 76, 196]);
   });
 
   it('should set background palette 0 at 0x3f01-0x3f03', () => {
@@ -37,9 +33,9 @@ describe('setByte', () => {
 
     const palette = paletteTable.getBackgroundPalettes()[0];
 
-    expect(colorToRgb(palette[1])).toEqual([152, 34, 32]);
-    expect(colorToRgb(palette[2])).toEqual([8, 124, 0]);
-    expect(colorToRgb(palette[3])).toEqual([48, 50, 236]);
+    expect(palette[1]).toEqual([152, 34, 32]);
+    expect(palette[2]).toEqual([8, 124, 0]);
+    expect(palette[3]).toEqual([48, 50, 236]);
   });
 
   it('should set background palette 1 at 0x3f05-0x3f07', () => {
@@ -50,9 +46,9 @@ describe('setByte', () => {
 
     const palette = paletteTable.getBackgroundPalettes()[1];
 
-    expect(colorToRgb(palette[1])).toEqual([152, 34, 32]);
-    expect(colorToRgb(palette[2])).toEqual([8, 124, 0]);
-    expect(colorToRgb(palette[3])).toEqual([48, 50, 236]);
+    expect(palette[1]).toEqual([152, 34, 32]);
+    expect(palette[2]).toEqual([8, 124, 0]);
+    expect(palette[3]).toEqual([48, 50, 236]);
   });
 
   it('should set background palette 2 at 0x3f09-0x3f0b', () => {
@@ -63,9 +59,9 @@ describe('setByte', () => {
 
     const palette = paletteTable.getBackgroundPalettes()[2];
 
-    expect(colorToRgb(palette[1])).toEqual([152, 34, 32]);
-    expect(colorToRgb(palette[2])).toEqual([8, 124, 0]);
-    expect(colorToRgb(palette[3])).toEqual([48, 50, 236]);
+    expect(palette[1]).toEqual([152, 34, 32]);
+    expect(palette[2]).toEqual([8, 124, 0]);
+    expect(palette[3]).toEqual([48, 50, 236]);
   });
 
   it('should set sprite palette 3 at 0x3f0d-0x3f0f', () => {
@@ -76,9 +72,9 @@ describe('setByte', () => {
 
     const palette = paletteTable.getBackgroundPalettes()[3];
 
-    expect(colorToRgb(palette[1])).toEqual([152, 34, 32]);
-    expect(colorToRgb(palette[2])).toEqual([8, 124, 0]);
-    expect(colorToRgb(palette[3])).toEqual([48, 50, 236]);
+    expect(palette[1]).toEqual([152, 34, 32]);
+    expect(palette[2]).toEqual([8, 124, 0]);
+    expect(palette[3]).toEqual([48, 50, 236]);
   });
 
   it('should set sprite palette 0 at 0x3f11-0x3f13', () => {
@@ -89,9 +85,9 @@ describe('setByte', () => {
 
     const palette = paletteTable.getSpritePalettes()[0];
 
-    expect(colorToRgb(palette[1])).toEqual([152, 34, 32]);
-    expect(colorToRgb(palette[2])).toEqual([8, 124, 0]);
-    expect(colorToRgb(palette[3])).toEqual([48, 50, 236]);
+    expect(palette[1]).toEqual([152, 34, 32]);
+    expect(palette[2]).toEqual([8, 124, 0]);
+    expect(palette[3]).toEqual([48, 50, 236]);
   });
 
   it('should set sprite palette 1 at 0x3f15-0x3f17', () => {
@@ -102,9 +98,9 @@ describe('setByte', () => {
 
     const palette = paletteTable.getSpritePalettes()[1];
 
-    expect(colorToRgb(palette[1])).toEqual([152, 34, 32]);
-    expect(colorToRgb(palette[2])).toEqual([8, 124, 0]);
-    expect(colorToRgb(palette[3])).toEqual([48, 50, 236]);
+    expect(palette[1]).toEqual([152, 34, 32]);
+    expect(palette[2]).toEqual([8, 124, 0]);
+    expect(palette[3]).toEqual([48, 50, 236]);
   });
 
   it('should set sprite palette 2 at 0x3f19-0x3f1b', () => {
@@ -115,9 +111,9 @@ describe('setByte', () => {
 
     const palette = paletteTable.getSpritePalettes()[2];
 
-    expect(colorToRgb(palette[1])).toEqual([152, 34, 32]);
-    expect(colorToRgb(palette[2])).toEqual([8, 124, 0]);
-    expect(colorToRgb(palette[3])).toEqual([48, 50, 236]);
+    expect(palette[1]).toEqual([152, 34, 32]);
+    expect(palette[2]).toEqual([8, 124, 0]);
+    expect(palette[3]).toEqual([48, 50, 236]);
   });
 
   it('should set sprite palette 3 at 0x3f1d-0x3f1f', () => {
@@ -128,9 +124,9 @@ describe('setByte', () => {
 
     const palette = paletteTable.getSpritePalettes()[3];
 
-    expect(colorToRgb(palette[1])).toEqual([152, 34, 32]);
-    expect(colorToRgb(palette[2])).toEqual([8, 124, 0]);
-    expect(colorToRgb(palette[3])).toEqual([48, 50, 236]);
+    expect(palette[1]).toEqual([152, 34, 32]);
+    expect(palette[2]).toEqual([8, 124, 0]);
+    expect(palette[3]).toEqual([48, 50, 236]);
   });
 
   it('should mirror RAM writes for 0x3f00 to 0x3f10', () => {

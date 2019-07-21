@@ -1,22 +1,11 @@
 import { times } from 'lodash';
 import { debug, toHex } from 'log';
 
-export type Color = number;
+export type Color = [number, number, number];
 
 export type Palette = Color[];
 
-export type RGB = [number, number, number];
-
-const rgbToColor = ([red, green, blue]: RGB): Color =>
-  (red << 24) | (green << 16) | (blue << 8) | 0xff;
-
-export const colorToRgb = (color: Color) => [
-  ((color >> 24) + 256) % 256,
-  (color & 0xff0000) >> 16,
-  (color & 0xff00) >> 8,
-];
-
-const rgbMap: RGB[] = [
+const colorMap: Color[] = [
   // Dark
   [84, 84, 84],
   [0, 30, 116],
@@ -87,8 +76,6 @@ const rgbMap: RGB[] = [
   [0, 0, 0],
 ];
 
-const colorMap = rgbMap.map(rgbToColor);
-
 export default class PaletteTable {
   private ram: number[];
   private backgroundColor: Color;
@@ -97,9 +84,9 @@ export default class PaletteTable {
 
   constructor() {
     this.ram = Array(32).fill(0);
-    this.backgroundColor = 0;
-    this.backgroundPalettes = times(4, () => [0, 0, 0, 0]);
-    this.spritePalettes = times(4, () => [0, 0, 0, 0]);
+    this.backgroundColor = colorMap[0];
+    this.backgroundPalettes = times(4, () => Array(4).fill(colorMap[0]));
+    this.spritePalettes = times(4, () => Array(4).fill(colorMap[0]));
   }
 
   public getBackgroundColor(): Color {

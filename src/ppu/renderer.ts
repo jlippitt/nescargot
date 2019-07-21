@@ -29,10 +29,10 @@ export default class Renderer {
   constructor(screen: Screen, state: PPUState) {
     this.screen = screen;
     this.state = state;
-    this.lineBuffer = Array(RENDER_WIDTH).fill(0);
+    this.lineBuffer = Array(RENDER_WIDTH).fill([0, 0, 0]);
     this.opacityBuffer = Array(RENDER_WIDTH).fill(false);
     this.selectedSprites = Array(SPRITES_PER_LINE).fill(undefined);
-    this.spriteBuffer = Array(RENDER_WIDTH).fill(0);
+    this.spriteBuffer = Array(RENDER_WIDTH).fill([0, 0, 0]);
     this.priorityBuffer = Array(RENDER_WIDTH).fill(undefined);
   }
 
@@ -133,7 +133,7 @@ export default class Renderer {
   private renderSprites(): void {
     const { control, line, vram } = this.state;
 
-    this.spriteBuffer.fill(0);
+    this.spriteBuffer.fill([0, 0, 0]);
     this.priorityBuffer.fill(undefined);
 
     const patternTables = vram.getPatternTables();

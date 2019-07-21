@@ -1,3 +1,5 @@
+import { Color } from 'ppu/paletteTable';
+
 import Screen from './index';
 
 const SCREEN_WIDTH = 256;
@@ -20,14 +22,14 @@ export default class CanvasScreen implements Screen {
     this.position = 0;
   }
 
-  public drawLine(lineBuffer: number[]): void {
+  public drawLine(lineBuffer: Color[]): void {
     const imageData = this.image.data;
 
     for (let i = 0; i < SCREEN_WIDTH; ++i) {
-      imageData[this.position++] = (lineBuffer[i] & 0xff000000) >> 24;
-      imageData[this.position++] = (lineBuffer[i] & 0x00ff0000) >> 16;
-      imageData[this.position++] = (lineBuffer[i] & 0x0000ff00) >> 8;
-      imageData[this.position++] = lineBuffer[i] & 0x000000ff;
+      imageData[this.position++] = lineBuffer[i][0];
+      imageData[this.position++] = lineBuffer[i][1];
+      imageData[this.position++] = lineBuffer[i][2];
+      imageData[this.position++] = 0xff;
     }
 
     if (this.position >= imageData.length) {
