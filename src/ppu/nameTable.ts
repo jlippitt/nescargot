@@ -16,7 +16,7 @@ export default class NameTable {
   constructor() {
     this.ram = Array(1024).fill(0);
 
-    this.tiles = times(30, () =>
+    this.tiles = times(32, () =>
       times(32, () => ({
         patternIndex: 0,
         paletteIndex: 0,
