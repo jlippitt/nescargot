@@ -49,7 +49,7 @@ export default class PPU {
   private clock: number;
   private oddFrame: boolean;
   private ticksForCurrentLine: number;
-  private oddScrollWrite: boolean;
+  private writeLatch: boolean;
 
   constructor({ screen, interrupt, mapper }: PPUOptions) {
     this.interrupt = interrupt;
@@ -85,7 +85,7 @@ export default class PPU {
     this.clock = 0;
     this.oddFrame = false;
     this.ticksForCurrentLine = TICKS_PER_LINE;
-    this.oddScrollWrite = false;
+    this.writeLatch = false;
   }
 
   public getOam(): OAM {
@@ -99,9 +99,10 @@ export default class PPU {
       case 2: {
         let value = status.vblank ? 0x80 : 0x00;
         value |= status.spriteHit ? 0x40 : 0x00;
+        value |= 0x20;
         // TODO: Rest of the status
         status.vblank = false;
-        vram.resetAddressLatch();
+        this.writeLatch = false;
         return value;
       }
 
@@ -146,17 +147,22 @@ export default class PPU {
         oam.setDataByte(value);
 
       case 5:
-        if (this.oddScrollWrite) {
+        if (this.writeLatch) {
           // TODO: It's possible for scrollY to be negative (sort of?)
           scroll.y = value & 0xef;
         } else {
           scroll.x = value;
         }
-        this.oddScrollWrite = !this.oddScrollWrite;
+        this.writeLatch = !this.writeLatch;
         break;
 
       case 6:
-        vram.setAddressByte(value);
+        if (this.writeLatch) {
+          vram.setLowerAddressByte(value);
+        } else {
+          vram.setUpperAddressByte(value);
+        }
+        this.writeLatch = !this.writeLatch;
         break;
 
       case 7:
