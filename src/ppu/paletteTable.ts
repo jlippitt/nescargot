@@ -10,6 +10,12 @@ export type RGB = [number, number, number];
 const rgbToColor = ([red, green, blue]: RGB): Color =>
   (red << 24) | (green << 16) | (blue << 8) | 0xff;
 
+export const colorToRgb = (color: Color) => [
+  color >> 24,
+  (color & 0xff0000) >> 16,
+  (color & 0xff00) >> 8,
+];
+
 const rgbMap: RGB[] = [
   // Dark
   [84, 84, 84],
@@ -127,7 +133,7 @@ export default class PaletteTable {
         this.spritePalettes[(offset & 0x0c) >> 2][offset & 0x03] =
           colorMap[colorIndex];
       }
-    } else if ((offset & 0x1f) === 0) {
+    } else if ((offset & 0x0f) === 0) {
       this.backgroundColor = colorMap[colorIndex];
     }
   }
