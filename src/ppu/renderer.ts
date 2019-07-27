@@ -80,13 +80,13 @@ export default class Renderer {
     for (let x = 0; x < RENDER_WIDTH; ++x) {
       const nameTableX = Math.floor(((scrollX + x) % 512) / 256);
       const nameTableY = Math.floor(((scrollY + line) % 480) / 240);
-      const posX = (scrollX + x) % 256;
-      const posY = (scrollY + line) % 240;
+      const posX = scroll.x + x;
+      const posY = scroll.y + line;
 
       const nameTable = nameTables[(nameTableY << 1) + nameTableX];
       const { patternIndex, paletteIndex } = nameTable.getTile(
-        posX >> 3,
-        posY >> 3,
+        (posX >> 3) % 32,
+        (posY >> 3) % 32,
       );
 
       const pattern = patternTable.getPattern(patternIndex);
