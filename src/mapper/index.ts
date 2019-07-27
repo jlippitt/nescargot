@@ -22,8 +22,8 @@ export default interface Mapper {
 }
 
 export enum NameTableMirroring {
-  Horizontal,
-  Vertical,
+  Horizontal = 0,
+  Vertical = 1,
 }
 
 export interface ROM {
@@ -54,10 +54,7 @@ export function createMapper(data: Uint8Array): Mapper {
 
   const nameTableCount = (data[6] & 0x08) !== 0 ? 4 : 2;
 
-  const nameTableMirroring =
-    (data[6] & 0x01) !== 0
-      ? NameTableMirroring.Vertical
-      : NameTableMirroring.Horizontal;
+  const nameTableMirroring = (data[6] & 0x01) as NameTableMirroring;
 
   const mapperNumber = (data[7] & 0xf0) | ((data[6] & 0xf0) >> 4);
 
@@ -67,7 +64,7 @@ export function createMapper(data: Uint8Array): Mapper {
     throw new Error(`Unimplemented mapper number: ${mapperNumber}`);
   }
 
-  debug(`Mapper type: ${mapperNumber}`);
+  debug(`Mapper Type: ${mapperNumber}`);
   debug(`PRG ROM Length: ${prgRomData.length}`);
 
   let chrRom: PatternTable[];
@@ -79,6 +76,10 @@ export function createMapper(data: Uint8Array): Mapper {
     debug('CHR RAM Enabled');
     chrRom = [new PatternTable(), new PatternTable()];
   }
+
+  debug(
+    `Nametable Mirroring: ${nameTableMirroring ? 'Vertical' : 'Horizontal'}`,
+  );
 
   return new MapperConstructor({
     prgRom: prgRomData,
