@@ -183,7 +183,9 @@ export default class MMC1 implements Mapper {
       case 0xe000:
         if (this.control.prgRomBankMode === PrgRomBankMode.SwitchLower) {
           this.prgOffset[0] = (value & 0x0f) * prgBankSize;
+          this.prgOffset[1] = 0;
         } else if (this.control.prgRomBankMode === PrgRomBankMode.SwitchUpper) {
+          this.prgOffset[0] = 0;
           this.prgOffset[1] = (value & 0x0f) * prgBankSize;
         } else {
           this.prgOffset[0] = (value & 0x0e) * prgBankSize;
