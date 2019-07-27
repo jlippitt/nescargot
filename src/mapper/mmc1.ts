@@ -121,9 +121,9 @@ export default class MMC1 implements Mapper {
     const { ciRam } = this.rom;
 
     switch (this.control.nameTableArrangement) {
-      case NameTableArrangement.VerticalMirroring:
+      case NameTableArrangement.SingleScreenLower:
         return [ciRam[0], ciRam[0], ciRam[0], ciRam[0]];
-      case NameTableArrangement.HorizontalMirroring:
+      case NameTableArrangement.SingleScreenUpper:
         return [ciRam[1], ciRam[1], ciRam[1], ciRam[1]];
       case NameTableArrangement.VerticalMirroring:
         return [ciRam[0], ciRam[1], ciRam[0], ciRam[1]];
