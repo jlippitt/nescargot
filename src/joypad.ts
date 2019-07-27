@@ -1,3 +1,5 @@
+import { debug } from 'log';
+
 interface ButtonMap {
   [key: string]: number;
 }
@@ -49,8 +51,9 @@ export default class Joypad {
     switch (offset) {
       case 0x4016:
         if (this.strobe) {
-          return this.polledState[0] ? 1 : 0;
+          return this.buttonState[0] ? 1 : 0;
         } else if (this.buttonIndex < this.polledState.length) {
+          debug(`Button read: ${this.buttonIndex}`);
           return this.polledState[this.buttonIndex++] ? 1 : 0;
         } else {
           return 1;
@@ -65,6 +68,7 @@ export default class Joypad {
       case 0x4016:
         if (this.strobe) {
           this.polledState = this.buttonState;
+          debug(`Button state: ${this.polledState}`);
           this.buttonIndex = 0;
         }
         this.strobe = !this.strobe;
