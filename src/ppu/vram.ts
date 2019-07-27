@@ -13,12 +13,14 @@ export default class VRAM {
   private address: number;
   private incrementAmount: number;
   private paletteTable: PaletteTable;
+  private readBuffer: number;
 
   constructor(mapper: Mapper) {
     this.mapper = mapper;
     this.address = 0x0000;
     this.incrementAmount = HORIZONTAL_INCREMENT;
     this.paletteTable = new PaletteTable();
+    this.readBuffer = 0;
   }
 
   public getPatternTables(): PatternTable[] {
@@ -51,17 +53,26 @@ export default class VRAM {
   public getDataByte(): number {
     let value: number;
 
-    if (this.address < 0x2000) {
-      value = this.mapper.getChrByte(this.address);
-    } else if (this.address < 0x3f00) {
-      value = this.mapper
-        .getNameTables()
-        [(this.address & 0x0c00) >> 10].getByte(this.address & 0x03ff);
+    if (this.address < 0x03f00) {
+      value = this.readBuffer;
     } else {
       value = this.paletteTable.getByte(this.address);
     }
 
-    debug(`VRAM Read: ${toHex(this.address, 4)} => ${toHex(value, 2)}`);
+    if (this.address < 0x2000) {
+      this.readBuffer = this.mapper.getChrByte(this.address);
+    } else {
+      this.readBuffer = this.mapper
+        .getNameTables()
+        [(this.address & 0x0c00) >> 10].getByte(this.address & 0x03ff);
+    }
+
+    debug(
+      `VRAM Read: ${toHex(this.address, 4)} => ${toHex(value, 2)} (${toHex(
+        this.readBuffer,
+        2,
+      )})`,
+    );
 
     this.address = (this.address + this.incrementAmount) & 0x3fff;
 
