@@ -4,7 +4,7 @@ import PatternTable from 'ppu/patternTable';
 
 import Mapper, { ROM } from './index';
 
-const prgBankSize = 16384;
+const PRG_BANK_SIZE = 16384;
 
 enum NameTableArrangement {
   SingleScreenLower = 0,
@@ -69,7 +69,7 @@ export default class MMC1 implements Mapper {
       chrRomBankMode: ChrRomBankMode.SwitchAll,
     };
     this.chrBank = [rom.chrRom[0], rom.chrRom[1]];
-    this.prgOffset = [0, prgBankSize];
+    this.prgOffset = [0, this.getPrgOffset(0x0f)];
   }
 
   public getPrgByte(offset: number): number {
@@ -182,14 +182,12 @@ export default class MMC1 implements Mapper {
         break;
       case 0xe000:
         if (this.control.prgRomBankMode === PrgRomBankMode.SwitchLower) {
-          this.prgOffset[0] = (value & 0x0f) * prgBankSize;
-          this.prgOffset[1] = 0;
+          this.prgOffset[0] = this.getPrgOffset(value & 0x0f);
         } else if (this.control.prgRomBankMode === PrgRomBankMode.SwitchUpper) {
-          this.prgOffset[0] = 0;
-          this.prgOffset[1] = (value & 0x0f) * prgBankSize;
+          this.prgOffset[1] = this.getPrgOffset(value & 0x0f);
         } else {
-          this.prgOffset[0] = (value & 0x0e) * prgBankSize;
-          this.prgOffset[1] = ((value & 0x0e) + 1) * prgBankSize;
+          this.prgOffset[0] = this.getPrgOffset(value & 0x0e);
+          this.prgOffset[1] = this.getPrgOffset((value & 0x0e) + 1);
         }
         debug(`PRG ROM Offset 0 = ${toHex(this.prgOffset[0], 4)}`);
         debug(`PRG ROM Offset 1 = ${toHex(this.prgOffset[1], 4)}`);
@@ -200,4 +198,7 @@ export default class MMC1 implements Mapper {
         throw new Error('Should not happen');
     }
   }
+
+  private getPrgOffset = (value: number): number =>
+    (value * PRG_BANK_SIZE) % this.rom.prgRom.length
 }
