@@ -20,11 +20,13 @@ const buttonMap: ButtonMap = {
 
 export default class Joypad {
   private buttonState: boolean[];
+  private polledState: boolean[];
   private buttonIndex: number;
   private strobe: boolean;
 
   constructor() {
     this.buttonState = Array(8).fill(false);
+    this.polledState = Array(8).fill(false);
     this.buttonIndex = 0;
     this.strobe = false;
 
@@ -47,9 +49,9 @@ export default class Joypad {
     switch (offset) {
       case 0x4016:
         if (this.strobe) {
-          return this.buttonState[0] ? 1 : 0;
-        } else if (this.buttonIndex < this.buttonState.length) {
-          return this.buttonState[this.buttonIndex++] ? 1 : 0;
+          return this.polledState[0] ? 1 : 0;
+        } else if (this.buttonIndex < this.polledState.length) {
+          return this.polledState[this.buttonIndex++] ? 1 : 0;
         } else {
           return 1;
         }
@@ -62,6 +64,7 @@ export default class Joypad {
     switch (offset) {
       case 0x4016:
         if (this.strobe) {
+          this.polledState = this.buttonState;
           this.buttonIndex = 0;
         }
         this.strobe = !this.strobe;
