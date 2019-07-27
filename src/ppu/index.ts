@@ -99,7 +99,6 @@ export default class PPU {
       case 2: {
         let value = status.vblank ? 0x80 : 0x00;
         value |= status.spriteHit ? 0x40 : 0x00;
-        value |= 0x20;
         // TODO: Rest of the status
         status.vblank = false;
         this.writeLatch = false;
