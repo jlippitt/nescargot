@@ -10,6 +10,7 @@ function interrupt(state: State, vector: number, breakFlag: boolean) {
   state.pushWord(regs.pc);
   state.pushByte(flags.toByte(breakFlag));
   regs.pc = mmu.getWord(vector);
+  flags.interrupt = true;
   clock.tick(7);
 }
 
