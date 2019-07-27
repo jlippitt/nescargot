@@ -30,7 +30,7 @@ export default class State {
       a: 0,
       x: 0,
       y: 0,
-      s: 0,
+      s: 0xfd,
       pc: mmu.getWord(RESET_VECTOR),
     };
 
