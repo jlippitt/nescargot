@@ -15,8 +15,8 @@ enum NameTableArrangement {
 
 enum PrgRomBankMode {
   SwitchAll = 0,
-  SwitchLower = 1,
   SwitchUpper = 2,
+  SwitchLower = 3,
 }
 
 enum ChrRomBankMode {
@@ -65,7 +65,7 @@ export default class MMC1 implements Mapper {
     this.shift = new ShiftRegister();
     this.control = {
       nameTableArrangement: NameTableArrangement.SingleScreenLower,
-      prgRomBankMode: PrgRomBankMode.SwitchUpper,
+      prgRomBankMode: PrgRomBankMode.SwitchLower,
       chrRomBankMode: ChrRomBankMode.SwitchAll,
     };
     this.chrBank = [rom.chrRom[0], rom.chrRom[1]];
