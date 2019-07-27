@@ -77,9 +77,7 @@ export function createMapper(data: Uint8Array): Mapper {
     chrRom = [new PatternTable(), new PatternTable()];
   }
 
-  debug(
-    `Nametable Mirroring: ${nameTableMirroring ? 'Vertical' : 'Horizontal'}`,
-  );
+  debug(`Nametable Mirroring: ${nameTableMirroring}`);
 
   return new MapperConstructor({
     prgRom: prgRomData,

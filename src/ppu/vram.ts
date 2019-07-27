@@ -67,12 +67,7 @@ export default class VRAM {
         [(this.address & 0x0c00) >> 10].getByte(this.address & 0x03ff);
     }
 
-    debug(
-      `VRAM Read: ${toHex(this.address, 4)} => ${toHex(value, 2)} (${toHex(
-        this.readBuffer,
-        2,
-      )})`,
-    );
+    debug(`VRAM Read: ${toHex(this.address, 4)} => ${toHex(value, 2)}`);
 
     this.address = (this.address + this.incrementAmount) & 0x3fff;
 
