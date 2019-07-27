@@ -1,7 +1,10 @@
 import { isEqual } from 'lodash';
+
+import { debug } from 'log';
 import NameTable, { createNameTables } from 'ppu/nameTable';
 import PatternTable, { createPatternTables } from 'ppu/patternTable';
 
+import MMC1 from './mmc1';
 import NROM from './nrom';
 
 const INES_CONSTANT = new Uint8Array([0x4e, 0x45, 0x53, 0x1a]);
@@ -31,6 +34,8 @@ export interface ROM {
   nameTableMirroring: NameTableMirroring;
 }
 
+const availableMappers = [NROM, MMC1];
+
 export function createMapper(data: Uint8Array): Mapper {
   if (!isEqual(data.slice(0, 4), INES_CONSTANT)) {
     throw new Error('Not a valid INES ROM');
@@ -54,10 +59,31 @@ export function createMapper(data: Uint8Array): Mapper {
       ? NameTableMirroring.Vertical
       : NameTableMirroring.Horizontal;
 
-  return new NROM({
+  const mapperNumber = (data[7] & 0xf0) | ((data[6] & 0xf0) >> 4);
+
+  const MapperConstructor = availableMappers[mapperNumber];
+
+  if (!MapperConstructor) {
+    throw new Error(`Unimplemented mapper number: ${mapperNumber}`);
+  }
+
+  debug(`Mapper type: ${mapperNumber}`);
+  debug(`PRG ROM Length: ${prgRomData.length}`);
+
+  let chrRom: PatternTable[];
+
+  if (chrRomData.length > 0) {
+    debug(`CHR ROM Length: ${chrRomData.length}`);
+    chrRom = createPatternTables(chrRomData);
+  } else {
+    debug('CHR RAM Enabled');
+    chrRom = [new PatternTable(), new PatternTable()];
+  }
+
+  return new MapperConstructor({
     prgRom: prgRomData,
     prgRam: new Uint8Array(8192),
-    chrRom: createPatternTables(chrRomData),
+    chrRom,
     ciRam: createNameTables(nameTableCount),
     nameTableMirroring,
   });
