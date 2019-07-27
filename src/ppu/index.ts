@@ -50,6 +50,7 @@ export default class PPU {
   private oddFrame: boolean;
   private ticksForCurrentLine: number;
   private writeLatch: boolean;
+  private previousWrite: number;
 
   constructor({ screen, interrupt, mapper }: PPUOptions) {
     this.interrupt = interrupt;
@@ -86,6 +87,7 @@ export default class PPU {
     this.oddFrame = false;
     this.ticksForCurrentLine = TICKS_PER_LINE;
     this.writeLatch = false;
+    this.previousWrite = 0;
   }
 
   public getOam(): OAM {
@@ -97,9 +99,10 @@ export default class PPU {
 
     switch (offset % 8) {
       case 2: {
-        let value = status.vblank ? 0x80 : 0x00;
+        let value = this.previousWrite & 0x1f;
+        value |= status.vblank ? 0x80 : 0x00;
         value |= status.spriteHit ? 0x40 : 0x00;
-        // TODO: Rest of the status
+        // TODO: Sprite overflow
         status.vblank = false;
         this.writeLatch = false;
         return value;
@@ -118,6 +121,8 @@ export default class PPU {
 
   public set(offset: number, value: number): void {
     const { oam, vram, control, mask, status, scroll } = this.state;
+
+    this.previousWrite = value;
 
     switch (offset % 8) {
       case 0:
