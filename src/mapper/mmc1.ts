@@ -2,9 +2,7 @@ import { debug, toHex } from 'log';
 import NameTable from 'ppu/nameTable';
 import PatternTable from 'ppu/patternTable';
 
-import Mapper, { ROM } from './index';
-
-const PRG_BANK_SIZE = 16384;
+import Mapper, { PRG_BANK_SIZE, ROM } from './index';
 
 enum NameTableArrangement {
   SingleScreenLower = 0,

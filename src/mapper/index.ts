@@ -6,10 +6,12 @@ import PatternTable, { createPatternTables } from 'ppu/patternTable';
 
 import MMC1 from './mmc1';
 import NROM from './nrom';
+import UxROM from './uxrom';
 
 const INES_CONSTANT = new Uint8Array([0x4e, 0x45, 0x53, 0x1a]);
 
-const PRG_ROM_SIZE_MULTIPLIER = 16384;
+export const PRG_BANK_SIZE = 16384;
+
 const CHR_ROM_SIZE_MULTIPLIER = 8192;
 
 export default interface Mapper {
@@ -34,14 +36,14 @@ export interface ROM {
   nameTableMirroring: NameTableMirroring;
 }
 
-const availableMappers = [NROM, MMC1];
+const availableMappers = [NROM, MMC1, UxROM];
 
 export function createMapper(data: Uint8Array): Mapper {
   if (!isEqual(data.slice(0, 4), INES_CONSTANT)) {
     throw new Error('Not a valid INES ROM');
   }
 
-  const prgRomSize = data[4] * PRG_ROM_SIZE_MULTIPLIER;
+  const prgRomSize = data[4] * PRG_BANK_SIZE;
   const chrRomSize = data[5] * CHR_ROM_SIZE_MULTIPLIER;
 
   const hasTrainer = (data[6] & 0x04) !== 0;
