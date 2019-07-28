@@ -1,9 +1,7 @@
-import { Color } from 'ppu/paletteTable';
-
 import Screen from './index';
 
 export default class DummyScreen implements Screen {
-  public drawLine(lineBuffer: Color[]): void {
+  public drawLine(lineBuffer: number[]): void {
     // Do nothing
   }
 }

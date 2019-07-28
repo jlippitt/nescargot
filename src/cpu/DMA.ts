@@ -1,6 +1,6 @@
 import Interrupt from 'interrupt';
 import { debug } from 'log';
-import OAM, { OAM_SIZE } from 'ppu/oam';
+import OAM, { OAM_SIZE } from 'ppu/OAM';
 
 import State from './State';
 

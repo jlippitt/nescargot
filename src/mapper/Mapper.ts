@@ -1,8 +1,8 @@
 import { isEqual } from 'lodash';
 
 import { debug } from 'log';
-import NameTable, { createNameTables } from 'ppu/nameTable';
-import PatternTable, { createPatternTables } from 'ppu/patternTable';
+import NameTable, { createNameTables } from 'ppu/NameTable';
+import PatternTable, { createPatternTables } from 'ppu/PatternTable';
 
 import MMC1 from './MMC1';
 import NROM from './NROM';

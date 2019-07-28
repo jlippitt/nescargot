@@ -1,7 +1,7 @@
 import Interrupt from 'interrupt';
 import Joypad from 'joypad';
 import Mapper from 'mapper/Mapper';
-import PPU from 'ppu';
+import PPU from 'ppu/PPU';
 
 import DMA from './DMA';
 

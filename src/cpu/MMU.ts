@@ -1,7 +1,7 @@
 import Joypad from 'joypad';
 import { debug, toHex } from 'log';
 import Mapper from 'mapper/Mapper';
-import PPU from 'ppu';
+import PPU from 'ppu/PPU';
 
 import DMA from './DMA';
 import Hardware from './Hardware';

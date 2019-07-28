@@ -1,4 +1,4 @@
-import PaletteTable, { colorToRgb } from './paletteTable';
+import PaletteTable, { colorToRgb } from './PaletteTable';
 
 let paletteTable: PaletteTable;
 

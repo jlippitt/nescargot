@@ -2,10 +2,10 @@ import Interrupt from 'interrupt';
 import Mapper from 'mapper/Mapper';
 import Screen from 'screen';
 
-import OAM from './oam';
-import Registers from './registers';
-import Renderer, { SpriteSize } from './renderer';
-import VRAM from './vram';
+import OAM from './OAM';
+import Registers from './Registers';
+import Renderer, { SpriteSize } from './Renderer';
+import VRAM from './VRAM';
 
 const TICKS_PER_LINE = 341;
 const TOTAL_LINES = 262;

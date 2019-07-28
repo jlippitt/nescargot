@@ -1,6 +1,5 @@
 import Interrupt from 'interrupt';
 import { debug } from 'log';
-import PPU from 'ppu';
 
 import DMA from './DMA';
 import Hardware from './Hardware';

@@ -3,7 +3,7 @@ import DMA from 'cpu/DMA';
 import Interrupt from 'interrupt';
 import Joypad from 'joypad';
 import { createMapper } from 'mapper/Mapper';
-import PPU from 'ppu';
+import PPU from 'ppu/PPU';
 import Screen from 'screen';
 
 interface Hardware {

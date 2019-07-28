@@ -1,6 +1,6 @@
 import { debug, toHex } from 'log';
-import NameTable from 'ppu/nameTable';
-import PatternTable from 'ppu/patternTable';
+import NameTable from 'ppu/NameTable';
+import PatternTable from 'ppu/PatternTable';
 
 import Mapper, { PRG_BANK_SIZE, ROM } from './Mapper';
 

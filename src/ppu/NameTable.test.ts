@@ -1,4 +1,4 @@
-import NameTable from './nameTable';
+import NameTable from './NameTable';
 
 let nameTable: NameTable;
 

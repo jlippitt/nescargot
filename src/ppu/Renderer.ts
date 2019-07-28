@@ -1,10 +1,10 @@
 import { debug } from 'log';
 import Screen from 'screen';
 
-import { PPUControl, PPUState } from './index';
-import { Priority, Sprite } from './oam';
-import { Color } from './paletteTable';
-import PatternTable from './patternTable';
+import { Priority, Sprite } from './OAM';
+import { Color } from './PaletteTable';
+import PatternTable from './PatternTable';
+import { PPUControl, PPUState } from './PPU';
 
 const RENDER_WIDTH = 256;
 const NAME_TABLE_WIDTH = 32;

@@ -1,9 +1,9 @@
 import { debug, toHex } from 'log';
 import Mapper from 'mapper/Mapper';
 
-import NameTable from './nameTable';
-import PaletteTable from './paletteTable';
-import PatternTable from './patternTable';
+import NameTable from './NameTable';
+import PaletteTable from './PaletteTable';
+import PatternTable from './PatternTable';
 
 export default class VRAM {
   private mapper: Mapper;

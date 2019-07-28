@@ -1,5 +1,5 @@
-import NameTable from 'ppu/nameTable';
-import PatternTable from 'ppu/patternTable';
+import NameTable from 'ppu/NameTable';
+import PatternTable from 'ppu/PatternTable';
 
 import Mapper, { NameTableMirroring, ROM } from './Mapper';
 
