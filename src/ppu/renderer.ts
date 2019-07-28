@@ -27,10 +27,10 @@ export default class Renderer {
   constructor(screen: Screen, state: PPUState) {
     this.screen = screen;
     this.state = state;
-    this.lineBuffer = Array(RENDER_WIDTH).fill([0, 0, 0]);
+    this.lineBuffer = Array(RENDER_WIDTH).fill(0);
     this.opacityBuffer = Array(RENDER_WIDTH).fill(false);
     this.selectedSprites = Array(SPRITES_PER_LINE).fill(undefined);
-    this.spriteBuffer = Array(RENDER_WIDTH).fill([0, 0, 0]);
+    this.spriteBuffer = Array(RENDER_WIDTH).fill(0);
     this.priorityBuffer = Array(RENDER_WIDTH).fill(undefined);
   }
 
