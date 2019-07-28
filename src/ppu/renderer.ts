@@ -39,11 +39,10 @@ export default class Renderer {
 
     debug(`** Rendering line ${this.state.line} **`);
 
-    const backgroundColor = vram.getPaletteTable().getBackgroundColor();
-
     if (mask.backgroundEnabled) {
       this.renderBackground();
     } else {
+      const backgroundColor = vram.getPaletteTable().getBackgroundColor();
       this.lineBuffer.fill(backgroundColor);
       this.opacityBuffer.fill(false);
     }
