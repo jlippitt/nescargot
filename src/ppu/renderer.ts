@@ -76,25 +76,31 @@ export default class Renderer {
 
     const scroll = registers.getScroll();
 
-    for (let x = 0; x < RENDER_WIDTH; ++x) {
-      const nameTableX = Math.floor(((scroll.x + x) % 512) / 256);
-      const nameTableY = Math.floor(((scroll.y + line) % 480) / 240);
-      const posX = scroll.x + x;
-      const posY = scroll.y + line;
+    const posY = scroll.y + line;
+    const nameTableY = Math.floor((posY % 480) / 240) << 1;
+    const tileY = posY % TILE_SIZE;
 
-      const nameTable = nameTables[(nameTableY << 1) + nameTableX];
+    let posX = scroll.x;
+
+    for (let x = 0; x < RENDER_WIDTH; ++x) {
+      const nameTableX = (posX & 0x1ff) >> 8;
+
+      const nameTable = nameTables[nameTableY | nameTableX];
+
       const { patternIndex, paletteIndex } = nameTable.getTile(
         (posX >> 3) % 32,
         (posY >> 3) % 30,
       );
 
       const pattern = patternTable.getPattern(patternIndex);
-      const pixel = pattern[posY % TILE_SIZE][posX % TILE_SIZE];
+      const pixel = pattern[tileY][posX % TILE_SIZE];
 
       if (pixel > 0) {
         this.lineBuffer[x] = palettes[paletteIndex][pixel];
         this.opacityBuffer[x] = true;
       }
+
+      ++posX;
     }
   }
 
