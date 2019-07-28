@@ -3,6 +3,7 @@ import Mapper from 'mapper';
 import Screen from 'screen';
 
 import OAM from './oam';
+import Registers from './registers';
 import Renderer from './renderer';
 import VRAM from './vram';
 
@@ -36,10 +37,7 @@ export interface PPUState {
     vblank: boolean;
     spriteHit: boolean;
   };
-  scroll: {
-    x: number;
-    y: number;
-  };
+  registers: Registers;
 }
 
 export default class PPU {
@@ -49,7 +47,6 @@ export default class PPU {
   private clock: number;
   private oddFrame: boolean;
   private ticksForCurrentLine: number;
-  private writeLatch: boolean;
   private previousWrite: number;
 
   constructor({ screen, interrupt, mapper }: PPUOptions) {
@@ -75,10 +72,7 @@ export default class PPU {
         vblank: false,
         spriteHit: false,
       },
-      scroll: {
-        x: 0,
-        y: 0,
-      },
+      registers: new Registers(),
     };
 
     this.renderer = new Renderer(screen, this.state);
@@ -86,7 +80,6 @@ export default class PPU {
     this.clock = 0;
     this.oddFrame = false;
     this.ticksForCurrentLine = TICKS_PER_LINE;
-    this.writeLatch = false;
     this.previousWrite = 0;
   }
 
@@ -95,7 +88,7 @@ export default class PPU {
   }
 
   public get(offset: number): number {
-    const { oam, vram, status } = this.state;
+    const { oam, vram, status, registers } = this.state;
 
     switch (offset % 8) {
       case 2: {
@@ -104,7 +97,7 @@ export default class PPU {
         value |= status.spriteHit ? 0x40 : 0x00;
         // TODO: Sprite overflow
         status.vblank = false;
-        this.writeLatch = false;
+        registers.clearWriteLatch();
         return value;
       }
 
@@ -120,14 +113,13 @@ export default class PPU {
   }
 
   public set(offset: number, value: number): void {
-    const { oam, vram, control, mask, status, scroll } = this.state;
+    const { oam, vram, control, mask, status, registers } = this.state;
 
     this.previousWrite = value;
 
     switch (offset % 8) {
       case 0:
-        control.backgroundNameTableX = value & 0x01;
-        control.backgroundNameTableY = (value & 0x02) >> 1;
+        registers.setNameTableIndexes(value & 0x03);
         vram.setIncrementType((value & 0x04) !== 0);
         control.spritePatternTableIndex = (value & 0x08) >> 3;
         control.backgroundPatternTableIndex = (value & 0x10) >> 4;
@@ -151,22 +143,12 @@ export default class PPU {
         oam.setDataByte(value);
 
       case 5:
-        if (this.writeLatch) {
-          // TODO: It's possible for scrollY to be negative (sort of?)
-          scroll.y = value & 0xef;
-        } else {
-          scroll.x = value;
-        }
-        this.writeLatch = !this.writeLatch;
+        registers.setScrollByte(value);
         break;
 
       case 6:
-        if (this.writeLatch) {
-          vram.setLowerAddressByte(value);
-        } else {
-          vram.setUpperAddressByte(value);
-        }
-        this.writeLatch = !this.writeLatch;
+        registers.setAddressByte(value);
+        vram.setAddress(registers.getVramAddress());
         break;
 
       case 7:

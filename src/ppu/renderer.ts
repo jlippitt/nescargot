@@ -65,7 +65,7 @@ export default class Renderer {
   }
 
   private renderBackground(): void {
-    const { control, line, scroll, vram } = this.state;
+    const { control, line, registers, vram } = this.state;
 
     const patternTable = vram.getPatternTables()[
       control.backgroundPatternTableIndex
@@ -74,19 +74,18 @@ export default class Renderer {
     const nameTables = vram.getNameTables();
     const palettes = vram.getPaletteTable().getBackgroundPalettes();
 
-    const scrollX = control.backgroundNameTableX * 256 + scroll.x;
-    const scrollY = control.backgroundNameTableY * 240 + scroll.y;
+    const scroll = registers.getScroll();
 
     for (let x = 0; x < RENDER_WIDTH; ++x) {
-      const nameTableX = Math.floor(((scrollX + x) % 512) / 256);
-      const nameTableY = Math.floor(((scrollY + line) % 480) / 240);
+      const nameTableX = Math.floor(((scroll.x + x) % 512) / 256);
+      const nameTableY = Math.floor(((scroll.y + line) % 480) / 240);
       const posX = scroll.x + x;
       const posY = scroll.y + line;
 
       const nameTable = nameTables[(nameTableY << 1) + nameTableX];
       const { patternIndex, paletteIndex } = nameTable.getTile(
         (posX >> 3) % 32,
-        (posY >> 3) % 32,
+        (posY >> 3) % 30,
       );
 
       const pattern = patternTable.getPattern(patternIndex);

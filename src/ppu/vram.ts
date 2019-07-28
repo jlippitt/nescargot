@@ -40,13 +40,8 @@ export default class VRAM {
     debug(`VRAM Increment: ${this.incrementAmount}`);
   }
 
-  public setUpperAddressByte(value: number): void {
-    this.address = (this.address & 0xff) | ((value & 0x3f) << 8);
-    debug(`VRAM Address: ${toHex(this.address, 4)}`);
-  }
-
-  public setLowerAddressByte(value: number): void {
-    this.address = (this.address & 0x3f00) | value;
+  public setAddress(value: number): void {
+    this.address = value;
     debug(`VRAM Address: ${toHex(this.address, 4)}`);
   }
 
