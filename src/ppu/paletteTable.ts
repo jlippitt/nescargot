@@ -1,11 +1,20 @@
 import { times } from 'lodash';
 import { debug, toHex } from 'log';
 
-export type Color = [number, number, number];
-
+export type Color = number;
 export type Palette = Color[];
+export type Rgb = [number, number, number];
 
-const colorMap: Color[] = [
+export const rgbToColor = ([red, green, blue]: Rgb): Color =>
+  (red << 16) | (green << 8) | blue;
+
+export const colorToRgb = (color: Color): Rgb => [
+  color >> 16,
+  (color >> 8) & 0xff,
+  color & 0xff,
+];
+
+const rgbMap: Rgb[] = [
   // Dark
   [84, 84, 84],
   [0, 30, 116],
@@ -75,6 +84,8 @@ const colorMap: Color[] = [
   [0, 0, 0],
   [0, 0, 0],
 ];
+
+const colorMap = rgbMap.map(rgbToColor);
 
 export default class PaletteTable {
   private ram: number[];

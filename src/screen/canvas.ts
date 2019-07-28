@@ -26,9 +26,9 @@ export default class CanvasScreen implements Screen {
     const imageData = this.image.data;
 
     for (let i = 0; i < SCREEN_WIDTH; ++i) {
-      imageData[this.position++] = lineBuffer[i][0];
-      imageData[this.position++] = lineBuffer[i][1];
-      imageData[this.position++] = lineBuffer[i][2];
+      imageData[this.position++] = (lineBuffer[i] & 0xff0000) >> 16;
+      imageData[this.position++] = (lineBuffer[i] & 0xff00) >> 8;
+      imageData[this.position++] = lineBuffer[i] & 0xff;
       imageData[this.position++] = 0xff;
     }
 
