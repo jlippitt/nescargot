@@ -252,7 +252,6 @@ export default class Renderer {
 
     const sprite = oam.getSprites()[0];
 
-    // TODO: Make this support large sprites
     if (!isOnLine(control.spriteSize, line, sprite) || sprite.x === 255) {
       return false;
     }
