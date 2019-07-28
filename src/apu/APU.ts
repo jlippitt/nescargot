@@ -27,7 +27,7 @@ export default class APU {
         this.pulse1.setByte(offset, value);
         break;
       case 0x04:
-        this.pulse1.setByte(offset, value);
+        this.pulse2.setByte(offset, value);
         break;
       case 0x14:
         if ((offset & 0x03) === 3) {
