@@ -1,7 +1,7 @@
 import fs from 'fs';
 
 import { createHardware } from 'hardware';
-import DummyScreen from 'screen/dummy';
+import DummyScreen from 'screen/DummyScreen';
 
 export function runHeadless(): void {
   if (process.argv.length < 3) {

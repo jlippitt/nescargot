@@ -4,7 +4,7 @@ import Interrupt from 'interrupt';
 import Joypad from 'joypad';
 import { createMapper } from 'mapper/Mapper';
 import PPU from 'ppu/PPU';
-import Screen from 'screen';
+import Screen from 'screen/Screen';
 
 interface Hardware {
   cpu: CPU;

@@ -1,6 +1,6 @@
 import Interrupt from 'interrupt';
 import Mapper from 'mapper/Mapper';
-import Screen from 'screen';
+import Screen from 'screen/Screen';
 
 import OAM from './OAM';
 import Registers from './Registers';

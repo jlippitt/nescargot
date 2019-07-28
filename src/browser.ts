@@ -1,5 +1,5 @@
 import { createHardware } from 'hardware';
-import CanvasScreen from 'screen/canvas';
+import CanvasScreen from 'screen/CanvasScreen';
 
 async function loadRomData(): Promise<Uint8Array> {
   const romUrl = new URLSearchParams(location.search).get('url');

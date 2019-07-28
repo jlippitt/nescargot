@@ -1,5 +1,5 @@
 import { debug } from 'log';
-import Screen from 'screen';
+import Screen from 'screen/Screen';
 
 import { Priority, Sprite } from './OAM';
 import { Color } from './PaletteTable';

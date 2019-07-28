@@ -1,4 +1,4 @@
-import Screen from './index';
+import Screen from './Screen';
 
 const SCREEN_WIDTH = 256;
 const SCREEN_HEIGHT = 240;
