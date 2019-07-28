@@ -39,13 +39,13 @@ export default class Renderer {
 
     debug(`** Rendering line ${this.state.line} **`);
 
-    const paletteTable = vram.getPaletteTable();
-
-    this.lineBuffer.fill(paletteTable.getBackgroundColor());
-    this.opacityBuffer.fill(false);
+    const backgroundColor = vram.getPaletteTable().getBackgroundColor();
 
     if (mask.backgroundEnabled) {
       this.renderBackground();
+    } else {
+      this.lineBuffer.fill(backgroundColor);
+      this.opacityBuffer.fill(false);
     }
 
     let spriteHit = false;
@@ -70,7 +70,10 @@ export default class Renderer {
     );
 
     const nameTables = vram.getNameTables();
-    const palettes = vram.getPaletteTable().getBackgroundPalettes();
+
+    const paletteTable = vram.getPaletteTable();
+    const palettes = paletteTable.getBackgroundPalettes();
+    const backgroundColor = paletteTable.getBackgroundColor();
 
     const scroll = registers.getScroll();
 
@@ -99,6 +102,9 @@ export default class Renderer {
       if (pixel > 0) {
         this.lineBuffer[x] = palettes[paletteIndex][pixel];
         this.opacityBuffer[x] = true;
+      } else {
+        this.lineBuffer[x] = backgroundColor;
+        this.opacityBuffer[x] = false;
       }
 
       ++posX;
