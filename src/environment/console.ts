@@ -3,7 +3,7 @@ import fs from 'fs';
 import { createHardware } from 'Hardware';
 import DummyScreen from 'screen/DummyScreen';
 
-export function runHeadless(): void {
+export function runInConsole(): void {
   if (process.argv.length < 3) {
     throw new Error('No ROM specified');
   }
