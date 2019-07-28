@@ -6,8 +6,6 @@ import { Priority, Sprite } from './oam';
 import { Color } from './paletteTable';
 
 const RENDER_WIDTH = 256;
-const RENDER_HEIGHT = 240;
-const NAME_TABLE_WIDTH = 32;
 const TILE_SIZE = 8;
 const SPRITES_PER_LINE = 8;
 
