@@ -1,8 +1,7 @@
+import State from 'cpu/State';
 import Interrupt from 'Interrupt';
 import { debug } from 'log';
 import OAM, { OAM_SIZE } from 'ppu/OAM';
-
-import State from './State';
 
 export default class DMA {
   private oam: OAM;

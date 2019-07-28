@@ -1,9 +1,9 @@
+import DMA from 'DMA';
 import Joypad from 'Joypad';
 import { debug, toHex } from 'log';
 import Mapper from 'mapper/Mapper';
 import PPU from 'ppu/PPU';
 
-import DMA from './DMA';
 import Hardware from './Hardware';
 
 const RAM_SIZE = 2048;

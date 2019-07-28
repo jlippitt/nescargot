@@ -1,5 +1,5 @@
 import CPU from 'cpu/CPU';
-import DMA from 'cpu/DMA';
+import DMA from 'DMA';
 import Interrupt from 'Interrupt';
 import Joypad from 'Joypad';
 import { createMapper } from 'mapper/Mapper';

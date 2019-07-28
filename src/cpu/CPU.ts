@@ -1,7 +1,7 @@
+import DMA from 'DMA';
 import Interrupt from 'Interrupt';
 import { debug } from 'log';
 
-import DMA from './DMA';
 import Hardware from './Hardware';
 import operations from './operations';
 import { nmi } from './operations/interrupt';
