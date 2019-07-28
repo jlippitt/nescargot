@@ -2,7 +2,7 @@ import Interrupt from 'interrupt';
 import { debug } from 'log';
 import OAM, { OAM_SIZE } from 'ppu/oam';
 
-import State from './state';
+import State from './State';
 
 export default class DMA {
   private oam: OAM;

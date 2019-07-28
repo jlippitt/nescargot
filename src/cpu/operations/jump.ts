@@ -1,6 +1,6 @@
 import { debug, toHex } from 'log';
 
-import State from '../state';
+import State from '../State';
 
 export function jmpAbsolute(state: State) {
   const { regs, clock } = state;

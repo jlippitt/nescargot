@@ -1,7 +1,7 @@
 import { debug } from 'log';
 
-import AddressMode from '../addressMode';
-import State from '../state';
+import AddressMode from '../AddressMode';
+import State from '../State';
 
 export const bit = (addressMode: AddressMode) => (state: State) => {
   const { regs, flags, clock } = state;

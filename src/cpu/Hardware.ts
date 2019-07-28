@@ -3,7 +3,7 @@ import Joypad from 'joypad';
 import Mapper from 'mapper';
 import PPU from 'ppu';
 
-import DMA from './dma';
+import DMA from './DMA';
 
 export default interface Hardware {
   joypad: Joypad;

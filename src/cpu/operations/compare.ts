@@ -1,7 +1,7 @@
 import { debug, toHex } from 'log';
 
-import AddressMode from '../addressMode';
-import State from '../state';
+import AddressMode from '../AddressMode';
+import State from '../State';
 
 function compare(state: State, lhs: number, rhs: number) {
   const { flags, clock } = state;

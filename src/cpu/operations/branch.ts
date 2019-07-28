@@ -1,6 +1,6 @@
 import { debug } from 'log';
 
-import State from '../state';
+import State from '../State';
 
 const toSigned = (value: number): number =>
   value >= 128 ? value - 256 : value;

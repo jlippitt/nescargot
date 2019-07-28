@@ -1,8 +1,8 @@
 import { debug } from 'log';
 
-import AddressMode from '../addressMode';
-import Flags from '../flags';
-import State from '../state';
+import AddressMode from '../AddressMode';
+import Flags from '../Flags';
+import State from '../State';
 import { mutateAccumulator, mutateMemory } from './helpers';
 
 function shiftLeft(value: number, flags: Flags): number {

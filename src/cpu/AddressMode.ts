@@ -1,4 +1,4 @@
-import State from './state';
+import State from './State';
 
 export default interface AddressMode {
   lookup(state: State, pageCheck?: boolean): number;

@@ -1,6 +1,6 @@
 import { debug } from 'log';
 
-import State from '../state';
+import State from '../State';
 
 export function pha(state: State) {
   const { regs, clock } = state;

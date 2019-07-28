@@ -1,6 +1,6 @@
 import { debug } from 'log';
 
-import State from '../state';
+import State from '../State';
 
 const IRQ_VECTOR = 0xfffe;
 const NMI_VECTOR = 0xfffa;

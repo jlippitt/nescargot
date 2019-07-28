@@ -3,8 +3,8 @@ import { debug, toHex } from 'log';
 import Mapper from 'mapper';
 import PPU from 'ppu';
 
-import DMA from './dma';
-import Hardware from './hardware';
+import DMA from './DMA';
+import Hardware from './Hardware';
 
 const RAM_SIZE = 2048;
 

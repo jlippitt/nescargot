@@ -1,11 +1,11 @@
 import { toHex } from 'log';
 import Mapper from 'mapper';
 
-import AddressMode from './addressMode';
-import Clock from './clock';
-import Flags from './flags';
-import Hardware from './hardware';
-import MMU from './mmu';
+import AddressMode from './AddressMode';
+import Clock from './Clock';
+import Flags from './Flags';
+import Hardware from './Hardware';
+import MMU from './MMU';
 
 const RESET_VECTOR = 0xfffc;
 

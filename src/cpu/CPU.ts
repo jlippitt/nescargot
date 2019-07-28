@@ -3,11 +3,11 @@ import { debug } from 'log';
 import Mapper from 'mapper';
 import PPU from 'ppu';
 
-import DMA from './dma';
-import Hardware from './hardware';
-import { opMap } from './operation';
-import { nmi } from './operation/interrupt';
-import State from './state';
+import DMA from './DMA';
+import Hardware from './Hardware';
+import operations from './operations';
+import { nmi } from './operations/interrupt';
+import State from './State';
 
 export default class CPU {
   private state: State;
@@ -35,7 +35,7 @@ export default class CPU {
       }
     } else {
       const nextOp = this.state.nextByte();
-      opMap[nextOp](this.state);
+      operations[nextOp](this.state);
     }
 
     return clock.getTicks() - prevTicks;

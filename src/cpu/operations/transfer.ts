@@ -1,6 +1,6 @@
 import { debug } from 'log';
 
-import State from '../state';
+import State from '../State';
 
 export function tax({ regs, flags, clock }: State) {
   debug('TAX');

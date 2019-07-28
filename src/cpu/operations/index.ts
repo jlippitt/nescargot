@@ -1,4 +1,4 @@
-import State from '../state';
+import State from '../State';
 
 import {
   absolute,
@@ -9,7 +9,7 @@ import {
   zeroPage,
   zeroPageX,
   zeroPageY,
-} from '../addressMode';
+} from '../AddressMode';
 
 import { adc, adcImmediate, sbc, sbcImmediate } from './arithmetic';
 
@@ -77,7 +77,7 @@ function xxx() {
   throw new Error('Unknown op code');
 }
 
-export const opMap: Operation[] = [
+const operations: Operation[] = [
   // 0x00
   brk,
   ora(indirectX),
@@ -351,3 +351,5 @@ export const opMap: Operation[] = [
   inc(absoluteX),
   xxx,
 ];
+
+export default operations;
