@@ -95,11 +95,13 @@ export default class Renderer {
 
     let patternRow = patternTable.getPattern(patternIndex)[pixelY];
 
+    let palette = palettes[paletteIndex];
+
     for (let x = 0; x < RENDER_WIDTH; ++x) {
       const pixel = patternRow[pixelX];
 
       if (pixel > 0) {
-        this.lineBuffer[x] = palettes[paletteIndex][pixel];
+        this.lineBuffer[x] = palette[pixel];
         this.opacityBuffer[x] = true;
       } else {
         this.lineBuffer[x] = backgroundColor;
@@ -121,6 +123,8 @@ export default class Renderer {
         ));
 
         patternRow = patternTable.getPattern(patternIndex)[pixelY];
+
+        palette = palettes[paletteIndex];
       }
     }
   }
