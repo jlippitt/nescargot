@@ -1,12 +1,12 @@
 import CPU from 'cpu/CPU';
 import DMA from 'cpu/DMA';
-import Interrupt from 'interrupt';
-import Joypad from 'joypad';
+import Interrupt from 'Interrupt';
+import Joypad from 'Joypad';
 import { createMapper } from 'mapper/Mapper';
 import PPU from 'ppu/PPU';
 import Screen from 'screen/Screen';
 
-interface Hardware {
+export default interface Hardware {
   cpu: CPU;
   ppu: PPU;
   joypad: Joypad;

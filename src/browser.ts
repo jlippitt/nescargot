@@ -1,4 +1,4 @@
-import { createHardware } from 'hardware';
+import { createHardware } from 'Hardware';
 import CanvasScreen from 'screen/CanvasScreen';
 
 async function loadRomData(): Promise<Uint8Array> {

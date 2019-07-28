@@ -1,6 +1,6 @@
 import fs from 'fs';
 
-import { createHardware } from 'hardware';
+import { createHardware } from 'Hardware';
 import DummyScreen from 'screen/DummyScreen';
 
 export function runHeadless(): void {

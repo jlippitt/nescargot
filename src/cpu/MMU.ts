@@ -1,4 +1,4 @@
-import Joypad from 'joypad';
+import Joypad from 'Joypad';
 import { debug, toHex } from 'log';
 import Mapper from 'mapper/Mapper';
 import PPU from 'ppu/PPU';

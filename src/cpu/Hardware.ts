@@ -1,5 +1,5 @@
-import Interrupt from 'interrupt';
-import Joypad from 'joypad';
+import Interrupt from 'Interrupt';
+import Joypad from 'Joypad';
 import Mapper from 'mapper/Mapper';
 import PPU from 'ppu/PPU';
 

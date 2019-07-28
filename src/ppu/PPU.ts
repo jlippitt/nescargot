@@ -1,4 +1,4 @@
-import Interrupt from 'interrupt';
+import Interrupt from 'Interrupt';
 import Mapper from 'mapper/Mapper';
 import Screen from 'screen/Screen';
 

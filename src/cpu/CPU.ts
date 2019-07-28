@@ -1,4 +1,4 @@
-import Interrupt from 'interrupt';
+import Interrupt from 'Interrupt';
 import { debug } from 'log';
 
 import DMA from './DMA';
