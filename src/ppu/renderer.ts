@@ -132,7 +132,6 @@ export default class Renderer {
   private renderSprites(): void {
     const { control, line, vram } = this.state;
 
-    this.spriteBuffer.fill([0, 0, 0]);
     this.priorityBuffer.fill(undefined);
 
     const patternTables = vram.getPatternTables();
