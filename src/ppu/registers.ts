@@ -1,3 +1,8 @@
+import { debug, toHex } from 'log';
+
+const HORIZONTAL_INCREMENT = 1;
+const VERTICAL_INCREMENT = 32;
+
 export interface Scroll {
   x: number;
   y: number;
@@ -5,11 +10,12 @@ export interface Scroll {
 
 export default class Registers {
   private vramAddress: number = 0;
+  private vramIncrement: number = HORIZONTAL_INCREMENT;
   private tempAddress: number = 0;
   private fineXScroll: number = 0;
   private firstWrite: boolean = true;
 
-  public getVramAddress = (): number => this.vramAddress;
+  public getVramAddress = (): number => this.vramAddress & 0x3fff;
 
   public getScroll(): Scroll {
     const nameTableX = (this.tempAddress & 0x0400) >> 10;
@@ -52,8 +58,18 @@ export default class Registers {
     } else {
       this.tempAddress = (this.tempAddress & 0xff00) | value;
       this.vramAddress = this.tempAddress;
+      debug(`VRAM Address: ${toHex(this.vramAddress, 4)}`);
     }
 
     this.firstWrite = !this.firstWrite;
+  }
+
+  public setVramIncrement(vertical: boolean): void {
+    this.vramIncrement = vertical ? VERTICAL_INCREMENT : HORIZONTAL_INCREMENT;
+    debug(`VRAM Increment: ${this.vramIncrement}`);
+  }
+
+  public incrementVramAddress(): void {
+    this.vramAddress = (this.vramAddress + this.vramIncrement) & 0x7fff;
   }
 }

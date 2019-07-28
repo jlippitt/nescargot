@@ -104,8 +104,11 @@ export default class PPU {
       case 4:
         return oam.getDataByte();
 
-      case 7:
-        return vram.getDataByte();
+      case 7: {
+        const value = vram.getByte(registers.getVramAddress());
+        registers.incrementVramAddress();
+        return value;
+      }
 
       default:
         return 0;
@@ -120,7 +123,7 @@ export default class PPU {
     switch (offset % 8) {
       case 0:
         registers.setNameTableIndexes(value & 0x03);
-        vram.setIncrementType((value & 0x04) !== 0);
+        registers.setVramIncrement((value & 0x04) !== 0);
         control.spritePatternTableIndex = (value & 0x08) >> 3;
         control.backgroundPatternTableIndex = (value & 0x10) >> 4;
         control.nmiEnabled = (value & 0x80) !== 0;
@@ -148,11 +151,12 @@ export default class PPU {
 
       case 6:
         registers.setAddressByte(value);
-        vram.setAddress(registers.getVramAddress());
         break;
 
       case 7:
-        vram.setDataByte(value);
+        vram.setByte(registers.getVramAddress(), value);
+        registers.incrementVramAddress();
+        break;
     }
   }
 
