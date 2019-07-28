@@ -1,5 +1,5 @@
-import GenericMapper from './genericMapper';
-import Mapper, { PRG_BANK_SIZE, ROM } from './index';
+import GenericMapper from './GenericMapper';
+import Mapper, { PRG_BANK_SIZE, ROM } from './Mapper';
 
 export default class UxROM extends GenericMapper implements Mapper {
   private upperBankOffset: number;

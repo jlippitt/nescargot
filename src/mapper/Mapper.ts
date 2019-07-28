@@ -4,9 +4,9 @@ import { debug } from 'log';
 import NameTable, { createNameTables } from 'ppu/nameTable';
 import PatternTable, { createPatternTables } from 'ppu/patternTable';
 
-import MMC1 from './mmc1';
-import NROM from './nrom';
-import UxROM from './uxrom';
+import MMC1 from './MMC1';
+import NROM from './NROM';
+import UxROM from './UxROM';
 
 const INES_CONSTANT = new Uint8Array([0x4e, 0x45, 0x53, 0x1a]);
 

@@ -1,5 +1,5 @@
 import { debug, toHex } from 'log';
-import Mapper from 'mapper';
+import Mapper from 'mapper/Mapper';
 
 import NameTable from './nameTable';
 import PaletteTable from './paletteTable';

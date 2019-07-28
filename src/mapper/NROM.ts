@@ -1,5 +1,5 @@
-import GenericMapper from './genericMapper';
-import Mapper, { NameTableMirroring, ROM } from './index';
+import GenericMapper from './GenericMapper';
+import Mapper, { NameTableMirroring, ROM } from './Mapper';
 
 export default class NROM extends GenericMapper implements Mapper {
   public getPrgByte(offset: number): number {

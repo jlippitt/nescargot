@@ -1,7 +1,7 @@
 import NameTable from 'ppu/nameTable';
 import PatternTable from 'ppu/patternTable';
 
-import Mapper, { NameTableMirroring, ROM } from './index';
+import Mapper, { NameTableMirroring, ROM } from './Mapper';
 
 export default class GenericMapper implements Mapper {
   protected rom: ROM;

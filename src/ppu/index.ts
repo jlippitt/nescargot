@@ -1,5 +1,5 @@
 import Interrupt from 'interrupt';
-import Mapper from 'mapper';
+import Mapper from 'mapper/Mapper';
 import Screen from 'screen';
 
 import OAM from './oam';

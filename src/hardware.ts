@@ -2,7 +2,7 @@ import CPU from 'cpu/CPU';
 import DMA from 'cpu/DMA';
 import Interrupt from 'interrupt';
 import Joypad from 'joypad';
-import { createMapper } from 'mapper';
+import { createMapper } from 'mapper/Mapper';
 import PPU from 'ppu';
 import Screen from 'screen';
 

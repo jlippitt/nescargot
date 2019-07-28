@@ -1,6 +1,5 @@
 import Interrupt from 'interrupt';
 import { debug } from 'log';
-import Mapper from 'mapper';
 import PPU from 'ppu';
 
 import DMA from './DMA';

@@ -1,5 +1,4 @@
 import { toHex } from 'log';
-import Mapper from 'mapper';
 
 import AddressMode from './AddressMode';
 import Clock from './Clock';
