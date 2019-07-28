@@ -18,15 +18,15 @@ async function loadRomData(): Promise<Uint8Array> {
 }
 
 export async function runInBrowser(): Promise<void> {
-  const canvas = document.getElementById('nescargot');
+  const container = document.getElementById('nescargot');
 
-  if (!(canvas instanceof HTMLCanvasElement)) {
-    throw new Error('No canvas found on page');
+  if (!container) {
+    throw new Error('No container element found on page');
   }
 
   const romData = await loadRomData();
 
-  const screen = new CanvasScreen(canvas);
+  const screen = new CanvasScreen(container);
 
   const { cpu, ppu } = createHardware({
     romData,
