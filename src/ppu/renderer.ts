@@ -82,10 +82,9 @@ export default class Renderer {
     const tileY = (posY >> 3) % 30;
     const pixelY = posY % TILE_SIZE;
 
+    let nameTableX = (scroll.x & 0x1ff) >> 8;
     let tileX = (scroll.x >> 3) & 0x1f;
     let pixelX = scroll.x % TILE_SIZE;
-
-    let nameTableX = (scroll.x & 0x1ff) >> 8;
 
     let nameTable = nameTables[nameTableY | nameTableX];
 
