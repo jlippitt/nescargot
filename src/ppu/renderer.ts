@@ -6,6 +6,7 @@ import { Priority, Sprite } from './oam';
 import { Color } from './paletteTable';
 
 const RENDER_WIDTH = 256;
+const NAME_TABLE_WIDTH = 32;
 const TILE_SIZE = 8;
 const SPRITES_PER_LINE = 8;
 
@@ -81,17 +82,14 @@ export default class Renderer {
     const tileY = (posY >> 3) % 30;
     const pixelY = posY % TILE_SIZE;
 
-    let posX = scroll.x;
+    let tileX = (scroll.x >> 3) & 0x1f;
     let pixelX = scroll.x % TILE_SIZE;
 
-    let nameTableX = (posX & 0x1ff) >> 8;
+    let nameTableX = (scroll.x & 0x1ff) >> 8;
 
     let nameTable = nameTables[nameTableY | nameTableX];
 
-    let { patternIndex, paletteIndex } = nameTable.getTile(
-      (posX >> 3) & 0x1f,
-      tileY,
-    );
+    let { patternIndex, paletteIndex } = nameTable.getTile(tileX, tileY);
 
     let patternRow = patternTable.getPattern(patternIndex)[pixelY];
 
@@ -108,19 +106,17 @@ export default class Renderer {
         this.opacityBuffer[x] = false;
       }
 
-      ++posX;
-
       if (++pixelX === TILE_SIZE) {
         pixelX = 0;
 
-        nameTableX = (posX & 0x1ff) >> 8;
+        if (++tileX === NAME_TABLE_WIDTH) {
+          tileX = 0;
+          nameTableX ^= 1;
+        }
 
         nameTable = nameTables[nameTableY | nameTableX];
 
-        ({ patternIndex, paletteIndex } = nameTable.getTile(
-          (posX >> 3) & 0x1f,
-          tileY,
-        ));
+        ({ patternIndex, paletteIndex } = nameTable.getTile(tileX, tileY));
 
         patternRow = patternTable.getPattern(patternIndex)[pixelY];
 
