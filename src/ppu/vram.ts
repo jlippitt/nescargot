@@ -20,6 +20,10 @@ export default class VRAM {
     return this.mapper.getPatternTables();
   }
 
+  public getPatternTable(index: number): PatternTable {
+    return this.mapper.getPatternTables()[index];
+  }
+
   public getNameTables(): NameTable[] {
     return this.mapper.getNameTables();
   }

@@ -67,9 +67,9 @@ export default class Renderer {
   private renderBackground(): void {
     const { control, line, registers, vram } = this.state;
 
-    const patternTable = vram.getPatternTables()[
-      control.backgroundPatternTableIndex
-    ];
+    const patternTable = vram.getPatternTable(
+      control.backgroundPatternTableIndex,
+    );
 
     const nameTables = vram.getNameTables();
     const palettes = vram.getPaletteTable().getBackgroundPalettes();
