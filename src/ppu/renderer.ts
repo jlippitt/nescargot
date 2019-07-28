@@ -78,7 +78,8 @@ export default class Renderer {
 
     const posY = scroll.y + line;
     const nameTableY = Math.floor((posY % 480) / 240) << 1;
-    const tileY = posY % TILE_SIZE;
+    const tileY = (posY >> 3) % 30;
+    const pixelY = posY % TILE_SIZE;
 
     let posX = scroll.x;
 
@@ -88,12 +89,12 @@ export default class Renderer {
       const nameTable = nameTables[nameTableY | nameTableX];
 
       const { patternIndex, paletteIndex } = nameTable.getTile(
-        (posX >> 3) % 32,
-        (posY >> 3) % 30,
+        (posX >> 3) & 0x1f,
+        tileY,
       );
 
       const pattern = patternTable.getPattern(patternIndex);
-      const pixel = pattern[tileY][posX % TILE_SIZE];
+      const pixel = pattern[pixelY][posX % TILE_SIZE];
 
       if (pixel > 0) {
         this.lineBuffer[x] = palettes[paletteIndex][pixel];
