@@ -1,3 +1,4 @@
+import APU from 'apu/APU';
 import DMA from 'DMA';
 import Interrupt from 'Interrupt';
 import Joypad from 'Joypad';
@@ -8,6 +9,7 @@ export default interface Hardware {
   joypad: Joypad;
   mapper: Mapper;
   interrupt: Interrupt;
+  apu: APU;
   ppu: PPU;
   dma: DMA;
 }

@@ -1,3 +1,4 @@
+import APU from 'apu/APU';
 import DMA from 'DMA';
 import Joypad from 'Joypad';
 import { debug, toHex } from 'log';
@@ -11,13 +12,15 @@ const RAM_SIZE = 2048;
 export default class MMU {
   private mapper: Mapper;
   private ppu: PPU;
+  private apu: APU;
   private joypad: Joypad;
   private dma: DMA;
   private ram: Uint8Array;
 
-  constructor({ mapper, ppu, joypad, dma }: Hardware) {
+  constructor({ mapper, ppu, apu, joypad, dma }: Hardware) {
     this.mapper = mapper;
     this.ppu = ppu;
+    this.apu = apu;
     this.joypad = joypad;
     this.dma = dma;
     this.ram = new Uint8Array(RAM_SIZE);
@@ -45,8 +48,7 @@ export default class MMU {
               value = this.joypad.getByte(offset);
               break;
             default:
-              // TODO: APU registers
-              value = 0;
+              value = this.apu.getByte(offset);
               break;
           }
         } else {
@@ -89,11 +91,10 @@ export default class MMU {
               this.dma.begin(value);
               break;
             case 0x4016:
-            case 0x4017:
               this.joypad.setByte(offset, value);
               break;
             default:
-              // TODO: APU registers
+              this.apu.setByte(offset, value);
               break;
           }
         } else {
