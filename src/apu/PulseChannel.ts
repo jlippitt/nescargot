@@ -21,33 +21,25 @@ interface Sweep {
 }
 
 export default class PulseChannel {
-  private timer: number;
-  private pulseWidth: number;
-  private lengthCounter: LengthCounter;
-  private volumeControl: VolumeControl;
-  private sweep: Sweep;
+  private timer: number = 0;
+  private pulseWidth: number = 0;
 
-  constructor() {
-    this.timer = 0;
-    this.pulseWidth = 0;
+  private lengthCounter: LengthCounter = {
+    enabled: true,
+    value: 0,
+  };
 
-    this.lengthCounter = {
-      enabled: true,
-      value: 0,
-    };
+  private volumeControl: VolumeControl = {
+    type: VolumeControlType.EnvelopePeriod,
+    value: 0,
+  };
 
-    this.volumeControl = {
-      type: VolumeControlType.EnvelopePeriod,
-      value: 0,
-    };
-
-    this.sweep = {
-      enabled: false,
-      period: 0,
-      negative: false,
-      shiftCount: 0,
-    };
-  }
+  private sweep: Sweep = {
+    enabled: false,
+    period: 0,
+    negative: false,
+    shiftCount: 0,
+  };
 
   public setByte(offset: number, value: number): void {
     switch (offset & 0x03) {

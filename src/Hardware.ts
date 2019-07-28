@@ -10,6 +10,7 @@ import Screen from 'screen/Screen';
 export default interface Hardware {
   cpu: CPU;
   ppu: PPU;
+  apu: APU;
   joypad: Joypad;
 }
 
@@ -26,5 +27,5 @@ export function createHardware({ romData, screen }: Options): Hardware {
   const joypad = new Joypad();
   const dma = new DMA(ppu.getOam(), interrupt);
   const cpu = new CPU({ mapper, interrupt, ppu, apu, joypad, dma });
-  return { cpu, ppu, joypad };
+  return { cpu, ppu, apu, joypad };
 }

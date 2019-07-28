@@ -28,7 +28,7 @@ export async function runInBrowser(): Promise<void> {
 
   const screen = new CanvasScreen(container);
 
-  const { cpu, ppu } = createHardware({
+  const { cpu, ppu, apu } = createHardware({
     romData,
     screen,
   });
@@ -39,6 +39,7 @@ export async function runInBrowser(): Promise<void> {
     while (!done) {
       const ticks = cpu.tick();
       done = ppu.tick(ticks);
+      apu.tick(ticks);
     }
 
     screen.update();
