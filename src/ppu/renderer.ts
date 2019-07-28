@@ -1,20 +1,51 @@
 import { debug } from 'log';
 import Screen from 'screen';
 
-import { PPUState } from './index';
+import { PPUControl, PPUState } from './index';
 import { Priority, Sprite } from './oam';
 import { Color } from './paletteTable';
+import PatternTable from './patternTable';
 
 const RENDER_WIDTH = 256;
 const NAME_TABLE_WIDTH = 32;
 const TILE_SIZE = 8;
 const SPRITES_PER_LINE = 8;
 
-const isOnLine = (sprite: Sprite, line: number) =>
-  line >= sprite.y && line < sprite.y + TILE_SIZE;
+const isOnLine = (spriteSize: number, line: number, sprite: Sprite) =>
+  line >= sprite.y && line < sprite.y + spriteSize;
 
-const flip = (shouldFlip: boolean, pixel: number) =>
-  shouldFlip ? TILE_SIZE - pixel - 1 : pixel;
+const flip = (spriteSize: number, shouldFlip: boolean, pixel: number) =>
+  shouldFlip ? spriteSize - pixel - 1 : pixel;
+
+const getSpritePatternRow = (
+  control: PPUControl,
+  patternTables: PatternTable[],
+  line: number,
+  sprite: Sprite,
+): number[] => {
+  const spriteY = flip(control.spriteSize, sprite.flipY, line - sprite.y);
+
+  let patternTableIndex;
+  let patternIndex;
+
+  if (control.spriteSize === SpriteSize.Large) {
+    patternTableIndex = sprite.patternIndex & 0x01;
+    patternIndex = (sprite.patternIndex & 0xfe) | (spriteY >> 3);
+  } else {
+    patternTableIndex = control.spritePatternTableIndex;
+    patternIndex = sprite.patternIndex;
+  }
+
+  const patternTable = patternTables[patternTableIndex];
+  const pattern = patternTable.getPattern(patternIndex);
+
+  return pattern[spriteY % TILE_SIZE];
+};
+
+export enum SpriteSize {
+  Small = 8,
+  Large = 16,
+}
 
 export default class Renderer {
   private screen: Screen;
@@ -125,12 +156,15 @@ export default class Renderer {
   }
 
   private selectSprites(): void {
-    const { line, oam } = this.state;
+    const { control, line, oam } = this.state;
     let spriteIndex = 0;
 
     // Select front priority sprites
     for (const sprite of oam.getSprites()) {
-      if (sprite.priority === Priority.Front && isOnLine(sprite, line)) {
+      if (
+        sprite.priority === Priority.Front &&
+        isOnLine(control.spriteSize, line, sprite)
+      ) {
         this.selectedSprites[spriteIndex++] = sprite;
         if (spriteIndex >= SPRITES_PER_LINE) {
           break;
@@ -141,7 +175,10 @@ export default class Renderer {
     if (spriteIndex < SPRITES_PER_LINE) {
       // Select back priority sprites
       for (const sprite of oam.getSprites()) {
-        if (sprite.priority === Priority.Back && isOnLine(sprite, line)) {
+        if (
+          sprite.priority === Priority.Back &&
+          isOnLine(control.spriteSize, line, sprite)
+        ) {
           this.selectedSprites[spriteIndex++] = sprite;
           if (spriteIndex >= SPRITES_PER_LINE) {
             break;
@@ -170,16 +207,18 @@ export default class Renderer {
         continue;
       }
 
-      const patternTable = patternTables[control.spritePatternTableIndex];
-      const pattern = patternTable.getPattern(sprite.patternIndex);
+      const patternRow = getSpritePatternRow(
+        control,
+        patternTables,
+        line,
+        sprite,
+      );
       const palette = palettes[sprite.paletteIndex];
 
-      const spriteY = flip(sprite.flipY, line - sprite.y);
-
       for (let x = 0; x < TILE_SIZE; ++x) {
-        const spriteX = flip(sprite.flipX, x);
+        const spriteX = flip(TILE_SIZE, sprite.flipX, x);
 
-        const pixel = pattern[spriteY][spriteX];
+        const pixel = patternRow[spriteX];
 
         if (pixel > 0) {
           const bufferIndex = sprite.x + x;
@@ -213,20 +252,24 @@ export default class Renderer {
 
     const sprite = oam.getSprites()[0];
 
-    if (!isOnLine(sprite, line) || sprite.x === 255) {
+    // TODO: Make this support large sprites
+    if (!isOnLine(control.spriteSize, line, sprite) || sprite.x === 255) {
       return false;
     }
 
     const patternTables = vram.getPatternTables();
-    const patternTable = patternTables[control.spritePatternTableIndex];
-    const pattern = patternTable.getPattern(sprite.patternIndex);
 
-    const spriteY = flip(sprite.flipY, line - sprite.y);
+    const patternRow = getSpritePatternRow(
+      control,
+      patternTables,
+      line,
+      sprite,
+    );
 
     for (let x = 0; x < TILE_SIZE; ++x) {
-      const spriteX = flip(sprite.flipX, x);
+      const spriteX = flip(TILE_SIZE, sprite.flipX, x);
 
-      if (this.opacityBuffer[sprite.x + x] && pattern[spriteY][spriteX] > 0) {
+      if (this.opacityBuffer[sprite.x + x] && patternRow[spriteX] > 0) {
         return true;
       }
     }

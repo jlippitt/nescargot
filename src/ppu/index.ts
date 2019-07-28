@@ -4,7 +4,7 @@ import Screen from 'screen';
 
 import OAM from './oam';
 import Registers from './registers';
-import Renderer from './renderer';
+import Renderer, { SpriteSize } from './renderer';
 import VRAM from './vram';
 
 const TICKS_PER_LINE = 341;
@@ -17,18 +17,21 @@ export interface PPUOptions {
   mapper: Mapper;
 }
 
+export interface PPUControl {
+  backgroundNameTableX: number;
+  backgroundNameTableY: number;
+  backgroundPatternTableIndex: number;
+  spritePatternTableIndex: number;
+  spriteSize: SpriteSize;
+  nmiEnabled: boolean;
+}
+
 export interface PPUState {
   screen: Screen;
   line: number;
   oam: OAM;
   vram: VRAM;
-  control: {
-    backgroundNameTableX: number;
-    backgroundNameTableY: number;
-    backgroundPatternTableIndex: number;
-    spritePatternTableIndex: number;
-    nmiEnabled: boolean;
-  };
+  control: PPUControl;
   mask: {
     backgroundEnabled: boolean;
     spritesEnabled: boolean;
@@ -62,6 +65,7 @@ export default class PPU {
         backgroundNameTableY: 0,
         backgroundPatternTableIndex: 0,
         spritePatternTableIndex: 0,
+        spriteSize: SpriteSize.Small,
         nmiEnabled: false,
       },
       mask: {
@@ -126,6 +130,8 @@ export default class PPU {
         registers.setVramIncrement((value & 0x04) !== 0);
         control.spritePatternTableIndex = (value & 0x08) >> 3;
         control.backgroundPatternTableIndex = (value & 0x10) >> 4;
+        control.spriteSize =
+          (value & 0x20) !== 0 ? SpriteSize.Large : SpriteSize.Small;
         control.nmiEnabled = (value & 0x80) !== 0;
 
         if (control.nmiEnabled && status.vblank) {
