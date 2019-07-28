@@ -80,19 +80,21 @@ export default class Renderer {
     const pixelY = posY % TILE_SIZE;
 
     let posX = scroll.x;
+    let pixelX = scroll.x % TILE_SIZE;
+
+    let nameTableX = (posX & 0x1ff) >> 8;
+
+    let nameTable = nameTables[nameTableY | nameTableX];
+
+    let { patternIndex, paletteIndex } = nameTable.getTile(
+      (posX >> 3) & 0x1f,
+      tileY,
+    );
+
+    let patternRow = patternTable.getPattern(patternIndex)[pixelY];
 
     for (let x = 0; x < RENDER_WIDTH; ++x) {
-      const nameTableX = (posX & 0x1ff) >> 8;
-
-      const nameTable = nameTables[nameTableY | nameTableX];
-
-      const { patternIndex, paletteIndex } = nameTable.getTile(
-        (posX >> 3) & 0x1f,
-        tileY,
-      );
-
-      const pattern = patternTable.getPattern(patternIndex);
-      const pixel = pattern[pixelY][posX % TILE_SIZE];
+      const pixel = patternRow[pixelX];
 
       if (pixel > 0) {
         this.lineBuffer[x] = palettes[paletteIndex][pixel];
@@ -100,6 +102,21 @@ export default class Renderer {
       }
 
       ++posX;
+
+      if (++pixelX === TILE_SIZE) {
+        pixelX = 0;
+
+        nameTableX = (posX & 0x1ff) >> 8;
+
+        nameTable = nameTables[nameTableY | nameTableX];
+
+        ({ patternIndex, paletteIndex } = nameTable.getTile(
+          (posX >> 3) & 0x1f,
+          tileY,
+        ));
+
+        patternRow = patternTable.getPattern(patternIndex)[pixelY];
+      }
     }
   }
 
