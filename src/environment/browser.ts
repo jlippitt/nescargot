@@ -1,3 +1,4 @@
+import { createAudioController } from 'audio/AudioController';
 import { createHardware } from 'Hardware';
 import CanvasScreen from 'screen/CanvasScreen';
 
@@ -30,10 +31,14 @@ export async function runInBrowser(): Promise<void> {
 
   const screen = new CanvasScreen(container);
 
+  const audioController = await createAudioController();
+
   const { cpu, ppu, apu } = createHardware({
     romData,
     screen,
   });
+
+  audioController.start();
 
   let prevFrameTime = window.performance.now();
   let excessTicks = 0;

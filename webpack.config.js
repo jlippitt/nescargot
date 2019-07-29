@@ -22,7 +22,11 @@ module.exports = {
           },
         ],
         exclude: /node_modules/,
-      }
+      },
+      {
+        test: /\.worklet\.js$/,
+        use: { loader: 'worklet-loader' }
+      },
     ]
   },
   node: {

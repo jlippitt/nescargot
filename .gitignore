@@ -63,4 +63,5 @@ typings/
 # webpack build output
 dist/
 public/nescargot.js
+public/*.worklet.js
 public/roms/
