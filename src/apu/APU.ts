@@ -1,10 +1,6 @@
 import FrameCounter from './FrameCounter';
 import PulseChannel from './PulseChannel';
 
-// This is a slight simplification of what the actual hardware does, but
-// probably good enough
-const TICKS_PER_FRAME = 7457;
-
 export default class APU {
   private pulse1: PulseChannel;
   private pulse2: PulseChannel;
@@ -39,17 +35,18 @@ export default class APU {
     }
   }
 
-  public tick(ticks: number): void {
-    this.clock += ticks;
+  public tick(lowResTicks: number): void {
+    // The extra 8 bits allow better timing accuracy
+    const ticks = lowResTicks << 8;
 
-    if (this.clock >= TICKS_PER_FRAME) {
-      this.clock -= TICKS_PER_FRAME;
+    const frameAction = this.frameCounter.tick(ticks);
 
+    if (frameAction) {
       const {
         updateLengthCounter,
         updateVolumeControl,
         triggerInterrupt,
-      } = this.frameCounter.tick();
+      } = frameAction;
 
       // TODO: Update various things
     }
