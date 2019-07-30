@@ -1,3 +1,5 @@
+import { SAMPLE_RATE } from 'apu/APU';
+
 import audioReceiverNodeUrl from './AudioReceiverNode.worklet.js';
 
 export default class AudioController {
@@ -19,7 +21,7 @@ export default class AudioController {
 }
 
 export async function createAudioController(): Promise<AudioController> {
-  const context = new AudioContext();
+  const context = new AudioContext({ sampleRate: SAMPLE_RATE });
 
   await context.audioWorklet.addModule(audioReceiverNodeUrl);
 
