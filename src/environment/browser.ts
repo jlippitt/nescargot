@@ -64,6 +64,8 @@ export async function runInBrowser(): Promise<void> {
     prevFrameTime = now;
     excessTicks = Math.max(0, currentTicks - allowedTicks);
 
+    audioController.sendAudioData(apu.fetchAudioData());
+
     window.requestAnimationFrame(renderFrame);
   }
 

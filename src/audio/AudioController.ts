@@ -12,6 +12,10 @@ export default class AudioController {
   public start(): void {
     this.audioReceiver.connect(this.context.destination);
   }
+
+  public sendAudioData(data: Float32Array) {
+    this.audioReceiver.port.postMessage(data.buffer, [data.buffer]);
+  }
 }
 
 export async function createAudioController(): Promise<AudioController> {

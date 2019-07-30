@@ -1,4 +1,4 @@
-const TICKS_PER_FRAME = 1909120;
+const TICKS_PER_FRAME = (89490 * 256) / 12;
 
 const SEQUENCE_SHORT = 4;
 const SEQUENCE_LONG = 5;
