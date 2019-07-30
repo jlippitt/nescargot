@@ -35,9 +35,9 @@ export default class APU {
     }
   }
 
-  public tick(lowResTicks: number): void {
+  public tick(cpuTicks: number): void {
     // The extra 8 bits allow better timing accuracy
-    const ticks = lowResTicks << 8;
+    const ticks = cpuTicks << 8;
 
     const frameAction = this.frameCounter.tick(ticks);
 
