@@ -47,13 +47,14 @@ export async function runInBrowser(): Promise<void> {
     while (currentTicks < Math.ceil(allowedTicks)) {
       const ticks = cpu.tick();
 
-      ppu.tick(ticks);
+      if (ppu.tick(ticks)) {
+        screen.update();
+      }
+
       apu.tick(ticks);
 
       currentTicks += ticks;
     }
-
-    screen.update();
 
     prevFrameTime = now;
     excessTicks = Math.max(0, currentTicks - allowedTicks);
