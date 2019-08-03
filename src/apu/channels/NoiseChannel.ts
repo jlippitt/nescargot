@@ -49,6 +49,7 @@ export default class NoiseChannel {
         break;
       case 3:
         this.lengthCounter.setValue((value & 0xf8) >> 3);
+        this.envelope.setStartFlag();
         break;
       default:
         throw new Error('Should not happen');
