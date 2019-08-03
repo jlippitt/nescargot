@@ -1,6 +1,8 @@
 import { createHardware } from 'Hardware';
 import CanvasScreen from 'screen/CanvasScreen';
 
+const MASTER_CLOCK_RATE = 21477270;
+
 async function loadRomData(): Promise<Uint8Array> {
   const romUrl = new URLSearchParams(location.search).get('url');
 
@@ -33,16 +35,28 @@ export async function runInBrowser(): Promise<void> {
     screen,
   });
 
-  function renderFrame(): void {
-    let done = false;
+  let prevFrameTime = window.performance.now();
+  let excessTicks = 0;
 
-    while (!done) {
+  function renderFrame(now: number): void {
+    const allowedTicks =
+      ((now - prevFrameTime) * MASTER_CLOCK_RATE) / 12 / 1000 - excessTicks;
+
+    let currentTicks = 0;
+
+    while (currentTicks < Math.ceil(allowedTicks)) {
       const ticks = cpu.tick();
-      done = ppu.tick(ticks);
+
+      ppu.tick(ticks);
       apu.tick(ticks);
+
+      currentTicks += ticks;
     }
 
     screen.update();
+
+    prevFrameTime = now;
+    excessTicks = Math.max(0, currentTicks - allowedTicks);
 
     window.requestAnimationFrame(renderFrame);
   }
