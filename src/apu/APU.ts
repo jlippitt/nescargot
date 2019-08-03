@@ -50,6 +50,7 @@ export default class APU {
         break;
       case 0x08:
         this.triangle.setByte(offset, value);
+        break;
       case 0x0c:
         this.noise.setByte(offset, value);
         break;
@@ -62,6 +63,7 @@ export default class APU {
         } else if ((offset & 0x03) === 3) {
           this.frameCounter.setByte(value);
         }
+        break;
       default:
         // Nothing
         break;
