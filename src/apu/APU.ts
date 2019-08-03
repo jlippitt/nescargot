@@ -64,6 +64,7 @@ export default class APU {
     }
 
     this.pulse1.tick(ticks);
+    this.pulse2.tick(ticks);
 
     this.sampleClock += ticks;
 
@@ -71,8 +72,8 @@ export default class APU {
       this.sampleClock -= TICKS_PER_SAMPLE;
 
       this.sampleBuffer.writeSample(
-        this.pulse1.sample() * 2 - 1,
-        this.pulse1.sample() * 2 - 1,
+        this.pulse1.sample() + this.pulse1.sample() - 1,
+        this.pulse1.sample() + this.pulse2.sample() - 1,
       );
     }
   }
