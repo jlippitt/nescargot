@@ -1,10 +1,10 @@
 import Envelope from './components/Envelope';
 import FrequencyClock from './components/FrequencyClock';
 import LengthCounter from './components/LengthCounter';
-import Sampler, { Sample } from './components/Sampler';
+import Sequencer, { Sequence } from './components/Sequencer';
 import Sweep from './components/Sweep';
 
-const DUTY_CYCLES: Sample[] = [
+const DUTY_CYCLES: Sequence[] = [
   [0, 1, 0, 0, 0, 0, 0, 0],
   [0, 1, 1, 0, 0, 0, 0, 0],
   [0, 1, 1, 1, 1, 0, 0, 0],
@@ -14,14 +14,14 @@ const DUTY_CYCLES: Sample[] = [
 const FREQUENCY_DIVISOR = 2;
 
 export default class PulseChannel {
-  private pulseDuty: Sampler;
+  private pulseDuty: Sequencer;
   private timer: FrequencyClock;
   private envelope: Envelope;
   private sweep: Sweep;
   private lengthCounter: LengthCounter;
 
   constructor(negationOffset: number) {
-    this.pulseDuty = new Sampler(DUTY_CYCLES[0]);
+    this.pulseDuty = new Sequencer(DUTY_CYCLES[0]);
     this.timer = new FrequencyClock(FREQUENCY_DIVISOR);
     this.envelope = new Envelope();
     this.sweep = new Sweep(this.timer, negationOffset);
@@ -31,7 +31,7 @@ export default class PulseChannel {
   public setByte(offset: number, value: number): void {
     switch (offset & 0x03) {
       case 0:
-        this.pulseDuty.setSample(DUTY_CYCLES[(value & 0xc0) >> 6]);
+        this.pulseDuty.setSequence(DUTY_CYCLES[(value & 0xc0) >> 6]);
         this.lengthCounter.setHalted((value & 0x20) !== 0);
         this.envelope.setByte(value & 0x3f);
         break;
