@@ -98,6 +98,6 @@ export default class PulseChannel {
   }
 
   public sample(): number {
-    return this.pulseDuty.sample() * 15;
+    return this.enabled ? this.pulseDuty.sample() * 15 : 0;
   }
 }
