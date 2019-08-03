@@ -1,4 +1,6 @@
-const TICKS_PER_FRAME = (89490 * 256) / 12;
+import { APU_CLOCK_MULTIPLIER } from './APU';
+
+const TICKS_PER_FRAME = (89490 * APU_CLOCK_MULTIPLIER) / 12;
 
 const SEQUENCE_SHORT = 4;
 const SEQUENCE_LONG = 5;

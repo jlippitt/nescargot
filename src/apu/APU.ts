@@ -1,10 +1,13 @@
 import SampleBuffer from './buffers/SampleBuffer';
+import PulseChannel from './channels/PulseChannel';
 import FrameCounter from './FrameCounter';
-import PulseChannel from './PulseChannel';
 
 export const SAMPLE_RATE = 11025;
 
-const MASTER_CLOCK_RATE = (21477270 * 256) / 12;
+export const APU_CLOCK_SHIFT = 8;
+export const APU_CLOCK_MULTIPLIER = 1 << APU_CLOCK_SHIFT;
+
+const MASTER_CLOCK_RATE = (21477270 * APU_CLOCK_MULTIPLIER) / 12;
 
 const TICKS_PER_SAMPLE = Math.ceil(MASTER_CLOCK_RATE / SAMPLE_RATE);
 
@@ -46,7 +49,7 @@ export default class APU {
 
   public tick(cpuTicks: number): void {
     // The extra 8 bits allow better timing accuracy
-    const ticks = cpuTicks << 8;
+    const ticks = cpuTicks << APU_CLOCK_SHIFT;
 
     const frameAction = this.frameCounter.tick(ticks);
 
@@ -60,15 +63,14 @@ export default class APU {
       // TODO: Update various things
     }
 
+    this.pulse1.tick(ticks);
+
     this.sampleClock += ticks;
 
     if (this.sampleClock >= TICKS_PER_SAMPLE) {
       this.sampleClock -= TICKS_PER_SAMPLE;
 
-      this.sampleBuffer.writeSample(
-        Math.random() * 2 - 1,
-        Math.random() * 2 - 1,
-      );
+      this.sampleBuffer.writeSample(this.pulse1.sample(), this.pulse1.sample());
     }
   }
 }
