@@ -52,6 +52,7 @@ export default class APU {
         this.triangle.setByte(offset, value);
       case 0x0c:
         this.noise.setByte(offset, value);
+        break;
       case 0x14:
         if ((offset & 0x03) === 1) {
           this.pulse1.setEnabled((value & 0x01) !== 0);
