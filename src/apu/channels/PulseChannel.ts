@@ -54,7 +54,7 @@ export default class PulseChannel {
   public setByte(offset: number, value: number): void {
     switch (offset & 0x03) {
       case 0:
-        this.pulseDuty.setSample(DUTY_CYCLES[value & 0x03]);
+        this.pulseDuty.setSample(DUTY_CYCLES[(value & 0xc0) >> 6]);
         this.lengthCounter.setHalted((value & 0x20) !== 0);
         this.volumeControl.type = ((value & 0x10) >> 4) as VolumeControlType;
         this.volumeControl.value = value & 0x0f;
