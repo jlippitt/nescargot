@@ -1,7 +1,7 @@
 import { SAMPLE_RATE } from '../APU';
 import SampleBuffer from './SampleBuffer';
 
-const BUFFER_SIZE = SAMPLE_RATE * 2;
+const BUFFER_SIZE = Math.ceil(SAMPLE_RATE / 60) * 2;
 
 export default class Float32SampleBuffer {
   private buffer: Float32Array;
