@@ -1,4 +1,3 @@
-import Channel from './Channel';
 import FrequencyClock from './components/FrequencyClock';
 import Sampler, { Sample } from './components/Sampler';
 
@@ -33,9 +32,10 @@ interface Sweep {
   shiftCount: number;
 }
 
-export default class PulseChannel implements Channel {
+export default class PulseChannel {
   private pulseDuty: Sampler;
   private timer: FrequencyClock;
+  private enabled: boolean = false;
 
   private lengthCounter: LengthCounter = {
     enabled: true,
@@ -82,6 +82,14 @@ export default class PulseChannel implements Channel {
         break;
       default:
         throw new Error('Should not happen');
+    }
+  }
+
+  public setEnabled(enabled: boolean): void {
+    this.enabled = enabled;
+
+    if (!enabled) {
+      this.lengthCounter.value = 0;
     }
   }
 
