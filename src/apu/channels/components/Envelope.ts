@@ -23,7 +23,7 @@ export default class Envelope {
       this.startFlag = false;
       this.divider = this.value;
       this.decay = MAX_DECAY;
-    } else if (--this.divider === 0) {
+    } else if (this.divider === 0) {
       this.divider = this.value;
 
       if (this.decay > 0) {
@@ -31,6 +31,8 @@ export default class Envelope {
       } else if (this.loop) {
         this.decay = MAX_DECAY;
       }
+    } else {
+      --this.divider;
     }
   }
 
