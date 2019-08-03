@@ -64,12 +64,12 @@ export default class NoiseChannel {
 
     for (let i = 0; i < shifts; ++i) {
       const lhs = this.shift & 0x01;
+
       const rhs = this.mode
         ? (this.shift & 0x40) >> 6
         : (this.shift & 0x02) >> 1;
-      const feedback = lhs ^ rhs;
-      this.shift = this.shift >> 1;
-      this.shift |= feedback << 14;
+
+      this.shift = (this.shift >> 1) | ((lhs ^ rhs) << 14);
     }
   }
 
