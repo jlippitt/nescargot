@@ -1,5 +1,7 @@
 import Envelope from './components/Envelope';
-import FrequencyClock from './components/FrequencyClock';
+import FrequencyClock, {
+  deriveLinearPeriod,
+} from './components/FrequencyClock';
 import LengthCounter from './components/LengthCounter';
 import Sequencer, { Sequence } from './components/Sequencer';
 import Sweep from './components/Sweep';
@@ -22,7 +24,7 @@ export default class PulseChannel {
 
   constructor(negationOffset: number) {
     this.pulseDuty = new Sequencer(DUTY_CYCLES[0]);
-    this.timer = new FrequencyClock(FREQUENCY_DIVISOR);
+    this.timer = new FrequencyClock(deriveLinearPeriod(FREQUENCY_DIVISOR));
     this.envelope = new Envelope();
     this.sweep = new Sweep(this.timer, negationOffset);
     this.lengthCounter = new LengthCounter();

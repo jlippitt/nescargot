@@ -1,7 +1,11 @@
-import FrequencyClock from './components/FrequencyClock';
+import FrequencyClock, {
+  deriveLinearPeriod,
+} from './components/FrequencyClock';
 import LengthCounter from './components/LengthCounter';
 import LinearCounter from './components/LinearCounter';
 import Sequencer, { Sequence } from './components/Sequencer';
+
+const FREQUENCY_DIVISOR = 1;
 
 const TRIANGLE_SEQUENCE = [
   15,
@@ -45,7 +49,7 @@ export default class TriangleChannel {
   private linearCounter: LinearCounter;
 
   constructor() {
-    this.timer = new FrequencyClock(1);
+    this.timer = new FrequencyClock(deriveLinearPeriod(FREQUENCY_DIVISOR));
     this.sequencer = new Sequencer(TRIANGLE_SEQUENCE);
     this.lengthCounter = new LengthCounter();
     this.linearCounter = new LinearCounter();

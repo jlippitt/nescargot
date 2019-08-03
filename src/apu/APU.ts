@@ -1,6 +1,7 @@
 import { times } from 'lodash';
 
 import SampleBuffer from './buffers/SampleBuffer';
+import NoiseChannel from './channels/NoiseChannel';
 import PulseChannel from './channels/PulseChannel';
 import TriangleChannel from './channels/TriangleChannel';
 import { APU_CLOCK_MULTIPLIER, APU_CLOCK_SHIFT } from './constants';
@@ -20,6 +21,7 @@ export default class APU {
   private pulse1: PulseChannel;
   private pulse2: PulseChannel;
   private triangle: TriangleChannel;
+  private noise: NoiseChannel;
   private frameCounter: FrameCounter;
   private sampleBuffer: SampleBuffer;
   private sampleClock: number = 0;
@@ -28,11 +30,13 @@ export default class APU {
     this.pulse1 = new PulseChannel(-1);
     this.pulse2 = new PulseChannel(0);
     this.triangle = new TriangleChannel();
+    this.noise = new NoiseChannel();
     this.frameCounter = new FrameCounter();
     this.sampleBuffer = sampleBuffer;
   }
 
   public getByte(offset: number): number {
+    // TODO: Read from status register
     return 0;
   }
 
@@ -46,11 +50,14 @@ export default class APU {
         break;
       case 0x08:
         this.triangle.setByte(offset, value);
+      case 0x0c:
+        this.noise.setByte(offset, value);
       case 0x14:
         if ((offset & 0x03) === 1) {
           this.pulse1.setEnabled((value & 0x01) !== 0);
           this.pulse2.setEnabled((value & 0x02) !== 0);
           this.triangle.setEnabled((value & 0x04) !== 0);
+          this.noise.setEnabled((value & 0x08) !== 0);
         } else if ((offset & 0x03) === 3) {
           this.frameCounter.setByte(value);
         }
@@ -73,6 +80,7 @@ export default class APU {
         this.pulse1.update(longFrame);
         this.pulse2.update(longFrame);
         this.triangle.update(longFrame);
+        this.noise.update(longFrame);
       }
 
       // TODO: Interrupt
@@ -81,6 +89,7 @@ export default class APU {
     this.pulse1.tick(ticks);
     this.pulse2.tick(ticks);
     this.triangle.tick(ticks);
+    this.noise.tick(ticks);
 
     this.sampleClock += ticks;
 
@@ -89,7 +98,8 @@ export default class APU {
 
       const pulseOut = PULSE_TABLE[this.pulse1.sample() + this.pulse2.sample()];
 
-      const tndOut = TND_TABLE[this.triangle.sample() * 3];
+      const tndOut =
+        TND_TABLE[this.triangle.sample() * 3 + this.noise.sample() * 2];
 
       const sample = pulseOut + tndOut;
 

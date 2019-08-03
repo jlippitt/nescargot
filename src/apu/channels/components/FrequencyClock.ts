@@ -1,14 +1,20 @@
 import { APU_CLOCK_SHIFT } from '../../constants';
 
+export type DerivePeriod = (value: number) => number;
+
+export const deriveLinearPeriod = (divisor: number) => (
+  value: number,
+): number => ((value + 1) << APU_CLOCK_SHIFT) * divisor;
+
 export default class FrequencyClock {
+  private derivePeriod: DerivePeriod;
   private value: number = 0;
   private clock: number = 0;
-  private divisor: number;
   private period: number = 0;
 
-  constructor(divisor: number) {
-    this.divisor = divisor;
-    this.period = this.derivePeriod();
+  constructor(derivePeriod: DerivePeriod) {
+    this.derivePeriod = derivePeriod;
+    this.period = this.derivePeriod(this.value);
   }
 
   public getValue(): number {
@@ -17,7 +23,7 @@ export default class FrequencyClock {
 
   public setValue(value: number) {
     this.value = value;
-    this.period = this.derivePeriod();
+    this.period = this.derivePeriod(this.value);
   }
 
   public setLowerByte(value: number): void {
@@ -40,7 +46,4 @@ export default class FrequencyClock {
 
     return result;
   }
-
-  private derivePeriod = (): number =>
-    ((this.value + 1) << APU_CLOCK_SHIFT) * this.divisor
 }
