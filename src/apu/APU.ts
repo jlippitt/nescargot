@@ -70,7 +70,10 @@ export default class APU {
     if (this.sampleClock >= TICKS_PER_SAMPLE) {
       this.sampleClock -= TICKS_PER_SAMPLE;
 
-      this.sampleBuffer.writeSample(this.pulse1.sample(), this.pulse1.sample());
+      this.sampleBuffer.writeSample(
+        this.pulse1.sample() * 2 - 1,
+        this.pulse1.sample() * 2 - 1,
+      );
     }
   }
 }
