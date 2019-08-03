@@ -1,4 +1,4 @@
-import { APU_CLOCK_SHIFT } from '../../APU';
+import { APU_CLOCK_SHIFT } from '../../constants';
 
 export default class FrequencyClock {
   private value: number = 0;

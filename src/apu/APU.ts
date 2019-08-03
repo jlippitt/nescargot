@@ -2,12 +2,10 @@ import { times } from 'lodash';
 
 import SampleBuffer from './buffers/SampleBuffer';
 import PulseChannel from './channels/PulseChannel';
+import { APU_CLOCK_MULTIPLIER, APU_CLOCK_SHIFT } from './constants';
 import FrameCounter from './FrameCounter';
 
 export const SAMPLE_RATE = 11025;
-
-export const APU_CLOCK_SHIFT = 8;
-export const APU_CLOCK_MULTIPLIER = 1 << APU_CLOCK_SHIFT;
 
 const MASTER_CLOCK_RATE = (21477270 * APU_CLOCK_MULTIPLIER) / 12;
 
@@ -58,16 +56,17 @@ export default class APU {
     // The extra 8 bits allow better timing accuracy
     const ticks = cpuTicks << APU_CLOCK_SHIFT;
 
-    const frameAction = this.frameCounter.tick(ticks);
+    const frame = this.frameCounter.tick(ticks);
 
-    if (frameAction) {
-      const {
-        updateLengthCounter,
-        updateVolumeControl,
-        triggerInterrupt,
-      } = frameAction;
+    if (frame) {
+      const { shortFrame, longFrame, interrupt } = frame;
 
-      // TODO: Update various things
+      if (shortFrame) {
+        this.pulse1.update(longFrame);
+        this.pulse2.update(longFrame);
+      }
+
+      // TODO: Interrupt
     }
 
     this.pulse1.tick(ticks);

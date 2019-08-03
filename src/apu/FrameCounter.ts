@@ -1,14 +1,14 @@
-import { APU_CLOCK_MULTIPLIER } from './APU';
+import { APU_CLOCK_MULTIPLIER } from './constants';
 
 const TICKS_PER_FRAME = (89490 * APU_CLOCK_MULTIPLIER) / 12;
 
 const SEQUENCE_SHORT = 4;
 const SEQUENCE_LONG = 5;
 
-export interface FrameActions {
-  updateLengthCounter: boolean;
-  updateVolumeControl: boolean;
-  triggerInterrupt: boolean;
+export interface Frame {
+  shortFrame: boolean;
+  longFrame: boolean;
+  interrupt: boolean;
 }
 
 export default class FrameCounter {
@@ -18,13 +18,13 @@ export default class FrameCounter {
   private frame: number = 0;
 
   public setByte(value: number): void {
-    this.sequenceLength = (value & 0x08) !== 0 ? SEQUENCE_LONG : SEQUENCE_SHORT;
+    this.sequenceLength = (value & 0x80) !== 0 ? SEQUENCE_LONG : SEQUENCE_SHORT;
     this.interruptEnabled = (value & 0x40) === 0;
     this.clock = 0;
     this.frame = 0;
   }
 
-  public tick(ticks: number): FrameActions | undefined {
+  public tick(ticks: number): Frame | undefined {
     this.clock += ticks;
 
     if (this.clock >= TICKS_PER_FRAME) {
@@ -34,14 +34,17 @@ export default class FrameCounter {
         this.frame = 0;
       }
 
-      return {
-        updateLengthCounter: this.frame % 2 === 0,
-        updateVolumeControl: this.frame < 4,
-        triggerInterrupt:
-          this.interruptEnabled &&
-          this.sequenceLength === SEQUENCE_SHORT &&
-          this.frame === 3,
-      };
+      const isShortSequence = this.sequenceLength === SEQUENCE_SHORT;
+
+      const shortFrame = this.frame < 4;
+
+      const longFrame =
+        shortFrame && this.frame % 2 === (isShortSequence ? 0 : 1);
+
+      const interrupt =
+        this.interruptEnabled && isShortSequence && this.frame === 3;
+
+      return { shortFrame, longFrame, interrupt };
     }
   }
 }

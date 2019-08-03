@@ -1,4 +1,5 @@
 import FrequencyClock from './components/FrequencyClock';
+import LengthCounter from './components/LengthCounter';
 import Sampler, { Sample } from './components/Sampler';
 
 const DUTY_CYCLES: Sample[] = [
@@ -9,11 +10,6 @@ const DUTY_CYCLES: Sample[] = [
 ];
 
 const FREQUENCY_DIVISOR = 2;
-
-interface LengthCounter {
-  enabled: boolean;
-  value: number;
-}
 
 enum VolumeControlType {
   EnvelopePeriod = 0,
@@ -35,12 +31,7 @@ interface Sweep {
 export default class PulseChannel {
   private pulseDuty: Sampler;
   private timer: FrequencyClock;
-  private enabled: boolean = false;
-
-  private lengthCounter: LengthCounter = {
-    enabled: true,
-    value: 0,
-  };
+  private lengthCounter: LengthCounter;
 
   private volumeControl: VolumeControl = {
     type: VolumeControlType.EnvelopePeriod,
@@ -57,13 +48,14 @@ export default class PulseChannel {
   constructor() {
     this.pulseDuty = new Sampler(DUTY_CYCLES[0]);
     this.timer = new FrequencyClock(FREQUENCY_DIVISOR);
+    this.lengthCounter = new LengthCounter();
   }
 
   public setByte(offset: number, value: number): void {
     switch (offset & 0x03) {
       case 0:
         this.pulseDuty.setSample(DUTY_CYCLES[value & 0x03]);
-        this.lengthCounter.enabled = (value & 0x20) === 0;
+        this.lengthCounter.setHalted((value & 0x20) !== 0);
         this.volumeControl.type = ((value & 0x10) >> 4) as VolumeControlType;
         this.volumeControl.value = value & 0x0f;
         break;
@@ -77,7 +69,7 @@ export default class PulseChannel {
         this.timer.setLowerByte(value);
         break;
       case 3:
-        this.lengthCounter.value = (value & 0xf8) >> 3;
+        this.lengthCounter.setValue((value & 0xf8) >> 3);
         this.timer.setUpperByte(value);
         break;
       default:
@@ -86,18 +78,20 @@ export default class PulseChannel {
   }
 
   public setEnabled(enabled: boolean): void {
-    this.enabled = enabled;
-
-    if (!enabled) {
-      this.lengthCounter.value = 0;
-    }
+    this.lengthCounter.setEnabled(enabled);
   }
 
   public tick(ticks: number): void {
     this.pulseDuty.advance(this.timer.tick(ticks));
   }
 
+  public update(longFrame: boolean): void {
+    if (longFrame) {
+      this.lengthCounter.advance();
+    }
+  }
+
   public sample(): number {
-    return this.enabled ? this.pulseDuty.sample() * 15 : 0;
+    return this.lengthCounter.isEnabled() ? this.pulseDuty.sample() * 15 : 0;
   }
 }
