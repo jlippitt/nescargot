@@ -21,8 +21,8 @@ export default class APU {
   private sampleClock: number = 0;
 
   constructor(sampleBuffer: SampleBuffer) {
-    this.pulse1 = new PulseChannel();
-    this.pulse2 = new PulseChannel();
+    this.pulse1 = new PulseChannel(-1);
+    this.pulse2 = new PulseChannel(0);
     this.frameCounter = new FrameCounter();
     this.sampleBuffer = sampleBuffer;
   }

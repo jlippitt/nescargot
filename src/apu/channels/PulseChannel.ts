@@ -2,6 +2,7 @@ import Envelope from './components/Envelope';
 import FrequencyClock from './components/FrequencyClock';
 import LengthCounter from './components/LengthCounter';
 import Sampler, { Sample } from './components/Sampler';
+import Sweep from './components/Sweep';
 
 const DUTY_CYCLES: Sample[] = [
   [0, 1, 0, 0, 0, 0, 0, 0],
@@ -12,30 +13,18 @@ const DUTY_CYCLES: Sample[] = [
 
 const FREQUENCY_DIVISOR = 2;
 
-interface Sweep {
-  enabled: boolean;
-  period: number;
-  negative: boolean;
-  shiftCount: number;
-}
-
 export default class PulseChannel {
   private pulseDuty: Sampler;
   private timer: FrequencyClock;
   private envelope: Envelope;
+  private sweep: Sweep;
   private lengthCounter: LengthCounter;
 
-  private sweep: Sweep = {
-    enabled: false,
-    period: 0,
-    negative: false,
-    shiftCount: 0,
-  };
-
-  constructor() {
+  constructor(negationOffset: number) {
     this.pulseDuty = new Sampler(DUTY_CYCLES[0]);
     this.timer = new FrequencyClock(FREQUENCY_DIVISOR);
     this.envelope = new Envelope();
+    this.sweep = new Sweep(this.timer, negationOffset);
     this.lengthCounter = new LengthCounter();
   }
 
@@ -47,10 +36,7 @@ export default class PulseChannel {
         this.envelope.setByte(value & 0x3f);
         break;
       case 1:
-        this.sweep.enabled = (value & 0x80) !== 0;
-        this.sweep.period = (value & 0x70) >> 4;
-        this.sweep.negative = (value & 0x08) !== 0;
-        this.sweep.shiftCount = value & 0x07;
+        this.sweep.setByte(value);
         break;
       case 2:
         this.timer.setLowerByte(value);
@@ -77,13 +63,16 @@ export default class PulseChannel {
     this.envelope.advance();
 
     if (longFrame) {
+      this.sweep.advance();
       this.lengthCounter.advance();
     }
   }
 
   public sample(): number {
-    return this.lengthCounter.isEnabled()
-      ? this.pulseDuty.sample() * this.envelope.getVolume()
-      : 0;
+    if (this.lengthCounter.isEnabled() && !this.sweep.isMuteFlagSet()) {
+      return this.pulseDuty.sample() * this.envelope.getVolume();
+    } else {
+      return 0;
+    }
   }
 }

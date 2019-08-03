@@ -11,14 +11,21 @@ export default class FrequencyClock {
     this.period = this.derivePeriod();
   }
 
-  public setLowerByte(value: number): void {
-    this.value = (this.value & 0x0700) | (value & 0xff);
+  public getValue(): number {
+    return this.value;
+  }
+
+  public setValue(value: number) {
+    this.value = value;
     this.period = this.derivePeriod();
   }
 
+  public setLowerByte(value: number): void {
+    this.setValue((this.getValue() & 0x0700) | (value & 0xff));
+  }
+
   public setUpperByte(value: number): void {
-    this.value = ((value << 8) & 0x0700) | (this.value & 0xff);
-    this.period = this.derivePeriod();
+    this.setValue(((value << 8) & 0x0700) | (this.getValue() & 0xff));
   }
 
   public tick(ticks: number): number {
