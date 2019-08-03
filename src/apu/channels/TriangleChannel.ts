@@ -81,7 +81,9 @@ export default class TriangleChannel {
   }
 
   public tick(ticks: number): void {
-    this.sequencer.advance(this.timer.tick(ticks));
+    if (this.lengthCounter.isEnabled() && this.linearCounter.isEnabled()) {
+      this.sequencer.advance(this.timer.tick(ticks));
+    }
   }
 
   public update(longFrame: boolean): void {
@@ -93,10 +95,6 @@ export default class TriangleChannel {
   }
 
   public sample(): number {
-    if (this.lengthCounter.isEnabled() && this.linearCounter.isEnabled()) {
-      return this.sequencer.sample();
-    } else {
-      return 0;
-    }
+    return this.sequencer.sample();
   }
 }
