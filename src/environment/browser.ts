@@ -1,3 +1,4 @@
+import Float32SampleBuffer from 'apu/buffers/Float32SampleBuffer';
 import { createAudioController } from 'audio/AudioController';
 import { createHardware } from 'Hardware';
 import CanvasScreen from 'screen/CanvasScreen';
@@ -31,12 +32,15 @@ export async function runInBrowser(): Promise<void> {
 
   const screen = new CanvasScreen(container);
 
-  const audioController = await createAudioController();
+  const sampleBuffer = new Float32SampleBuffer();
 
   const { cpu, ppu, apu } = createHardware({
     romData,
     screen,
+    sampleBuffer,
   });
+
+  const audioController = await createAudioController();
 
   audioController.start();
 
@@ -64,7 +68,7 @@ export async function runInBrowser(): Promise<void> {
     prevFrameTime = now;
     excessTicks = Math.max(0, currentTicks - allowedTicks);
 
-    audioController.sendAudioData(apu.fetchAudioData());
+    audioController.sendAudioData(sampleBuffer.fetchAvailableAudioData());
 
     window.requestAnimationFrame(renderFrame);
   }

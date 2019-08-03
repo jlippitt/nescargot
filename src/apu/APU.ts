@@ -1,3 +1,4 @@
+import SampleBuffer from './buffers/SampleBuffer';
 import FrameCounter from './FrameCounter';
 import PulseChannel from './PulseChannel';
 
@@ -11,15 +12,14 @@ export default class APU {
   private pulse1: PulseChannel;
   private pulse2: PulseChannel;
   private frameCounter: FrameCounter;
-  private audioBuffer: Float32Array;
-  private audioBufferIndex: number = 0;
+  private sampleBuffer: SampleBuffer;
   private sampleClock: number = 0;
 
-  constructor() {
+  constructor(sampleBuffer: SampleBuffer) {
     this.pulse1 = new PulseChannel();
     this.pulse2 = new PulseChannel();
     this.frameCounter = new FrameCounter();
-    this.audioBuffer = new Float32Array(SAMPLE_RATE * 2);
+    this.sampleBuffer = sampleBuffer;
   }
 
   public getByte(offset: number): number {
@@ -65,15 +65,10 @@ export default class APU {
     if (this.sampleClock >= TICKS_PER_SAMPLE) {
       this.sampleClock -= TICKS_PER_SAMPLE;
 
-      // Both left and right channels
-      this.audioBuffer[this.audioBufferIndex++] = Math.random() * 2 - 1;
-      this.audioBuffer[this.audioBufferIndex++] = Math.random() * 2 - 1;
+      this.sampleBuffer.writeSample(
+        Math.random() * 2 - 1,
+        Math.random() * 2 - 1,
+      );
     }
-  }
-
-  public fetchAudioData(): Float32Array {
-    const buffer = this.audioBuffer.slice(0, this.audioBufferIndex);
-    this.audioBufferIndex = 0;
-    return buffer;
   }
 }
