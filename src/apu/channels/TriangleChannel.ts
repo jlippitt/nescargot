@@ -81,8 +81,10 @@ export default class TriangleChannel {
   }
 
   public tick(ticks: number): void {
+    const sequenceTicks = this.timer.tick(ticks);
+
     if (this.lengthCounter.isEnabled() && this.linearCounter.isEnabled()) {
-      this.sequencer.advance(this.timer.tick(ticks));
+      this.sequencer.advance(sequenceTicks);
     }
   }
 
