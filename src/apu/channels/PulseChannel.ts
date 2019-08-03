@@ -1,3 +1,4 @@
+import Envelope from './components/Envelope';
 import FrequencyClock from './components/FrequencyClock';
 import LengthCounter from './components/LengthCounter';
 import Sampler, { Sample } from './components/Sampler';
@@ -11,16 +12,6 @@ const DUTY_CYCLES: Sample[] = [
 
 const FREQUENCY_DIVISOR = 2;
 
-enum VolumeControlType {
-  EnvelopePeriod = 0,
-  ConstantVolume = 1,
-}
-
-interface VolumeControl {
-  type: VolumeControlType;
-  value: number;
-}
-
 interface Sweep {
   enabled: boolean;
   period: number;
@@ -31,12 +22,8 @@ interface Sweep {
 export default class PulseChannel {
   private pulseDuty: Sampler;
   private timer: FrequencyClock;
+  private envelope: Envelope;
   private lengthCounter: LengthCounter;
-
-  private volumeControl: VolumeControl = {
-    type: VolumeControlType.EnvelopePeriod,
-    value: 0,
-  };
 
   private sweep: Sweep = {
     enabled: false,
@@ -48,6 +35,7 @@ export default class PulseChannel {
   constructor() {
     this.pulseDuty = new Sampler(DUTY_CYCLES[0]);
     this.timer = new FrequencyClock(FREQUENCY_DIVISOR);
+    this.envelope = new Envelope();
     this.lengthCounter = new LengthCounter();
   }
 
@@ -56,8 +44,7 @@ export default class PulseChannel {
       case 0:
         this.pulseDuty.setSample(DUTY_CYCLES[(value & 0xc0) >> 6]);
         this.lengthCounter.setHalted((value & 0x20) !== 0);
-        this.volumeControl.type = ((value & 0x10) >> 4) as VolumeControlType;
-        this.volumeControl.value = value & 0x0f;
+        this.envelope.setByte(value & 0x3f);
         break;
       case 1:
         this.sweep.enabled = (value & 0x80) !== 0;
@@ -71,6 +58,7 @@ export default class PulseChannel {
       case 3:
         this.lengthCounter.setValue((value & 0xf8) >> 3);
         this.timer.setUpperByte(value);
+        this.envelope.setStartFlag();
         break;
       default:
         throw new Error('Should not happen');
@@ -86,12 +74,16 @@ export default class PulseChannel {
   }
 
   public update(longFrame: boolean): void {
+    this.envelope.advance();
+
     if (longFrame) {
       this.lengthCounter.advance();
     }
   }
 
   public sample(): number {
-    return this.lengthCounter.isEnabled() ? this.pulseDuty.sample() * 15 : 0;
+    return this.lengthCounter.isEnabled()
+      ? this.pulseDuty.sample() * this.envelope.getVolume()
+      : 0;
   }
 }
