@@ -7,18 +7,22 @@ class AudioReceiverNode extends AudioWorkletProcessor {
   }
 
   process(inputs, outputs) {
-    const [output] = outputs[0];
+    const [left, right] = outputs[0];
 
-    for (let i = 0; i < output.length; ++i) {
+    for (let i = 0; i < left.length; ++i) {
       if (this.buffers.length > 0 && this.bufferPosition >= this.buffers[0].length) {
         this.buffers.shift();
         this.bufferPosition = 0;
       }
 
+      // We always expect an even number of samples in the buffer
+      // (or else something has gone badly wrong)
       if (this.buffers.length > 0) {
-        output[i] = this.buffers[0][this.bufferPosition++];
+        left[i] = this.buffers[0][this.bufferPosition++];
+        right[i] = this.buffers[0][this.bufferPosition++];
       } else {
-        output[i] = 0;
+        left[i] = 0;
+        right[i] = 0;
       }
     }
 

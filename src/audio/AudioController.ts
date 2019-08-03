@@ -6,7 +6,9 @@ export default class AudioController {
 
   constructor(context: AudioContext) {
     this.context = context;
-    this.audioReceiver = new AudioWorkletNode(context, 'AudioReceiverNode');
+    this.audioReceiver = new AudioWorkletNode(context, 'AudioReceiverNode', {
+      outputChannelCount: [2],
+    });
   }
 
   public start(): void {
