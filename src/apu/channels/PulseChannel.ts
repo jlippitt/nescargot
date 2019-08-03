@@ -1,3 +1,4 @@
+import Channel from './Channel';
 import FrequencyClock from './components/FrequencyClock';
 import Sampler, { Sample } from './components/Sampler';
 
@@ -32,7 +33,7 @@ interface Sweep {
   shiftCount: number;
 }
 
-export default class PulseChannel {
+export default class PulseChannel implements Channel {
   private pulseDuty: Sampler;
   private timer: FrequencyClock;
 
@@ -89,6 +90,6 @@ export default class PulseChannel {
   }
 
   public sample(): number {
-    return this.pulseDuty.sample();
+    return this.pulseDuty.sample() * 15;
   }
 }

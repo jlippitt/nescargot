@@ -1,6 +1,7 @@
 import SampleBuffer from './buffers/SampleBuffer';
 import PulseChannel from './channels/PulseChannel';
 import FrameCounter from './FrameCounter';
+import Mixer from './Mixer';
 
 export const SAMPLE_RATE = 11025;
 
@@ -14,6 +15,7 @@ const TICKS_PER_SAMPLE = Math.ceil(MASTER_CLOCK_RATE / SAMPLE_RATE);
 export default class APU {
   private pulse1: PulseChannel;
   private pulse2: PulseChannel;
+  private mixer: Mixer;
   private frameCounter: FrameCounter;
   private sampleBuffer: SampleBuffer;
   private sampleClock: number = 0;
@@ -21,6 +23,12 @@ export default class APU {
   constructor(sampleBuffer: SampleBuffer) {
     this.pulse1 = new PulseChannel();
     this.pulse2 = new PulseChannel();
+
+    this.mixer = new Mixer({
+      pulse1: this.pulse1,
+      pulse2: this.pulse2,
+    });
+
     this.frameCounter = new FrameCounter();
     this.sampleBuffer = sampleBuffer;
   }
@@ -38,7 +46,9 @@ export default class APU {
         this.pulse2.setByte(offset, value);
         break;
       case 0x14:
-        if ((offset & 0x03) === 3) {
+        if ((offset & 0x03) === 1) {
+          this.mixer.setByte(value);
+        } else if ((offset & 0x03) === 3) {
           this.frameCounter.setByte(value);
         }
       default:
@@ -70,11 +80,7 @@ export default class APU {
 
     if (this.sampleClock >= TICKS_PER_SAMPLE) {
       this.sampleClock -= TICKS_PER_SAMPLE;
-
-      this.sampleBuffer.writeSample(
-        this.pulse1.sample() + this.pulse1.sample() - 1,
-        this.pulse1.sample() + this.pulse2.sample() - 1,
-      );
+      this.sampleBuffer.writeSample(this.mixer.sample(), this.mixer.sample());
     }
   }
 }
