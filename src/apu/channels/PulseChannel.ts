@@ -13,8 +13,6 @@ const DUTY_CYCLES: Sequence[] = [
   [1, 0, 0, 1, 1, 1, 1, 1],
 ];
 
-const FREQUENCY_DIVISOR = 2;
-
 export default class PulseChannel {
   private pulseDuty: Sequencer;
   private timer: FrequencyClock;
@@ -24,7 +22,7 @@ export default class PulseChannel {
 
   constructor(negationOffset: number) {
     this.pulseDuty = new Sequencer(DUTY_CYCLES[0]);
-    this.timer = new FrequencyClock(deriveLinearPeriod(FREQUENCY_DIVISOR));
+    this.timer = new FrequencyClock(deriveLinearPeriod, 1);
     this.envelope = new Envelope();
     this.sweep = new Sweep(this.timer, negationOffset);
     this.lengthCounter = new LengthCounter();

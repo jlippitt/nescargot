@@ -91,9 +91,9 @@ export default class APU {
 
   public tick(cpuTicks: number): void {
     // The extra 8 bits allow better timing accuracy
-    const ticks = cpuTicks << APU_CLOCK_SHIFT;
+    const hiResTicks = cpuTicks << APU_CLOCK_SHIFT;
 
-    const frameNumber = this.frameCounter.tick(ticks);
+    const frameNumber = this.frameCounter.tick(hiResTicks);
 
     if (frameNumber !== undefined) {
       this.pulse1.update(frameNumber);
@@ -102,12 +102,12 @@ export default class APU {
       this.noise.update(frameNumber);
     }
 
-    this.pulse1.tick(ticks);
-    this.pulse2.tick(ticks);
-    this.triangle.tick(ticks);
-    this.noise.tick(ticks);
+    this.pulse1.tick(cpuTicks);
+    this.pulse2.tick(cpuTicks);
+    this.triangle.tick(cpuTicks);
+    this.noise.tick(cpuTicks);
 
-    this.sampleClock += ticks;
+    this.sampleClock += hiResTicks;
 
     if (this.sampleClock >= TICKS_PER_SAMPLE) {
       this.sampleClock -= TICKS_PER_SAMPLE;
