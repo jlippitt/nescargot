@@ -7,12 +7,13 @@ export const deriveLinearPeriod = (divisor: number) => (
 export default class FrequencyClock {
   private derivePeriod: DerivePeriod;
   private value: number = 0;
-  private clock: number = 0;
-  private period: number = 0;
+  private period: number;
+  private clock: number;
 
   constructor(derivePeriod: DerivePeriod) {
     this.derivePeriod = derivePeriod;
     this.period = this.derivePeriod(this.value);
+    this.clock = this.period;
   }
 
   public getValue(): number {
@@ -35,10 +36,10 @@ export default class FrequencyClock {
   public tick(ticks: number): number {
     let result: number = 0;
 
-    this.clock += ticks;
+    this.clock -= ticks;
 
-    while (this.clock >= this.period) {
-      this.clock -= this.period;
+    while (this.clock <= 0) {
+      this.clock += this.period;
       ++result;
     }
 
