@@ -74,9 +74,10 @@ export default class MMC1 implements Mapper {
     const { prgRom, prgRam } = this.rom;
 
     if (offset >= 0x8000) {
-      return prgRom[
-        this.prgOffset[(offset & 0x4000) >> 14] + (offset & 0x3fff)
-      ];
+      const address =
+        this.prgOffset[(offset & 0x4000) >> 14] | (offset & 0x3fff);
+      debug(`Mapped address: ${toHex(address, 4)}`);
+      return prgRom[address];
     } else if (offset >= 0x6000) {
       return prgRam[offset & 0x1fff];
     } else {
