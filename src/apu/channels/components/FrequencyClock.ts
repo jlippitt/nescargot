@@ -1,8 +1,8 @@
 export type DerivePeriod = (value: number) => number;
 
-export const deriveLinearPeriod = (divisor: number) => (
+export const deriveLinearPeriod = (multiplier: number) => (
   value: number,
-): number => (value + 1) * divisor;
+): number => (value + 1) * multiplier;
 
 export default class FrequencyClock {
   private derivePeriod: DerivePeriod;
