@@ -150,6 +150,7 @@ export default class PPU {
 
       case 4:
         oam.setDataByte(value);
+        break;
 
       case 5:
         registers.setScrollByte(value);
