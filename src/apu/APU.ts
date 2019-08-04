@@ -46,12 +46,13 @@ export default class APU {
 
   public getByte(offset: number): number {
     if ((offset & 0xff) === 0x15) {
-      this.frameCounter.clearInterrupt();
       let result = 0;
       result |= this.pulse1.isPlaying() ? 0x01 : 0;
       result |= this.pulse2.isPlaying() ? 0x02 : 0;
       result |= this.triangle.isPlaying() ? 0x04 : 0;
       result |= this.noise.isPlaying() ? 0x08 : 0;
+      result |= this.frameCounter.isInterruptSet() ? 0x40 : 0;
+      this.frameCounter.clearInterrupt();
       return result;
     } else {
       return 0;
