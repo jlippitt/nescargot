@@ -39,6 +39,7 @@ export default class FrequencyClock {
     let result: number = 0;
 
     const dividerTicks = (cpuTicks + this.clockRemainder) >> this.clockShift;
+
     this.clockRemainder =
       (cpuTicks + this.clockRemainder) % (1 << this.clockShift);
 
