@@ -182,17 +182,17 @@ export default class MMC1 implements Mapper {
         break;
       case 0xa000:
         if (this.control.chrRomBankMode === ChrRomBankMode.SwitchAll) {
-          this.chrBank[0] = chrRom[value & 0x1e];
-          this.chrBank[1] = chrRom[(value & 0x1e) + 1];
+          this.chrBank[0] = chrRom[(value & 0x1e) % chrRom.length];
+          this.chrBank[1] = chrRom[((value & 0x1e) + 1) % chrRom.length];
         } else {
-          this.chrBank[0] = chrRom[value];
+          this.chrBank[0] = chrRom[value % chrRom.length];
         }
         debug(`CHR Bank 0 = ${chrRom.indexOf(this.chrBank[0])}`);
         debug(`CHR Bank 1 = ${chrRom.indexOf(this.chrBank[1])}`);
         break;
       case 0xc000:
         if (this.control.chrRomBankMode !== ChrRomBankMode.SwitchAll) {
-          this.chrBank[1] = chrRom[value];
+          this.chrBank[1] = chrRom[value % chrRom.length];
         }
         debug(`CHR Bank 0 = ${chrRom.indexOf(this.chrBank[0])}`);
         debug(`CHR Bank 1 = ${chrRom.indexOf(this.chrBank[1])}`);
