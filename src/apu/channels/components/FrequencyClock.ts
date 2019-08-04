@@ -1,20 +1,20 @@
+import { APU_CLOCK_SHIFT } from '../../constants';
+
 export type DerivePeriod = (value: number) => number;
 
-export const deriveLinearPeriod = (value: number) => value;
+export const deriveLinearPeriod = (divisor: number) => (
+  value: number,
+): number => ((value + 1) << APU_CLOCK_SHIFT) * divisor;
 
 export default class FrequencyClock {
   private derivePeriod: DerivePeriod;
   private value: number = 0;
-  private clockShift: number;
-  private clockRemainder: number = 0;
-  private period: number;
-  private divider: number;
+  private clock: number = 0;
+  private period: number = 0;
 
-  constructor(derivePeriod: DerivePeriod, clockShift: number) {
+  constructor(derivePeriod: DerivePeriod) {
     this.derivePeriod = derivePeriod;
-    this.clockShift = clockShift;
     this.period = this.derivePeriod(this.value);
-    this.divider = this.period;
   }
 
   public getValue(): number {
@@ -24,7 +24,6 @@ export default class FrequencyClock {
   public setValue(value: number) {
     this.value = value;
     this.period = this.derivePeriod(this.value);
-    this.divider = this.period;
   }
 
   public setLowerByte(value: number): void {
@@ -35,21 +34,14 @@ export default class FrequencyClock {
     this.setValue(((value << 8) & 0x0700) | (this.getValue() & 0xff));
   }
 
-  public tick(cpuTicks: number): number {
+  public tick(ticks: number): number {
     let result: number = 0;
 
-    const dividerTicks = (cpuTicks + this.clockRemainder) >> this.clockShift;
+    this.clock += ticks;
 
-    this.clockRemainder =
-      (cpuTicks + this.clockRemainder) % (1 << this.clockShift);
-
-    for (let i = 0; i < dividerTicks; ++i) {
-      if (this.divider === 0) {
-        this.divider = this.period;
-        ++result;
-      } else {
-        --this.divider;
-      }
+    while (this.clock >= this.period) {
+      this.clock -= this.period;
+      ++result;
     }
 
     return result;

@@ -29,7 +29,7 @@ export default class NoiseChannel {
   private mode: boolean = false;
 
   constructor() {
-    this.timer = new FrequencyClock((value) => TIMER_PERIODS[value], 1);
+    this.timer = new FrequencyClock((value) => TIMER_PERIODS[value] * 2);
     this.envelope = new Envelope();
     this.lengthCounter = new LengthCounter();
   }
