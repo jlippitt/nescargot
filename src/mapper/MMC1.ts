@@ -57,7 +57,7 @@ export default class MMC1 implements Mapper {
   private control: ControlRegister;
   private chrBank: PatternTable[];
   private prgOffset: number[];
-  private prgRamEnabled: boolean = false;
+  private prgRamEnabled: boolean = true;
 
   constructor(rom: ROM) {
     this.rom = rom;
@@ -206,7 +206,7 @@ export default class MMC1 implements Mapper {
           this.prgOffset[1] = this.getPrgOffset((value & 0x0e) + 1);
         }
 
-        this.prgRamEnabled = (value & 0x10) !== 0;
+        this.prgRamEnabled = (value & 0x10) === 0;
 
         debug(`PRG ROM Offset 0 = ${toHex(this.prgOffset[0], 4)}`);
         debug(`PRG ROM Offset 1 = ${toHex(this.prgOffset[1], 4)}`);
