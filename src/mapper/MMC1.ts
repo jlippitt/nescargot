@@ -86,8 +86,16 @@ export default class MMC1 implements Mapper {
 
   public setPrgByte(offset: number, value: number): void {
     if (offset >= 0x8000) {
+      debug('setPrgByte', toHex(value, 2));
+
       if ((value & 0x80) !== 0) {
+        debug('Reset');
         this.shift.reset();
+        this.control.prgRomBankMode = PrgRomBankMode.SwitchLower;
+        this.prgOffset[1] = this.getPrgOffset(0x0f);
+        debug(`PRG ROM bank mode: ${this.control.prgRomBankMode}`);
+        debug(`PRG ROM Offset 0 = ${toHex(this.prgOffset[0], 4)}`);
+        debug(`PRG ROM Offset 1 = ${toHex(this.prgOffset[1], 4)}`);
         return;
       }
 
@@ -142,13 +150,17 @@ export default class MMC1 implements Mapper {
         this.control.nameTableArrangement = (value &
           0x03) as NameTableArrangement;
 
-        if ((value & 0x08) !== 0) {
-          this.control.prgRomBankMode =
-            (value & 0x04) !== 0
-              ? PrgRomBankMode.SwitchLower
-              : PrgRomBankMode.SwitchUpper;
-        } else {
-          this.control.prgRomBankMode = PrgRomBankMode.SwitchAll;
+        switch (value & 0x0c) {
+          case 0x0c:
+            this.control.prgRomBankMode = PrgRomBankMode.SwitchLower;
+            this.prgOffset[1] = this.getPrgOffset(0x0f);
+            break;
+          case 0x08:
+            this.control.prgRomBankMode = PrgRomBankMode.SwitchUpper;
+            this.prgOffset[0] = 0;
+            break;
+          default:
+            this.control.prgRomBankMode = PrgRomBankMode.SwitchAll;
         }
 
         this.control.chrRomBankMode =
@@ -158,6 +170,8 @@ export default class MMC1 implements Mapper {
 
         debug(`Name table arrangement: ${this.control.nameTableArrangement}`);
         debug(`PRG ROM bank mode: ${this.control.prgRomBankMode}`);
+        debug(`PRG ROM Offset 0 = ${toHex(this.prgOffset[0], 4)}`);
+        debug(`PRG ROM Offset 1 = ${toHex(this.prgOffset[1], 4)}`);
         debug(`CHR ROM bank mode: ${this.control.chrRomBankMode}`);
 
         break;
