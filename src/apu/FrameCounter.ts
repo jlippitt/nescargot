@@ -34,15 +34,14 @@ export default class FrameCounter {
         this.frame = 0;
       }
 
-      const isShortSequence = this.sequenceLength === SEQUENCE_SHORT;
-
       const shortFrame = this.frame < 4;
 
-      const longFrame =
-        shortFrame && this.frame % 2 === (isShortSequence ? 0 : 1);
+      const longFrame = shortFrame && this.frame % 2 === 0;
 
       const interrupt =
-        this.interruptEnabled && isShortSequence && this.frame === 3;
+        this.interruptEnabled &&
+        this.sequenceLength === SEQUENCE_SHORT &&
+        this.frame === 0;
 
       return { shortFrame, longFrame, interrupt };
     }
