@@ -34,12 +34,14 @@ export default class Joypad {
 
     if (typeof window !== 'undefined') {
       window.addEventListener('keydown', (event: KeyboardEvent) => {
+        event.preventDefault();
         if (buttonMap.hasOwnProperty(event.key)) {
           this.buttonState[buttonMap[event.key]] = true;
         }
       });
 
       window.addEventListener('keyup', (event: KeyboardEvent) => {
+        event.preventDefault();
         if (buttonMap.hasOwnProperty(event.key)) {
           this.buttonState[buttonMap[event.key]] = false;
         }
