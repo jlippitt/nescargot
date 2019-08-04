@@ -57,6 +57,7 @@ export default class MMC1 implements Mapper {
   private control: ControlRegister;
   private chrBank: PatternTable[];
   private prgOffset: number[];
+  private prgRamEnabled: boolean = false;
 
   constructor(rom: ROM) {
     this.rom = rom;
@@ -79,7 +80,7 @@ export default class MMC1 implements Mapper {
       debug(`Mapped address: ${toHex(address, 4)}`);
       return prgRom[address];
     } else if (offset >= 0x6000) {
-      return prgRam[offset & 0x1fff];
+      return this.prgRamEnabled ? prgRam[offset & 0x1fff] : 0;
     } else {
       throw new Error('Attempted read from unexpected mapper location');
     }
@@ -106,7 +107,9 @@ export default class MMC1 implements Mapper {
         this.setMapperValue(offset, shiftValue);
       }
     } else if (offset >= 0x6000 && offset < 0x8000) {
-      this.rom.prgRam[offset & 0x1fff] = value;
+      if (this.prgRamEnabled) {
+        this.rom.prgRam[offset & 0x1fff] = value;
+      }
     } else {
       throw new Error('Attempted write to unexpected mapper location');
     }
@@ -202,10 +205,12 @@ export default class MMC1 implements Mapper {
           this.prgOffset[0] = this.getPrgOffset(value & 0x0e);
           this.prgOffset[1] = this.getPrgOffset((value & 0x0e) + 1);
         }
+
+        this.prgRamEnabled = (value & 0x10) !== 0;
+
         debug(`PRG ROM Offset 0 = ${toHex(this.prgOffset[0], 4)}`);
         debug(`PRG ROM Offset 1 = ${toHex(this.prgOffset[1], 4)}`);
-
-        // TODO: Enable/disable PRG RAM?
+        debug(`PRG RAM Enabled = ${this.prgRamEnabled}`);
         break;
       default:
         throw new Error('Should not happen');
