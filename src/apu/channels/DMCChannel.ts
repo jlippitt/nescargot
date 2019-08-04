@@ -30,7 +30,7 @@ export default class DMCChannel {
   private interrupt: boolean = false;
 
   constructor() {
-    this.timer = new FrequencyClock((value) => TIMER_PERIODS[value], 0);
+    this.timer = new FrequencyClock((value) => TIMER_PERIODS[value]);
   }
 
   public setByte(offset: number, value: number): void {

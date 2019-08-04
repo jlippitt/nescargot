@@ -1,10 +1,8 @@
-import { APU_CLOCK_SHIFT } from '../../constants';
-
 export type DerivePeriod = (value: number) => number;
 
 export const deriveLinearPeriod = (divisor: number) => (
   value: number,
-): number => ((value + 1) << APU_CLOCK_SHIFT) * divisor;
+): number => (value + 1) * divisor;
 
 export default class FrequencyClock {
   private derivePeriod: DerivePeriod;
