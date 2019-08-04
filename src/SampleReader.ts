@@ -38,6 +38,7 @@ export default class SampleReader {
       if (this.bytesRemaining === 0) {
         this.currentAddress = this.startAddress;
         this.bytesRemaining = this.length;
+        this.interrupt.requestNewSample();
       }
     } else {
       this.bytesRemaining = 0;
