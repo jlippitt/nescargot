@@ -61,10 +61,10 @@ export default class PulseChannel {
     this.pulseDuty.advance(this.timer.tick(ticks));
   }
 
-  public update(longFrame: boolean): void {
+  public update(frameNumber: number): void {
     this.envelope.advance();
 
-    if (longFrame) {
+    if (frameNumber % 2 === 0) {
       this.sweep.advance();
       this.lengthCounter.advance();
     }

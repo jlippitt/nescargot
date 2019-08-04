@@ -1,5 +1,7 @@
 import { times } from 'lodash';
 
+import Interrupt from 'Interrupt';
+
 import SampleBuffer from './buffers/SampleBuffer';
 import NoiseChannel from './channels/NoiseChannel';
 import PulseChannel from './channels/PulseChannel';
@@ -17,26 +19,34 @@ const PULSE_TABLE = times(31, (n) => 95.52 / (8128.0 / n + 100));
 
 const TND_TABLE = times(203, (n) => 163.67 / (24329.0 / n + 100));
 
+export interface APUOptions {
+  interrupt: Interrupt;
+  sampleBuffer: SampleBuffer;
+}
+
 export default class APU {
+  private interrupt: Interrupt;
+  private sampleBuffer: SampleBuffer;
   private pulse1: PulseChannel;
   private pulse2: PulseChannel;
   private triangle: TriangleChannel;
   private noise: NoiseChannel;
   private frameCounter: FrameCounter;
-  private sampleBuffer: SampleBuffer;
   private sampleClock: number = 0;
 
-  constructor(sampleBuffer: SampleBuffer) {
+  constructor({ interrupt, sampleBuffer }: APUOptions) {
+    this.interrupt = interrupt;
+    this.sampleBuffer = sampleBuffer;
     this.pulse1 = new PulseChannel(-1);
     this.pulse2 = new PulseChannel(0);
     this.triangle = new TriangleChannel();
     this.noise = new NoiseChannel();
     this.frameCounter = new FrameCounter();
-    this.sampleBuffer = sampleBuffer;
   }
 
   public getByte(offset: number): number {
     if ((offset & 0xff) === 0x15) {
+      this.frameCounter.clearInterrupt();
       let result = 0;
       result |= this.pulse1.isPlaying() ? 0x01 : 0;
       result |= this.pulse2.isPlaying() ? 0x02 : 0;
@@ -82,19 +92,13 @@ export default class APU {
     // The extra 8 bits allow better timing accuracy
     const ticks = cpuTicks << APU_CLOCK_SHIFT;
 
-    const frame = this.frameCounter.tick(ticks);
+    const frameNumber = this.frameCounter.tick(ticks);
 
-    if (frame) {
-      const { shortFrame, longFrame, interrupt } = frame;
-
-      if (shortFrame) {
-        this.pulse1.update(longFrame);
-        this.pulse2.update(longFrame);
-        this.triangle.update(longFrame);
-        this.noise.update(longFrame);
-      }
-
-      // TODO: Interrupt
+    if (frameNumber !== undefined) {
+      this.pulse1.update(frameNumber);
+      this.pulse2.update(frameNumber);
+      this.triangle.update(frameNumber);
+      this.noise.update(frameNumber);
     }
 
     this.pulse1.tick(ticks);
@@ -115,6 +119,10 @@ export default class APU {
       const sample = pulseOut + tndOut;
 
       this.sampleBuffer.writeSample(sample, sample);
+    }
+
+    if (this.frameCounter.isInterruptSet()) {
+      this.interrupt.triggerIrq();
     }
   }
 }

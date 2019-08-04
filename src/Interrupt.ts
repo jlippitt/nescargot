@@ -1,16 +1,20 @@
 export default class Interrupt {
   private anyCondition: boolean;
+  private anyConditionNoInterrupt: boolean;
   private dmaInProgress: boolean;
   private nmi: boolean;
+  private irq: boolean;
 
   constructor() {
     this.anyCondition = false;
+    this.anyConditionNoInterrupt = false;
     this.dmaInProgress = false;
     this.nmi = false;
+    this.irq = false;
   }
 
-  public hasAnyCondition(): boolean {
-    return this.anyCondition;
+  public hasAnyCondition(interruptDisabled: boolean): boolean {
+    return interruptDisabled ? this.anyConditionNoInterrupt : this.anyCondition;
   }
 
   public isDmaInProgress(): boolean {
@@ -37,7 +41,23 @@ export default class Interrupt {
     }
   }
 
+  public triggerIrq(): void {
+    this.irq = true;
+    this.updateAnyCondition();
+  }
+
+  public checkIrq(): boolean {
+    if (this.irq) {
+      this.irq = false;
+      this.updateAnyCondition();
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   private updateAnyCondition(): void {
-    this.anyCondition = this.dmaInProgress || this.nmi;
+    this.anyConditionNoInterrupt = this.dmaInProgress || this.nmi;
+    this.anyCondition = this.anyConditionNoInterrupt || this.irq;
   }
 }

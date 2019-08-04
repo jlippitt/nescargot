@@ -29,7 +29,7 @@ export function createHardware({
   const mapper = createMapper(romData);
   const interrupt = new Interrupt();
   const ppu = new PPU({ screen, interrupt, mapper });
-  const apu = new APU(sampleBuffer);
+  const apu = new APU({ interrupt, sampleBuffer });
   const joypad = new Joypad();
   const dma = new DMA(ppu.getOam(), interrupt);
   const cpu = new CPU({ mapper, interrupt, ppu, apu, joypad, dma });

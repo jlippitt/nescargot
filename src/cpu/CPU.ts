@@ -4,7 +4,7 @@ import { debug } from 'log';
 
 import Hardware from './Hardware';
 import operations from './operations';
-import { nmi } from './operations/interrupt';
+import { irq, nmi } from './operations/interrupt';
 import State from './State';
 
 export default class CPU {
@@ -19,17 +19,19 @@ export default class CPU {
   }
 
   public tick(): number {
-    const { clock } = this.state;
+    const { clock, flags } = this.state;
 
     debug(this.state.toString());
 
     const prevTicks = clock.getTicks();
 
-    if (this.interrupt.hasAnyCondition()) {
+    if (this.interrupt.hasAnyCondition(flags.interrupt)) {
       if (this.interrupt.isDmaInProgress()) {
         this.dma.tick(this.state);
       } else if (this.interrupt.checkNmi()) {
         nmi(this.state);
+      } else if (this.interrupt.checkIrq()) {
+        irq(this.state);
       }
     } else {
       const nextOp = this.state.nextByte();

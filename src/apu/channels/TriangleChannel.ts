@@ -88,10 +88,10 @@ export default class TriangleChannel {
     }
   }
 
-  public update(longFrame: boolean): void {
+  public update(frameNumber: number): void {
     this.linearCounter.advance();
 
-    if (longFrame) {
+    if (frameNumber % 2 === 0) {
       this.lengthCounter.advance();
     }
   }

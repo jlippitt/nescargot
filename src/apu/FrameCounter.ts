@@ -5,26 +5,22 @@ const TICKS_PER_FRAME = (89490 * APU_CLOCK_MULTIPLIER) / 12;
 const SEQUENCE_SHORT = 4;
 const SEQUENCE_LONG = 5;
 
-export interface Frame {
-  shortFrame: boolean;
-  longFrame: boolean;
-  interrupt: boolean;
-}
-
 export default class FrameCounter {
   private sequenceLength: number = SEQUENCE_SHORT;
   private interruptEnabled: boolean = true;
   private clock: number = 0;
   private frame: number = 0;
+  private interrupt: boolean = false;
 
   public setByte(value: number): void {
     this.sequenceLength = (value & 0x80) !== 0 ? SEQUENCE_LONG : SEQUENCE_SHORT;
     this.interruptEnabled = (value & 0x40) === 0;
     this.clock = 0;
     this.frame = 0;
+    this.interrupt = this.interrupt && this.interruptEnabled;
   }
 
-  public tick(ticks: number): Frame | undefined {
+  public tick(ticks: number): number | undefined {
     this.clock += ticks;
 
     if (this.clock >= TICKS_PER_FRAME) {
@@ -34,16 +30,21 @@ export default class FrameCounter {
         this.frame = 0;
       }
 
-      const shortFrame = this.frame < 4;
+      this.interrupt =
+        this.interrupt ||
+        (this.interruptEnabled &&
+          this.sequenceLength === SEQUENCE_SHORT &&
+          this.frame === 0);
 
-      const longFrame = shortFrame && this.frame % 2 === 0;
-
-      const interrupt =
-        this.interruptEnabled &&
-        this.sequenceLength === SEQUENCE_SHORT &&
-        this.frame === 0;
-
-      return { shortFrame, longFrame, interrupt };
+      return this.frame < 4 ? this.frame : undefined;
     }
+  }
+
+  public isInterruptSet(): boolean {
+    return this.interrupt;
+  }
+
+  public clearInterrupt(): void {
+    this.interrupt = false;
   }
 }

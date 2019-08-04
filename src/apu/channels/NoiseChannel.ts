@@ -74,10 +74,10 @@ export default class NoiseChannel {
     }
   }
 
-  public update(longFrame: boolean): void {
+  public update(frameNumber: number): void {
     this.envelope.advance();
 
-    if (longFrame) {
+    if (frameNumber % 2 === 0) {
       this.lengthCounter.advance();
     }
   }

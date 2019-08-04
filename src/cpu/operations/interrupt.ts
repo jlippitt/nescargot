@@ -26,6 +26,11 @@ export function nmi(state: State) {
   interrupt(state, NMI_VECTOR, false);
 }
 
+export function irq(state: State) {
+  debug('IRQ');
+  interrupt(state, IRQ_VECTOR, false);
+}
+
 export function rti(state: State) {
   const { regs, flags, clock } = state;
   debug('RTI');
