@@ -106,7 +106,7 @@ export default class MMC1 implements Mapper {
       if (shiftValue !== undefined) {
         this.setMapperValue(offset, shiftValue);
       }
-    } else if (offset >= 0x6000 && offset < 0x8000) {
+    } else if (offset >= 0x6000) {
       if (this.prgRamEnabled) {
         this.rom.prgRam[offset & 0x1fff] = value;
       }

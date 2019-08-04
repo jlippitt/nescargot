@@ -1,6 +1,7 @@
 import { times } from 'lodash';
 
 import Interrupt from 'Interrupt';
+import { toHex, warn } from 'log';
 import SampleReader from 'SampleReader';
 
 import SampleBuffer from './buffers/SampleBuffer';
@@ -62,6 +63,7 @@ export default class APU {
       this.frameCounter.clearInterrupt();
       return result;
     } else {
+      warn(`Unexpected APU read: ${toHex(offset, 4)}`);
       return 0;
     }
   }
@@ -96,7 +98,7 @@ export default class APU {
         }
         break;
       default:
-        // Nothing
+        warn(`Unexpected APU write: ${toHex(offset, 4)} <= ${toHex(value, 2)}`);
         break;
     }
   }

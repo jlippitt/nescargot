@@ -39,10 +39,6 @@ export default class MMU {
       case 0x4000:
         if (offset < 0x4020) {
           switch (offset) {
-            case 0x4014:
-              // Cannot read DMA
-              value = 0;
-              break;
             case 0x4016:
             case 0x4017:
               value = this.joypad.getByte(offset);

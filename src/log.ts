@@ -8,6 +8,11 @@ export function error(...args: any[]): void {
   console.error(...args);
 }
 
+export function warn(...args: any[]): void {
+  // tslint:disable-next-line:no-console
+  console.warn(...args);
+}
+
 export function toHex(value: number, width: number): string {
   return value
     .toString(16)
