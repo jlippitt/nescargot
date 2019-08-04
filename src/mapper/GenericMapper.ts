@@ -1,3 +1,4 @@
+import { warn } from 'log';
 import NameTable from 'ppu/NameTable';
 import PatternTable from 'ppu/PatternTable';
 
@@ -18,7 +19,8 @@ export default class GenericMapper implements Mapper {
     } else if (offset >= 0x6000) {
       return prgRam[offset & 0x1fff];
     } else {
-      throw new Error('Attempted read from unexpected mapper location');
+      warn('Attempted read from unexpected mapper location');
+      return 0;
     }
   }
 
@@ -26,7 +28,7 @@ export default class GenericMapper implements Mapper {
     if (offset >= 0x6000 && offset < 0x8000) {
       this.rom.prgRam[offset & 0x1fff] = value;
     } else {
-      throw new Error('Attempted write to unexpected mapper location');
+      warn('Attempted write to unexpected mapper location');
     }
   }
 

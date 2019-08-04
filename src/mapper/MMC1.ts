@@ -1,4 +1,4 @@
-import { debug, toHex } from 'log';
+import { debug, toHex, warn } from 'log';
 import NameTable from 'ppu/NameTable';
 import PatternTable from 'ppu/PatternTable';
 
@@ -82,7 +82,8 @@ export default class MMC1 implements Mapper {
     } else if (offset >= 0x6000) {
       return this.prgRamEnabled ? prgRam[offset & 0x1fff] : 0;
     } else {
-      throw new Error('Attempted read from unexpected mapper location');
+      warn('Attempted read from unexpected mapper location');
+      return 0;
     }
   }
 
@@ -111,7 +112,7 @@ export default class MMC1 implements Mapper {
         this.rom.prgRam[offset & 0x1fff] = value;
       }
     } else {
-      throw new Error('Attempted write to unexpected mapper location');
+      warn('Attempted write to unexpected mapper location');
     }
   }
 
