@@ -7,6 +7,9 @@ export default class LinearCounter {
   public setByte(value: number): void {
     this.reloadValue = value & 0x7f;
     this.control = (value & 0x80) !== 0;
+  }
+
+  public setReload(): void {
     this.reload = true;
   }
 

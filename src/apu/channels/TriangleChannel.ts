@@ -60,6 +60,7 @@ export default class TriangleChannel {
       case 0:
         this.lengthCounter.setHalted((value & 0x80) !== 0);
         this.linearCounter.setByte(value);
+        this.linearCounter.setReload();
         break;
       case 1:
         // Unused
@@ -70,6 +71,7 @@ export default class TriangleChannel {
       case 3:
         this.lengthCounter.setValue((value & 0xf8) >> 3);
         this.timer.setUpperByte(value);
+        this.linearCounter.setReload();
         break;
       default:
         throw new Error('Should not happen');
