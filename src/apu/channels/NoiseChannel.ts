@@ -82,6 +82,10 @@ export default class NoiseChannel {
     }
   }
 
+  public isPlaying(): boolean {
+    return this.lengthCounter.isEnabled();
+  }
+
   public sample(): number {
     if (this.lengthCounter.isEnabled() && (this.shift & 0x01) === 0) {
       return this.envelope.getVolume();

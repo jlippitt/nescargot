@@ -70,6 +70,10 @@ export default class PulseChannel {
     }
   }
 
+  public isPlaying(): boolean {
+    return this.lengthCounter.isEnabled();
+  }
+
   public sample(): number {
     if (this.lengthCounter.isEnabled() && !this.sweep.isMuteFlagSet()) {
       return this.pulseDuty.sample() * this.envelope.getVolume();

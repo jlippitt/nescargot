@@ -36,8 +36,16 @@ export default class APU {
   }
 
   public getByte(offset: number): number {
-    // TODO: Read from status register
-    return 0;
+    if ((offset & 0xff) === 0x15) {
+      let result = 0;
+      result |= this.pulse1.isPlaying() ? 0x01 : 0;
+      result |= this.pulse2.isPlaying() ? 0x02 : 0;
+      result |= this.triangle.isPlaying() ? 0x04 : 0;
+      result |= this.noise.isPlaying() ? 0x08 : 0;
+      return result;
+    } else {
+      return 0;
+    }
   }
 
   public setByte(offset: number, value: number): void {

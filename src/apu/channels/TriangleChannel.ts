@@ -96,6 +96,10 @@ export default class TriangleChannel {
     }
   }
 
+  public isPlaying(): boolean {
+    return this.lengthCounter.isEnabled();
+  }
+
   public sample(): number {
     return this.sequencer.sample();
   }
