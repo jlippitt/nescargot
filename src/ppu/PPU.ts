@@ -1,4 +1,5 @@
 import Interrupt from 'Interrupt';
+import { toHex, warn } from 'log';
 import Mapper from 'mapper/Mapper';
 import Screen from 'screen/Screen';
 
@@ -115,6 +116,7 @@ export default class PPU {
       }
 
       default:
+        warn(`Unexpected PPU read: ${toHex(offset, 4)}`);
         return 0;
     }
   }
@@ -164,6 +166,9 @@ export default class PPU {
         vram.setByte(registers.getVramAddress(), value);
         registers.incrementVramAddress();
         break;
+
+      default:
+        warn(`Unexpected PPU write: ${toHex(offset, 4)} <= ${toHex(value, 2)}`);
     }
   }
 
