@@ -6,6 +6,7 @@ import Interrupt from 'Interrupt';
 import Joypad from 'Joypad';
 import { createMapper } from 'mapper/Mapper';
 import PPU from 'ppu/PPU';
+import SampleReader from 'SampleReader';
 import Screen from 'screen/Screen';
 
 export default interface Hardware {
@@ -29,9 +30,18 @@ export function createHardware({
   const mapper = createMapper(romData);
   const interrupt = new Interrupt();
   const ppu = new PPU({ screen, interrupt, mapper });
-  const apu = new APU({ interrupt, sampleBuffer });
+  const sampleReader = new SampleReader(interrupt);
+  const apu = new APU({ interrupt, sampleBuffer, sampleReader });
   const joypad = new Joypad();
   const dma = new DMA(ppu.getOam(), interrupt);
-  const cpu = new CPU({ mapper, interrupt, ppu, apu, joypad, dma });
+  const cpu = new CPU({
+    mapper,
+    interrupt,
+    ppu,
+    apu,
+    joypad,
+    dma,
+    sampleReader,
+  });
   return { cpu, ppu, apu, joypad };
 }

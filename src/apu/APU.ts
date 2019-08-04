@@ -1,6 +1,7 @@
 import { times } from 'lodash';
 
 import Interrupt from 'Interrupt';
+import SampleReader from 'SampleReader';
 
 import SampleBuffer from './buffers/SampleBuffer';
 import DMCChannel from './channels/DMCChannel';
@@ -23,6 +24,7 @@ const TND_TABLE = times(203, (n) => 163.67 / (24329.0 / n + 100));
 export interface APUOptions {
   interrupt: Interrupt;
   sampleBuffer: SampleBuffer;
+  sampleReader: SampleReader;
 }
 
 export default class APU {
@@ -36,14 +38,14 @@ export default class APU {
   private frameCounter: FrameCounter;
   private sampleClock: number = 0;
 
-  constructor({ interrupt, sampleBuffer }: APUOptions) {
+  constructor({ interrupt, sampleBuffer, sampleReader }: APUOptions) {
     this.interrupt = interrupt;
     this.sampleBuffer = sampleBuffer;
     this.pulse1 = new PulseChannel(-1);
     this.pulse2 = new PulseChannel(0);
     this.triangle = new TriangleChannel();
     this.noise = new NoiseChannel();
-    this.dmc = new DMCChannel();
+    this.dmc = new DMCChannel(sampleReader);
     this.frameCounter = new FrameCounter();
   }
 

@@ -1,3 +1,5 @@
+import SampleReader from 'SampleReader';
+
 import FrequencyClock from './components/FrequencyClock';
 
 const TIMER_PERIODS = [
@@ -20,35 +22,33 @@ const TIMER_PERIODS = [
 ];
 
 export default class DMCChannel {
+  private sampleReader: SampleReader;
   private timer: FrequencyClock;
   private outputLevel: number = 0;
-  private sampleBuffer: number | undefined = undefined;
-  private sampleAddress: number = 0xc000;
-  private sampleLength: number = 1;
-  private interruptEnabled: boolean = false;
-  private loop: boolean = false;
-  private interrupt: boolean = false;
+  private shift: number = 0;
+  private bitsRemaining: number = 8;
+  private silence: boolean = true;
 
-  constructor() {
+  constructor(sampleReader: SampleReader) {
+    this.sampleReader = sampleReader;
     this.timer = new FrequencyClock((value) => TIMER_PERIODS[value]);
   }
 
   public setByte(offset: number, value: number): void {
     switch (offset & 0x03) {
       case 0:
-        this.interruptEnabled = (value & 0x80) !== 0;
-        this.loop = (value & 0x40) !== 0;
+        this.sampleReader.setInterruptEnabled((value & 0x80) !== 0);
+        this.sampleReader.setLoop((value & 0x40) !== 0);
         this.timer.setValue(value & 0x0f);
-        this.interrupt = this.interrupt && this.interruptEnabled;
         break;
       case 1:
         this.outputLevel = value & 0x7f;
         break;
       case 2:
-        this.sampleAddress = 0xc000 | (value << 6);
+        this.sampleReader.setAddress(value);
         break;
       case 3:
-        this.sampleLength = (value << 4) + 1;
+        this.sampleReader.setLength(value);
         break;
       default:
         throw new Error('Should not happen');
@@ -56,30 +56,60 @@ export default class DMCChannel {
   }
 
   public setEnabled(enabled: boolean): void {
-    // Nothing yet
+    this.sampleReader.setEnabled(enabled);
   }
 
   public tick(ticks: number): void {
-    this.timer.tick(ticks);
+    const clocks = this.timer.tick(ticks);
+
+    for (let i = 0; i < clocks; ++i) {
+      if (!this.silence) {
+        const result =
+          (this.shift & 0x01) !== 0
+            ? this.outputLevel + 2
+            : this.outputLevel - 2;
+
+        if (result >= 0 && result <= 127) {
+          this.outputLevel = result;
+        }
+      }
+
+      this.shift = this.shift >> 1;
+
+      if (--this.bitsRemaining > 0) {
+        continue;
+      }
+
+      this.bitsRemaining = 8;
+
+      const sample = this.sampleReader.readNext();
+
+      if (sample !== undefined) {
+        this.shift = sample;
+        this.silence = false;
+      } else {
+        this.silence = true;
+      }
+    }
   }
 
   public update(frameNumber: number): void {
-    // Nothing yet
+    // Nothing
   }
 
   public isPlaying(): boolean {
-    return false;
+    return this.sampleReader.isPlaying();
   }
 
   public sample(): number {
-    return 0;
+    return this.silence ? this.outputLevel : 0;
   }
 
   public isInterruptSet(): boolean {
-    return this.interrupt;
+    return this.sampleReader.isInterruptSet();
   }
 
   public clearInterrupt(): void {
-    this.interrupt = false;
+    this.sampleReader.clearInterrupt();
   }
 }

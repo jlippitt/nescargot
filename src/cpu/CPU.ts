@@ -1,6 +1,7 @@
 import DMA from 'DMA';
 import Interrupt from 'Interrupt';
 import { debug } from 'log';
+import SampleReader from 'SampleReader';
 
 import Hardware from './Hardware';
 import operations from './operations';
@@ -11,11 +12,13 @@ export default class CPU {
   private state: State;
   private interrupt: Interrupt;
   private dma: DMA;
+  private sampleReader: SampleReader;
 
   constructor(hardware: Hardware) {
     this.state = new State(hardware);
     this.interrupt = hardware.interrupt;
     this.dma = hardware.dma;
+    this.sampleReader = hardware.sampleReader;
   }
 
   public tick(): number {
@@ -26,7 +29,9 @@ export default class CPU {
     const prevTicks = clock.getTicks();
 
     if (this.interrupt.hasAnyCondition(flags.interrupt)) {
-      if (this.interrupt.isDmaInProgress()) {
+      if (this.interrupt.checkSampleRequest()) {
+        this.sampleReader.tick(this.state);
+      } else if (this.interrupt.isDmaInProgress()) {
         this.dma.tick(this.state);
       } else if (this.interrupt.checkNmi()) {
         nmi(this.state);

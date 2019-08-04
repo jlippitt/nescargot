@@ -4,6 +4,7 @@ export default class Interrupt {
   private dmaInProgress: boolean;
   private nmi: boolean;
   private irq: boolean;
+  private sampleRequest: boolean;
 
   constructor() {
     this.anyCondition = false;
@@ -11,6 +12,7 @@ export default class Interrupt {
     this.dmaInProgress = false;
     this.nmi = false;
     this.irq = false;
+    this.sampleRequest = false;
   }
 
   public hasAnyCondition(interruptDisabled: boolean): boolean {
@@ -56,8 +58,24 @@ export default class Interrupt {
     }
   }
 
+  public requestNewSample(): void {
+    this.sampleRequest = true;
+    this.updateAnyCondition();
+  }
+
+  public checkSampleRequest(): boolean {
+    if (this.sampleRequest) {
+      this.sampleRequest = false;
+      this.updateAnyCondition();
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   private updateAnyCondition(): void {
-    this.anyConditionNoInterrupt = this.dmaInProgress || this.nmi;
+    this.anyConditionNoInterrupt =
+      this.dmaInProgress || this.nmi || this.sampleRequest;
     this.anyCondition = this.anyConditionNoInterrupt || this.irq;
   }
 }
