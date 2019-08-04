@@ -16,6 +16,10 @@ export default class Sequencer {
     this.sequence = sequence;
   }
 
+  public reset(): void {
+    this.position = 0;
+  }
+
   public advance(increment: number): void {
     this.position = (this.position + increment) % this.sequence.length;
   }

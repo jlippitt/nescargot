@@ -47,6 +47,7 @@ export default class PulseChannel {
         this.lengthCounter.setValue((value & 0xf8) >> 3);
         this.timer.setUpperByte(value);
         this.envelope.setStartFlag();
+        this.pulseDuty.reset();
         break;
       default:
         throw new Error('Should not happen');
