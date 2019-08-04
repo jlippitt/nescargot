@@ -102,7 +102,7 @@ export default class DMCChannel {
   }
 
   public sample(): number {
-    return this.silence ? this.outputLevel : 0;
+    return this.outputLevel;
   }
 
   public isInterruptSet(): boolean {
