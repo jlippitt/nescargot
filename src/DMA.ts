@@ -31,6 +31,8 @@ export default class DMA {
       clock.tick((clock.getTicks() % 2) + 1);
     }
 
+    clock.tick(2);
+
     const value = mmu.getByte(this.startAddress + this.offset);
     this.oam.setDmaByte(this.offset, value);
     ++this.offset;
