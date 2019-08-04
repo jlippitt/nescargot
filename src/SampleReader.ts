@@ -73,9 +73,13 @@ export default class SampleReader {
     this.buffer = mmu.getByte(this.currentAddress);
     this.currentAddress = 0x8000 | ((this.currentAddress + 1) & 0x7fff);
 
-    if (--this.bytesRemaining === 0 && this.loop) {
-      this.currentAddress = this.startAddress;
-      this.bytesRemaining = this.length;
+    if (--this.bytesRemaining === 0) {
+      if (this.loop) {
+        this.currentAddress = this.startAddress;
+        this.bytesRemaining = this.length;
+      } else if (this.interruptEnabled) {
+        this.interruptSet = true;
+      }
     }
 
     clock.tick(this.interrupt.isDmaInProgress() ? 2 : 4);
