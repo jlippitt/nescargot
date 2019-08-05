@@ -19,8 +19,6 @@ export interface PPUOptions {
 }
 
 export interface PPUControl {
-  backgroundNameTableX: number;
-  backgroundNameTableY: number;
   backgroundPatternTableIndex: number;
   spritePatternTableIndex: number;
   spriteSize: SpriteSize;
@@ -62,8 +60,6 @@ export default class PPU {
       oam: new OAM(),
       vram: new VRAM(mapper),
       control: {
-        backgroundNameTableX: 0,
-        backgroundNameTableY: 0,
         backgroundPatternTableIndex: 0,
         spritePatternTableIndex: 0,
         spriteSize: SpriteSize.Small,
