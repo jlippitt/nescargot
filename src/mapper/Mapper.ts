@@ -28,11 +28,11 @@ export enum NameTableMirroring {
   Vertical = 1,
 }
 
-export interface ROM {
+export interface MapperOptions {
   prgRom: Uint8Array;
   prgRam: Uint8Array;
-  chrRom: PatternTable[];
-  ciRam: NameTable[];
+  chr: PatternTable[];
+  nameTables: NameTable[];
   nameTableMirroring: NameTableMirroring;
 }
 
@@ -69,14 +69,14 @@ export function createMapper(data: Uint8Array): Mapper {
   debug(`Mapper Type: ${mapperNumber}`);
   debug(`PRG ROM Length: ${prgRomData.length}`);
 
-  let chrRom: PatternTable[];
+  let chr: PatternTable[];
 
   if (chrRomData.length > 0) {
     debug(`CHR ROM Length: ${chrRomData.length}`);
-    chrRom = createPatternTables(chrRomData);
+    chr = createPatternTables(chrRomData);
   } else {
     debug('CHR RAM Enabled');
-    chrRom = [new PatternTable(), new PatternTable()];
+    chr = [new PatternTable(), new PatternTable()];
   }
 
   debug(`Nametable Mirroring: ${nameTableMirroring}`);
@@ -84,8 +84,8 @@ export function createMapper(data: Uint8Array): Mapper {
   return new MapperConstructor({
     prgRom: prgRomData,
     prgRam: new Uint8Array(8192),
-    chrRom,
-    ciRam: createNameTables(nameTableCount),
+    chr,
+    nameTables: createNameTables(nameTableCount),
     nameTableMirroring,
   });
 }

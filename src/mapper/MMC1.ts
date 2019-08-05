@@ -2,7 +2,8 @@ import { debug, toHex, warn } from 'log';
 import NameTable from 'ppu/NameTable';
 import PatternTable from 'ppu/PatternTable';
 
-import Mapper, { PRG_BANK_SIZE, ROM } from './Mapper';
+import AbstractMapper from './AbstractMapper';
+import { MapperOptions, PRG_BANK_SIZE } from './Mapper';
 
 enum NameTableArrangement {
   SingleScreenLower = 0,
@@ -48,39 +49,36 @@ class ShiftRegister {
 interface ControlRegister {
   nameTableArrangement: NameTableArrangement;
   prgRomBankMode: PrgRomBankMode;
-  chrRomBankMode: ChrRomBankMode;
+  chrBankMode: ChrRomBankMode;
 }
 
-export default class MMC1 implements Mapper {
-  private rom: ROM;
+export default class MMC1 extends AbstractMapper {
   private shift: ShiftRegister;
   private control: ControlRegister;
   private chrBank: PatternTable[];
   private prgOffset: number[];
   private prgRamEnabled: boolean = true;
 
-  constructor(rom: ROM) {
-    this.rom = rom;
+  constructor(options: MapperOptions) {
+    super(options);
     this.shift = new ShiftRegister();
     this.control = {
       nameTableArrangement: NameTableArrangement.SingleScreenLower,
       prgRomBankMode: PrgRomBankMode.SwitchLower,
-      chrRomBankMode: ChrRomBankMode.SwitchAll,
+      chrBankMode: ChrRomBankMode.SwitchAll,
     };
-    this.chrBank = [rom.chrRom[0], rom.chrRom[1]];
+    this.chrBank = [this.chr[0], this.chr[1]];
     this.prgOffset = [0, this.getPrgOffset(0x0f)];
   }
 
   public getPrgByte(offset: number): number {
-    const { prgRom, prgRam } = this.rom;
-
     if (offset >= 0x8000) {
       const address =
         this.prgOffset[(offset & 0x4000) >> 14] | (offset & 0x3fff);
       debug(`Mapped address: ${toHex(address, 4)}`);
-      return prgRom[address];
+      return this.prgRom[address];
     } else if (offset >= 0x6000) {
-      return this.prgRamEnabled ? prgRam[offset & 0x1fff] : 0;
+      return this.prgRamEnabled ? this.prgRam[offset & 0x1fff] : 0;
     } else {
       warn('Attempted read from unexpected mapper location');
       return 0;
@@ -109,7 +107,7 @@ export default class MMC1 implements Mapper {
       }
     } else if (offset >= 0x6000) {
       if (this.prgRamEnabled) {
-        this.rom.prgRam[offset & 0x1fff] = value;
+        this.prgRam[offset & 0x1fff] = value;
       }
     } else {
       warn('Attempted write to unexpected mapper location');
@@ -129,25 +127,41 @@ export default class MMC1 implements Mapper {
   }
 
   public getNameTables(): NameTable[] {
-    const { ciRam } = this.rom;
-
     switch (this.control.nameTableArrangement) {
       case NameTableArrangement.SingleScreenLower:
-        return [ciRam[0], ciRam[0], ciRam[0], ciRam[0]];
+        return [
+          this.nameTables[0],
+          this.nameTables[0],
+          this.nameTables[0],
+          this.nameTables[0],
+        ];
       case NameTableArrangement.SingleScreenUpper:
-        return [ciRam[1], ciRam[1], ciRam[1], ciRam[1]];
+        return [
+          this.nameTables[1],
+          this.nameTables[1],
+          this.nameTables[1],
+          this.nameTables[1],
+        ];
       case NameTableArrangement.VerticalMirroring:
-        return [ciRam[0], ciRam[1], ciRam[0], ciRam[1]];
+        return [
+          this.nameTables[0],
+          this.nameTables[1],
+          this.nameTables[0],
+          this.nameTables[1],
+        ];
       case NameTableArrangement.HorizontalMirroring:
-        return [ciRam[0], ciRam[0], ciRam[1], ciRam[1]];
+        return [
+          this.nameTables[0],
+          this.nameTables[0],
+          this.nameTables[1],
+          this.nameTables[1],
+        ];
       default:
         throw new Error('Should not happen');
     }
   }
 
   private setMapperValue(offset: number, value: number): void {
-    const { chrRom } = this.rom;
-
     debug(`Mapper write: ${toHex(offset, 4)} <= ${toHex(value, 2)}`);
 
     switch (offset & 0xe000) {
@@ -168,7 +182,7 @@ export default class MMC1 implements Mapper {
             this.control.prgRomBankMode = PrgRomBankMode.SwitchAll;
         }
 
-        this.control.chrRomBankMode =
+        this.control.chrBankMode =
           (value & 0x10) !== 0
             ? ChrRomBankMode.SwitchSeparate
             : ChrRomBankMode.SwitchAll;
@@ -177,25 +191,25 @@ export default class MMC1 implements Mapper {
         debug(`PRG ROM bank mode: ${this.control.prgRomBankMode}`);
         debug(`PRG ROM Offset 0 = ${toHex(this.prgOffset[0], 4)}`);
         debug(`PRG ROM Offset 1 = ${toHex(this.prgOffset[1], 4)}`);
-        debug(`CHR ROM bank mode: ${this.control.chrRomBankMode}`);
+        debug(`CHR ROM bank mode: ${this.control.chrBankMode}`);
 
         break;
       case 0xa000:
-        if (this.control.chrRomBankMode === ChrRomBankMode.SwitchAll) {
-          this.chrBank[0] = chrRom[(value & 0x1e) % chrRom.length];
-          this.chrBank[1] = chrRom[((value & 0x1e) + 1) % chrRom.length];
+        if (this.control.chrBankMode === ChrRomBankMode.SwitchAll) {
+          this.chrBank[0] = this.chr[(value & 0x1e) % this.chr.length];
+          this.chrBank[1] = this.chr[((value & 0x1e) + 1) % this.chr.length];
         } else {
-          this.chrBank[0] = chrRom[value % chrRom.length];
+          this.chrBank[0] = this.chr[value % this.chr.length];
         }
-        debug(`CHR Bank 0 = ${chrRom.indexOf(this.chrBank[0])}`);
-        debug(`CHR Bank 1 = ${chrRom.indexOf(this.chrBank[1])}`);
+        debug(`CHR Bank 0 = ${this.chr.indexOf(this.chrBank[0])}`);
+        debug(`CHR Bank 1 = ${this.chr.indexOf(this.chrBank[1])}`);
         break;
       case 0xc000:
-        if (this.control.chrRomBankMode !== ChrRomBankMode.SwitchAll) {
-          this.chrBank[1] = chrRom[value % chrRom.length];
+        if (this.control.chrBankMode !== ChrRomBankMode.SwitchAll) {
+          this.chrBank[1] = this.chr[value % this.chr.length];
         }
-        debug(`CHR Bank 0 = ${chrRom.indexOf(this.chrBank[0])}`);
-        debug(`CHR Bank 1 = ${chrRom.indexOf(this.chrBank[1])}`);
+        debug(`CHR Bank 0 = ${this.chr.indexOf(this.chrBank[0])}`);
+        debug(`CHR Bank 1 = ${this.chr.indexOf(this.chrBank[1])}`);
         break;
       case 0xe000:
         if (this.control.prgRomBankMode === PrgRomBankMode.SwitchLower) {
@@ -219,5 +233,5 @@ export default class MMC1 implements Mapper {
   }
 
   private getPrgOffset = (value: number): number =>
-    (value * PRG_BANK_SIZE) % this.rom.prgRom.length
+    (value * PRG_BANK_SIZE) % this.prgRom.length
 }

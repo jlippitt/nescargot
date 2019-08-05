@@ -2,22 +2,20 @@ import { warn } from 'log';
 import NameTable from 'ppu/NameTable';
 import PatternTable from 'ppu/PatternTable';
 
-import Mapper, { NameTableMirroring, ROM } from './Mapper';
+import AbstractMapper from './AbstractMapper';
+import { MapperOptions, NameTableMirroring } from './Mapper';
 
-export default class GenericMapper implements Mapper {
-  protected rom: ROM;
+export default abstract class GenericMapper extends AbstractMapper {
+  private nameTableMirroring: NameTableMirroring;
 
-  constructor(rom: ROM) {
-    this.rom = rom;
+  constructor(options: MapperOptions) {
+    super(options);
+    this.nameTableMirroring = options.nameTableMirroring;
   }
 
   public getPrgByte(offset: number): number {
-    const { prgRom, prgRam } = this.rom;
-
-    if (offset >= 0x8000) {
-      return prgRom[(offset & 0x7fff) % prgRom.length];
-    } else if (offset >= 0x6000) {
-      return prgRam[offset & 0x1fff];
+    if (offset >= 0x6000 && offset < 0x8000) {
+      return this.prgRam[offset & 0x1fff];
     } else {
       warn('Attempted read from unexpected mapper location');
       return 0;
@@ -26,32 +24,39 @@ export default class GenericMapper implements Mapper {
 
   public setPrgByte(offset: number, value: number): void {
     if (offset >= 0x6000 && offset < 0x8000) {
-      this.rom.prgRam[offset & 0x1fff] = value;
+      this.prgRam[offset & 0x1fff] = value;
     } else {
       warn('Attempted write to unexpected mapper location');
     }
   }
 
   public getChrByte(offset: number): number {
-    return this.rom.chrRom[(offset & 0x1000) >> 12].getByte(offset & 0x0fff);
+    return this.chr[(offset & 0x1000) >> 12].getByte(offset & 0x0fff);
   }
 
   public setChrByte(offset: number, value: number): void {
-    this.rom.chrRom[(offset & 0x1000) >> 12].setByte(offset & 0x0fff, value);
+    this.chr[(offset & 0x1000) >> 12].setByte(offset & 0x0fff, value);
   }
 
   public getPatternTables(): PatternTable[] {
-    const { chrRom } = this.rom;
-    return [chrRom[0], chrRom[1]];
+    return [this.chr[0], this.chr[1]];
   }
 
   public getNameTables(): NameTable[] {
-    const { ciRam } = this.rom;
-
-    if (this.rom.nameTableMirroring === NameTableMirroring.Vertical) {
-      return [ciRam[0], ciRam[1], ciRam[0], ciRam[1]];
+    if (this.nameTableMirroring === NameTableMirroring.Vertical) {
+      return [
+        this.nameTables[0],
+        this.nameTables[1],
+        this.nameTables[0],
+        this.nameTables[1],
+      ];
     } else {
-      return [ciRam[0], ciRam[0], ciRam[1], ciRam[1]];
+      return [
+        this.nameTables[0],
+        this.nameTables[0],
+        this.nameTables[1],
+        this.nameTables[1],
+      ];
     }
   }
 }
