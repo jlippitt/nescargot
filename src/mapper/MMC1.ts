@@ -1,9 +1,11 @@
 import { debug, toHex, warn } from 'log';
 import NameTable from 'ppu/NameTable';
-import PatternTable from 'ppu/PatternTable';
+import Pattern from 'ppu/Pattern';
 
 import AbstractMapper from './AbstractMapper';
 import { MapperOptions, PRG_BANK_SIZE } from './Mapper';
+
+const CHR_BANK_SIZE = 256;
 
 enum NameTableArrangement {
   SingleScreenLower = 0,
@@ -55,9 +57,9 @@ interface ControlRegister {
 export default class MMC1 extends AbstractMapper {
   private shift: ShiftRegister;
   private control: ControlRegister;
-  private chrBank: PatternTable[];
   private prgOffset: number[];
   private prgRamEnabled: boolean = true;
+  private chrOffset: number[];
 
   constructor(options: MapperOptions) {
     super(options);
@@ -67,8 +69,8 @@ export default class MMC1 extends AbstractMapper {
       prgRomBankMode: PrgRomBankMode.SwitchLower,
       chrBankMode: ChrRomBankMode.SwitchAll,
     };
-    this.chrBank = [this.chr[0], this.chr[1]];
     this.prgOffset = [0, this.getPrgOffset(0x0f)];
+    this.chrOffset = [0, CHR_BANK_SIZE];
   }
 
   public getPrgByte(offset: number): number {
@@ -114,48 +116,20 @@ export default class MMC1 extends AbstractMapper {
     }
   }
 
-  public getChrByte(offset: number): number {
-    return this.chrBank[(offset & 0x1000) >> 12].getByte(offset & 0x0fff);
+  public getPattern(index: number): Pattern {
+    return this.chr[this.chrOffset[index >> 8] | (index & 0xff)];
   }
 
-  public setChrByte(offset: number, value: number): void {
-    this.chrBank[(offset & 0x1000) >> 12].setByte(offset & 0x0fff, value);
-  }
-
-  public getPatternTables(): PatternTable[] {
-    return [this.chrBank[0], this.chrBank[1]];
-  }
-
-  public getNameTables(): NameTable[] {
+  public getNameTable(index: number): NameTable {
     switch (this.control.nameTableArrangement) {
       case NameTableArrangement.SingleScreenLower:
-        return [
-          this.nameTables[0],
-          this.nameTables[0],
-          this.nameTables[0],
-          this.nameTables[0],
-        ];
+        return this.nameTables[0];
       case NameTableArrangement.SingleScreenUpper:
-        return [
-          this.nameTables[1],
-          this.nameTables[1],
-          this.nameTables[1],
-          this.nameTables[1],
-        ];
+        return this.nameTables[1];
       case NameTableArrangement.VerticalMirroring:
-        return [
-          this.nameTables[0],
-          this.nameTables[1],
-          this.nameTables[0],
-          this.nameTables[1],
-        ];
+        return this.nameTables[index & 1];
       case NameTableArrangement.HorizontalMirroring:
-        return [
-          this.nameTables[0],
-          this.nameTables[0],
-          this.nameTables[1],
-          this.nameTables[1],
-        ];
+        return this.nameTables[index >> 1];
       default:
         throw new Error('Should not happen');
     }
@@ -196,20 +170,20 @@ export default class MMC1 extends AbstractMapper {
         break;
       case 0xa000:
         if (this.control.chrBankMode === ChrRomBankMode.SwitchAll) {
-          this.chrBank[0] = this.chr[(value & 0x1e) % this.chr.length];
-          this.chrBank[1] = this.chr[((value & 0x1e) + 1) % this.chr.length];
+          this.chrOffset[0] = this.getChrOffset(value & 0x1e);
+          this.chrOffset[1] = this.getChrOffset((value & 0x1e) | 0x01);
         } else {
-          this.chrBank[0] = this.chr[value % this.chr.length];
+          this.chrOffset[0] = this.getChrOffset(value);
         }
-        debug(`CHR Bank 0 = ${this.chr.indexOf(this.chrBank[0])}`);
-        debug(`CHR Bank 1 = ${this.chr.indexOf(this.chrBank[1])}`);
+        debug(`CHR Offset 0 = ${this.chrOffset[0]}`);
+        debug(`CHR Offset 1 = ${this.chrOffset[1]}`);
         break;
       case 0xc000:
         if (this.control.chrBankMode !== ChrRomBankMode.SwitchAll) {
-          this.chrBank[1] = this.chr[value % this.chr.length];
+          this.chrOffset[1] = this.getChrOffset(value);
         }
-        debug(`CHR Bank 0 = ${this.chr.indexOf(this.chrBank[0])}`);
-        debug(`CHR Bank 1 = ${this.chr.indexOf(this.chrBank[1])}`);
+        debug(`CHR Offset 0 = ${this.chrOffset[0]}`);
+        debug(`CHR Offset 1 = ${this.chrOffset[1]}`);
         break;
       case 0xe000:
         if (this.control.prgRomBankMode === PrgRomBankMode.SwitchLower) {
@@ -234,4 +208,7 @@ export default class MMC1 extends AbstractMapper {
 
   private getPrgOffset = (value: number): number =>
     (value * PRG_BANK_SIZE) % this.prgRom.length
+
+  private getChrOffset = (value: number): number =>
+    (value * CHR_BANK_SIZE) % this.chr.length
 }

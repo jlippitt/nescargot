@@ -1,6 +1,6 @@
 import { warn } from 'log';
 import NameTable from 'ppu/NameTable';
-import PatternTable from 'ppu/PatternTable';
+import Pattern from 'ppu/Pattern';
 
 import AbstractMapper from './AbstractMapper';
 import { MapperOptions, NameTableMirroring } from './Mapper';
@@ -30,33 +30,15 @@ export default abstract class GenericMapper extends AbstractMapper {
     }
   }
 
-  public getChrByte(offset: number): number {
-    return this.chr[(offset & 0x1000) >> 12].getByte(offset & 0x0fff);
+  public getPattern(index: number): Pattern {
+    return this.chr[index];
   }
 
-  public setChrByte(offset: number, value: number): void {
-    this.chr[(offset & 0x1000) >> 12].setByte(offset & 0x0fff, value);
-  }
-
-  public getPatternTables(): PatternTable[] {
-    return [this.chr[0], this.chr[1]];
-  }
-
-  public getNameTables(): NameTable[] {
+  public getNameTable(index: number): NameTable {
     if (this.nameTableMirroring === NameTableMirroring.Vertical) {
-      return [
-        this.nameTables[0],
-        this.nameTables[1],
-        this.nameTables[0],
-        this.nameTables[1],
-      ];
+      return this.nameTables[index & 1];
     } else {
-      return [
-        this.nameTables[0],
-        this.nameTables[0],
-        this.nameTables[1],
-        this.nameTables[1],
-      ];
+      return this.nameTables[index >> 1];
     }
   }
 }

@@ -4,7 +4,7 @@ import Screen from 'screen/Screen';
 
 import { Priority, Sprite } from './OAM';
 import { Color } from './PaletteTable';
-import PatternTable from './PatternTable';
+import Pattern from './Pattern';
 import { PPUControl, PPUState } from './PPU';
 
 const RENDER_WIDTH = 256;
@@ -20,27 +20,26 @@ const flip = (spriteSize: number, shouldFlip: boolean, pixel: number) =>
 
 const getSpritePatternRow = (
   control: PPUControl,
-  patternTables: PatternTable[],
+  mapper: Mapper,
   line: number,
   sprite: Sprite,
 ): number[] => {
   const spriteY = flip(control.spriteSize, sprite.flipY, line - sprite.y);
 
-  let patternTableIndex;
   let patternIndex;
 
   if (control.spriteSize === SpriteSize.Large) {
-    patternTableIndex = sprite.patternIndex & 0x01;
-    patternIndex = (sprite.patternIndex & 0xfe) | (spriteY >> 3);
+    patternIndex =
+      ((sprite.patternIndex & 0x01) << 8) |
+      (sprite.patternIndex & 0xfe) |
+      (spriteY >> 3);
   } else {
-    patternTableIndex = control.spritePatternTableIndex;
-    patternIndex = sprite.patternIndex;
+    patternIndex = (control.spritePatternTableIndex << 8) | sprite.patternIndex;
   }
 
-  const patternTable = patternTables[patternTableIndex];
-  const pattern = patternTable.getPattern(patternIndex);
+  const pattern = mapper.getPattern(patternIndex);
 
-  return pattern[spriteY % TILE_SIZE];
+  return pattern.getRow(spriteY % TILE_SIZE);
 };
 
 export enum SpriteSize {
@@ -105,11 +104,7 @@ export default class Renderer {
   private renderBackground(): void {
     const { control, line, registers, vram } = this.state;
 
-    const patternTable = this.mapper.getPatternTables()[
-      control.backgroundPatternTableIndex
-    ];
-
-    const nameTables = this.mapper.getNameTables();
+    const patternTableOffset = control.backgroundPatternTableIndex << 8;
 
     const paletteTable = vram.getPaletteTable();
     const palettes = paletteTable.getBackgroundPalettes();
@@ -126,11 +121,13 @@ export default class Renderer {
     let tileX = (scroll.x >> 3) & 0x1f;
     let pixelX = scroll.x % TILE_SIZE;
 
-    let nameTable = nameTables[nameTableY | nameTableX];
+    let nameTable = this.mapper.getNameTable(nameTableY | nameTableX);
 
     let { patternIndex, paletteIndex } = nameTable.getTile(tileX, tileY);
 
-    let patternRow = patternTable.getPattern(patternIndex)[pixelY];
+    let patternRow = this.mapper
+      .getPattern(patternTableOffset | patternIndex)
+      .getRow(pixelY);
 
     let palette = palettes[paletteIndex];
 
@@ -153,11 +150,13 @@ export default class Renderer {
           nameTableX ^= 1;
         }
 
-        nameTable = nameTables[nameTableY | nameTableX];
+        nameTable = this.mapper.getNameTable(nameTableY | nameTableX);
 
         ({ patternIndex, paletteIndex } = nameTable.getTile(tileX, tileY));
 
-        patternRow = patternTable.getPattern(patternIndex)[pixelY];
+        patternRow = this.mapper
+          .getPattern(patternTableOffset | patternIndex)
+          .getRow(pixelY);
 
         palette = palettes[paletteIndex];
       }
@@ -206,7 +205,6 @@ export default class Renderer {
 
     this.priorityBuffer.fill(undefined);
 
-    const patternTables = this.mapper.getPatternTables();
     const palettes = vram.getPaletteTable().getSpritePalettes();
 
     for (let i = this.selectedSprites.length - 1; i >= 0; --i) {
@@ -218,7 +216,7 @@ export default class Renderer {
 
       const patternRow = getSpritePatternRow(
         control,
-        patternTables,
+        this.mapper,
         line,
         sprite,
       );
@@ -265,14 +263,7 @@ export default class Renderer {
       return false;
     }
 
-    const patternTables = this.mapper.getPatternTables();
-
-    const patternRow = getSpritePatternRow(
-      control,
-      patternTables,
-      line,
-      sprite,
-    );
+    const patternRow = getSpritePatternRow(control, this.mapper, line, sprite);
 
     for (let x = 0; x < TILE_SIZE; ++x) {
       const spriteX = flip(TILE_SIZE, sprite.flipX, x);

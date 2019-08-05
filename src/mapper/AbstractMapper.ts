@@ -1,12 +1,12 @@
 import NameTable from 'ppu/NameTable';
-import PatternTable from 'ppu/PatternTable';
+import Pattern from 'ppu/Pattern';
 
 import Mapper, { MapperOptions } from './Mapper';
 
 export default abstract class AbstractMapper implements Mapper {
   protected prgRom: Uint8Array;
   protected prgRam: Uint8Array;
-  protected chr: PatternTable[];
+  protected chr: Pattern[];
   protected nameTables: NameTable[];
 
   constructor({ prgRom, prgRam, chr, nameTables }: MapperOptions) {
@@ -20,11 +20,15 @@ export default abstract class AbstractMapper implements Mapper {
 
   public abstract setPrgByte(offset: number, value: number): void;
 
-  public abstract getChrByte(offset: number): number;
+  public getChrByte(offset: number): number {
+    return this.getPattern(offset >> 4).getByte(offset & 0x0f);
+  }
 
-  public abstract setChrByte(offset: number, value: number): void;
+  public setChrByte(offset: number, value: number): void {
+    this.getPattern(offset >> 4).setByte(offset & 0x0f, value);
+  }
 
-  public abstract getPatternTables(): PatternTable[];
+  public abstract getPattern(index: number): Pattern;
 
-  public abstract getNameTables(): NameTable[];
+  public abstract getNameTable(index: number): NameTable;
 }

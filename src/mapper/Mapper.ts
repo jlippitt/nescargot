@@ -1,8 +1,8 @@
-import { isEqual } from 'lodash';
+import { isEqual, times } from 'lodash';
 
 import { debug } from 'log';
 import NameTable, { createNameTables } from 'ppu/NameTable';
-import PatternTable, { createPatternTables } from 'ppu/PatternTable';
+import Pattern, { createPatternTable } from 'ppu/Pattern';
 
 import MMC1 from './MMC1';
 import NROM from './NROM';
@@ -13,14 +13,15 @@ const INES_CONSTANT = new Uint8Array([0x4e, 0x45, 0x53, 0x1a]);
 export const PRG_BANK_SIZE = 16384;
 
 const CHR_ROM_SIZE_MULTIPLIER = 8192;
+const CHR_RAM_SIZE = 1024;
 
 export default interface Mapper {
   getPrgByte(offset: number): number;
   setPrgByte(offset: number, value: number): void;
   getChrByte(offset: number): number;
   setChrByte(offset: number, value: number): void;
-  getPatternTables(): PatternTable[];
-  getNameTables(): NameTable[];
+  getPattern(index: number): Pattern;
+  getNameTable(index: number): NameTable;
 }
 
 export enum NameTableMirroring {
@@ -31,7 +32,7 @@ export enum NameTableMirroring {
 export interface MapperOptions {
   prgRom: Uint8Array;
   prgRam: Uint8Array;
-  chr: PatternTable[];
+  chr: Pattern[];
   nameTables: NameTable[];
   nameTableMirroring: NameTableMirroring;
 }
@@ -69,14 +70,14 @@ export function createMapper(data: Uint8Array): Mapper {
   debug(`Mapper Type: ${mapperNumber}`);
   debug(`PRG ROM Length: ${prgRomData.length}`);
 
-  let chr: PatternTable[];
+  let chr: Pattern[];
 
   if (chrRomData.length > 0) {
     debug(`CHR ROM Length: ${chrRomData.length}`);
-    chr = createPatternTables(chrRomData);
+    chr = createPatternTable(chrRomData);
   } else {
     debug('CHR RAM Enabled');
-    chr = [new PatternTable(), new PatternTable()];
+    chr = times(CHR_RAM_SIZE, () => new Pattern());
   }
 
   debug(`Nametable Mirroring: ${nameTableMirroring}`);

@@ -1,9 +1,7 @@
 import { debug, toHex } from 'log';
 import Mapper from 'mapper/Mapper';
 
-import NameTable from './NameTable';
 import PaletteTable from './PaletteTable';
-import PatternTable from './PatternTable';
 
 export default class VRAM {
   private mapper: Mapper;
@@ -33,8 +31,8 @@ export default class VRAM {
       this.readBuffer = this.mapper.getChrByte(offset);
     } else {
       this.readBuffer = this.mapper
-        .getNameTables()
-        [(offset & 0x0c00) >> 10].getByte(offset & 0x03ff);
+        .getNameTable((offset & 0x0c00) >> 10)
+        .getByte(offset & 0x03ff);
     }
 
     debug(`VRAM Read: ${toHex(offset, 4)} => ${toHex(value, 2)}`);
@@ -49,8 +47,8 @@ export default class VRAM {
       this.mapper.setChrByte(offset, value);
     } else if (offset < 0x3f00) {
       this.mapper
-        .getNameTables()
-        [(offset & 0x0c00) >> 10].setByte(offset & 0x03ff, value);
+        .getNameTable((offset & 0x0c00) >> 10)
+        .setByte(offset & 0x03ff, value);
     } else {
       this.paletteTable.setByte(offset, value);
     }
