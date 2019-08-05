@@ -34,7 +34,7 @@ const getSpritePatternRow = (
       (sprite.patternIndex & 0xfe) |
       (spriteY >> 3);
   } else {
-    patternIndex = (control.spritePatternTableIndex << 8) | sprite.patternIndex;
+    patternIndex = control.spritePatternOffset | sprite.patternIndex;
   }
 
   const pattern = mapper.getPattern(patternIndex);
@@ -104,8 +104,6 @@ export default class Renderer {
   private renderBackground(): void {
     const { control, line, registers, vram } = this.state;
 
-    const patternTableOffset = control.backgroundPatternTableIndex << 8;
-
     const paletteTable = vram.getPaletteTable();
     const palettes = paletteTable.getBackgroundPalettes();
     const backgroundColor = paletteTable.getBackgroundColor();
@@ -126,7 +124,7 @@ export default class Renderer {
     let { patternIndex, paletteIndex } = nameTable.getTile(tileX, tileY);
 
     let patternRow = this.mapper
-      .getPattern(patternTableOffset | patternIndex)
+      .getPattern(control.backgroundPatternOffset | patternIndex)
       .getRow(pixelY);
 
     let palette = palettes[paletteIndex];
@@ -155,7 +153,7 @@ export default class Renderer {
         ({ patternIndex, paletteIndex } = nameTable.getTile(tileX, tileY));
 
         patternRow = this.mapper
-          .getPattern(patternTableOffset | patternIndex)
+          .getPattern(control.backgroundPatternOffset | patternIndex)
           .getRow(pixelY);
 
         palette = palettes[paletteIndex];

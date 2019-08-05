@@ -19,8 +19,8 @@ export interface PPUOptions {
 }
 
 export interface PPUControl {
-  backgroundPatternTableIndex: number;
-  spritePatternTableIndex: number;
+  backgroundPatternOffset: number;
+  spritePatternOffset: number;
   spriteSize: SpriteSize;
   nmiEnabled: boolean;
 }
@@ -60,8 +60,8 @@ export default class PPU {
       oam: new OAM(),
       vram: new VRAM(mapper),
       control: {
-        backgroundPatternTableIndex: 0,
-        spritePatternTableIndex: 0,
+        backgroundPatternOffset: 0,
+        spritePatternOffset: 0,
         spriteSize: SpriteSize.Small,
         nmiEnabled: false,
       },
@@ -130,8 +130,8 @@ export default class PPU {
       case 0:
         registers.setNameTableIndexes(value & 0x03);
         registers.setVramIncrement((value & 0x04) !== 0);
-        control.spritePatternTableIndex = (value & 0x08) >> 3;
-        control.backgroundPatternTableIndex = (value & 0x10) >> 4;
+        control.spritePatternOffset = (value & 0x08) << 5;
+        control.backgroundPatternOffset = (value & 0x10) << 4;
         control.spriteSize =
           (value & 0x20) !== 0 ? SpriteSize.Large : SpriteSize.Small;
         control.nmiEnabled = (value & 0x80) !== 0;
