@@ -1,5 +1,6 @@
 import SampleReader from 'SampleReader';
 
+import { FrameType } from '../FrameCounter';
 import FrequencyClock from './components/FrequencyClock';
 
 const TIMER_PERIODS = [
@@ -93,7 +94,7 @@ export default class DMCChannel {
     }
   }
 
-  public update(frameNumber: number): void {
+  public update(frameType: FrameType): void {
     // Nothing
   }
 

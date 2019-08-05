@@ -1,3 +1,4 @@
+import { FrameType } from '../FrameCounter';
 import Envelope from './components/Envelope';
 import FrequencyClock from './components/FrequencyClock';
 import LengthCounter from './components/LengthCounter';
@@ -74,10 +75,10 @@ export default class NoiseChannel {
     }
   }
 
-  public update(frameNumber: number): void {
+  public update(frameType: FrameType): void {
     this.envelope.advance();
 
-    if (frameNumber % 2 === 0) {
+    if (frameType === FrameType.HalfFrame) {
       this.lengthCounter.advance();
     }
   }

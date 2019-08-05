@@ -1,3 +1,4 @@
+import { FrameType } from '../FrameCounter';
 import FrequencyClock, {
   deriveLinearPeriod,
 } from './components/FrequencyClock';
@@ -92,10 +93,10 @@ export default class TriangleChannel {
     }
   }
 
-  public update(frameNumber: number): void {
+  public update(frameType: FrameType): void {
     this.linearCounter.advance();
 
-    if (frameNumber % 2 === 0) {
+    if (frameType === FrameType.HalfFrame) {
       this.lengthCounter.advance();
     }
   }

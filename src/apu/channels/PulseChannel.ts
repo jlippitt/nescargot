@@ -1,3 +1,4 @@
+import { FrameType } from '../FrameCounter';
 import Envelope from './components/Envelope';
 import FrequencyClock, {
   deriveLinearPeriod,
@@ -64,10 +65,10 @@ export default class PulseChannel {
     this.pulseDuty.advance(this.timer.tick(ticks));
   }
 
-  public update(frameNumber: number): void {
+  public update(frameType: FrameType): void {
     this.envelope.advance();
 
-    if (frameNumber % 2 === 0) {
+    if (frameType === FrameType.HalfFrame) {
       this.sweep.advance();
       this.lengthCounter.advance();
     }
