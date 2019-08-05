@@ -42,7 +42,12 @@ export default class Sweep {
 
     this.mute = currentPeriod < MIN_PERIOD || targetPeriod > MAX_PERIOD;
 
-    if (this.divider === 0 && this.enabled && !this.mute) {
+    if (
+      this.divider === 0 &&
+      this.enabled &&
+      !this.mute &&
+      this.shiftCount > 0
+    ) {
       this.target.setValue(targetPeriod);
     }
 
