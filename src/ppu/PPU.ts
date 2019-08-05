@@ -80,7 +80,11 @@ export default class PPU {
       registers: new Registers(),
     };
 
-    this.renderer = new Renderer(screen, this.state);
+    this.renderer = new Renderer({
+      screen,
+      state: this.state,
+      mapper,
+    });
 
     this.clock = 0;
     this.oddFrame = false;

@@ -1,4 +1,5 @@
 import { debug } from 'log';
+import Mapper from 'mapper/Mapper';
 import Screen from 'screen/Screen';
 
 import { Priority, Sprite } from './OAM';
@@ -47,18 +48,26 @@ export enum SpriteSize {
   Large = 16,
 }
 
+interface RendererOptions {
+  screen: Screen;
+  state: PPUState;
+  mapper: Mapper;
+}
+
 export default class Renderer {
   private screen: Screen;
   private state: PPUState;
+  private mapper: Mapper;
   private lineBuffer: Color[];
   private opacityBuffer: boolean[];
   private selectedSprites: Array<Sprite | undefined>;
   private spriteBuffer: Color[];
   private priorityBuffer: Array<Priority | undefined>;
 
-  constructor(screen: Screen, state: PPUState) {
+  constructor({ screen, state, mapper }: RendererOptions) {
     this.screen = screen;
     this.state = state;
+    this.mapper = mapper;
     this.lineBuffer = Array(RENDER_WIDTH).fill(0);
     this.opacityBuffer = Array(RENDER_WIDTH).fill(false);
     this.selectedSprites = Array(SPRITES_PER_LINE).fill(undefined);
@@ -96,11 +105,11 @@ export default class Renderer {
   private renderBackground(): void {
     const { control, line, registers, vram } = this.state;
 
-    const patternTable = vram.getPatternTable(
-      control.backgroundPatternTableIndex,
-    );
+    const patternTable = this.mapper.getPatternTables()[
+      control.backgroundPatternTableIndex
+    ];
 
-    const nameTables = vram.getNameTables();
+    const nameTables = this.mapper.getNameTables();
 
     const paletteTable = vram.getPaletteTable();
     const palettes = paletteTable.getBackgroundPalettes();
@@ -197,7 +206,7 @@ export default class Renderer {
 
     this.priorityBuffer.fill(undefined);
 
-    const patternTables = vram.getPatternTables();
+    const patternTables = this.mapper.getPatternTables();
     const palettes = vram.getPaletteTable().getSpritePalettes();
 
     for (let i = this.selectedSprites.length - 1; i >= 0; --i) {
@@ -256,7 +265,7 @@ export default class Renderer {
       return false;
     }
 
-    const patternTables = vram.getPatternTables();
+    const patternTables = this.mapper.getPatternTables();
 
     const patternRow = getSpritePatternRow(
       control,

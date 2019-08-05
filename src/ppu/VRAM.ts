@@ -16,18 +16,6 @@ export default class VRAM {
     this.readBuffer = 0;
   }
 
-  public getPatternTables(): PatternTable[] {
-    return this.mapper.getPatternTables();
-  }
-
-  public getPatternTable(index: number): PatternTable {
-    return this.mapper.getPatternTables()[index];
-  }
-
-  public getNameTables(): NameTable[] {
-    return this.mapper.getNameTables();
-  }
-
   public getPaletteTable(): PaletteTable {
     return this.paletteTable;
   }
