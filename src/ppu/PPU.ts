@@ -137,9 +137,11 @@ export default class PPU {
         control.backgroundPatternOffset = (value & 0x10) << 4;
         control.spriteSize =
           (value & 0x20) !== 0 ? SpriteSize.Large : SpriteSize.Small;
+
+        const prevNmiEnabled = control.nmiEnabled;
         control.nmiEnabled = (value & 0x80) !== 0;
 
-        if (control.nmiEnabled && status.vblank) {
+        if (status.vblank && control.nmiEnabled && !prevNmiEnabled) {
           this.interrupt.triggerNmi();
         }
         break;
