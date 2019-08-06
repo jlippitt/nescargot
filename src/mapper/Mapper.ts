@@ -5,6 +5,7 @@ import NameTable, { createNameTables } from 'ppu/NameTable';
 import Pattern, { createPatternTable } from 'ppu/Pattern';
 
 import MMC1 from './MMC1';
+import MMC3 from './MMC3';
 import NROM from './NROM';
 import UxROM from './UxROM';
 
@@ -37,7 +38,7 @@ export interface MapperOptions {
   nameTableMirroring: NameTableMirroring;
 }
 
-const availableMappers = [NROM, MMC1, UxROM];
+const availableMappers = [NROM, MMC1, UxROM, undefined, MMC3];
 
 export function createMapper(data: Uint8Array): Mapper {
   if (!isEqual(data.slice(0, 4), INES_CONSTANT)) {
