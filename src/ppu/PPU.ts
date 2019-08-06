@@ -93,7 +93,7 @@ export default class PPU {
   }
 
   public get(offset: number): number {
-    const { oam, vram, status, registers } = this.state;
+    const { line, oam, vram, status, registers } = this.state;
 
     switch (offset % 8) {
       case 2: {
@@ -112,6 +112,9 @@ export default class PPU {
       case 7: {
         const value = vram.getByte(registers.getVramAddress());
         registers.incrementVramAddress();
+        if (line < VBLANK_LINE && this.isRenderingEnabled()) {
+          warn('PPUDATA accessed while rendering');
+        }
         return value;
       }
 
@@ -122,7 +125,7 @@ export default class PPU {
   }
 
   public set(offset: number, value: number): void {
-    const { oam, vram, control, mask, status, registers } = this.state;
+    const { line, oam, vram, control, mask, status, registers } = this.state;
 
     this.previousWrite = value;
 
@@ -165,6 +168,9 @@ export default class PPU {
       case 7:
         vram.setByte(registers.getVramAddress(), value);
         registers.incrementVramAddress();
+        if (line < VBLANK_LINE && this.isRenderingEnabled()) {
+          warn('PPUDATA accessed while rendering');
+        }
         break;
 
       default:
@@ -196,7 +202,7 @@ export default class PPU {
       } else if (
         state.line === TOTAL_LINES - 1 &&
         this.oddFrame &&
-        (mask.backgroundEnabled || mask.spritesEnabled)
+        this.isRenderingEnabled()
       ) {
         // Skip a clock cycle at the end of this line
         this.ticksForCurrentLine = TICKS_PER_LINE - 1;
@@ -216,4 +222,7 @@ export default class PPU {
 
     return false;
   }
+
+  private isRenderingEnabled = (): boolean =>
+    this.state.mask.backgroundEnabled || this.state.mask.spritesEnabled
 }
