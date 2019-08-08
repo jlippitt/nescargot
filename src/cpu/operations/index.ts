@@ -1,3 +1,5 @@
+import { warn } from 'log';
+
 import State from '../State';
 
 import {
@@ -73,8 +75,9 @@ import { tax, tay, tsx, txa, txs, tya } from './transfer';
 
 type Operation = (state: State) => void;
 
-function xxx() {
-  throw new Error('Unknown op code');
+function xxx(state: State) {
+  warn('Unknown op code. Treating as NOP.');
+  nop(state);
 }
 
 const operations: Operation[] = [
