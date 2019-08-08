@@ -53,13 +53,8 @@ export async function runInBrowser(): Promise<void> {
 
     while (currentTicks < Math.ceil(allowedTicks)) {
       const ticks = cpu.tick();
-
-      if (ppu.tick(ticks)) {
-        screen.update();
-      }
-
+      ppu.tick(ticks);
       apu.tick(ticks);
-
       currentTicks += ticks;
     }
 

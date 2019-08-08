@@ -75,7 +75,7 @@ export default class Renderer {
   }
 
   public renderLine(): boolean {
-    const { screen, mask, vram } = this.state;
+    const { mask, vram } = this.state;
 
     debug(`** Rendering line ${this.state.line} **`);
 

@@ -8,9 +8,9 @@ import Registers from './Registers';
 import Renderer, { SpriteSize } from './Renderer';
 import VRAM from './VRAM';
 
-const TICKS_PER_LINE = 341;
 const TOTAL_LINES = 262;
-const VBLANK_LINE = 240;
+const POST_RENDER_LINE = 240;
+const PRE_RENDER_LINE = 261;
 
 export interface PPUOptions {
   screen: Screen;
@@ -26,7 +26,6 @@ export interface PPUControl {
 }
 
 export interface PPUState {
-  screen: Screen;
   line: number;
   oam: OAM;
   vram: VRAM;
@@ -42,20 +41,48 @@ export interface PPUState {
   registers: Registers;
 }
 
+enum Mode {
+  Render,
+  HBlank1,
+  HBlank2,
+  PostRender,
+  VBlank,
+  PreRender1,
+  PreRender2,
+  PreRender3,
+  PreRender4Short,
+  PreRender4Long,
+}
+
+const MODE_TICKS: { [Key in Mode]: number } = {
+  [Mode.Render]: 257,
+  [Mode.HBlank1]: 64,
+  [Mode.HBlank2]: 20,
+  [Mode.PostRender]: 341,
+  [Mode.VBlank]: 341,
+  [Mode.PreRender1]: 257,
+  [Mode.PreRender2]: 47,
+  [Mode.PreRender3]: 17,
+  [Mode.PreRender4Short]: 19,
+  [Mode.PreRender4Long]: 20,
+};
+
 export default class PPU {
+  private screen: Screen;
   private interrupt: Interrupt;
   private state: PPUState;
   private renderer: Renderer;
-  private clock: number;
+  private ticks: number;
+  private mode: Mode;
+  private modeTicks: number;
   private oddFrame: boolean;
-  private ticksForCurrentLine: number;
   private previousWrite: number;
 
   constructor({ screen, interrupt, mapper }: PPUOptions) {
+    this.screen = screen;
     this.interrupt = interrupt;
 
     this.state = {
-      screen,
       line: 0,
       oam: new OAM(),
       vram: new VRAM(mapper),
@@ -82,9 +109,10 @@ export default class PPU {
       mapper,
     });
 
-    this.clock = 0;
+    this.ticks = 0;
+    this.mode = Mode.Render;
+    this.modeTicks = MODE_TICKS[Mode.Render];
     this.oddFrame = false;
-    this.ticksForCurrentLine = TICKS_PER_LINE;
     this.previousWrite = 0;
   }
 
@@ -112,7 +140,7 @@ export default class PPU {
       case 7: {
         const value = vram.getByte(registers.getVramAddress());
         registers.incrementVramAddress();
-        if (line < VBLANK_LINE && this.isRenderingEnabled()) {
+        if (line < POST_RENDER_LINE && this.isRenderingEnabled()) {
           warn('PPUDATA accessed while rendering');
         }
         return value;
@@ -170,7 +198,7 @@ export default class PPU {
       case 7:
         vram.setByte(registers.getVramAddress(), value);
         registers.incrementVramAddress();
-        if (line < VBLANK_LINE && this.isRenderingEnabled()) {
+        if (line < POST_RENDER_LINE && this.isRenderingEnabled()) {
           warn('PPUDATA accessed while rendering');
         }
         break;
@@ -180,49 +208,74 @@ export default class PPU {
     }
   }
 
-  public tick(ticks: number): boolean {
-    this.clock += ticks * 3;
+  public tick(cpuTicks: number): void {
+    this.ticks += cpuTicks * 3;
 
-    if (this.clock >= this.ticksForCurrentLine) {
-      const { state } = this;
-      const { control, mask, status } = state;
+    if (this.ticks >= this.modeTicks) {
+      this.ticks -= this.modeTicks;
+      this.mode = this.nextMode();
+      this.modeTicks = MODE_TICKS[this.mode];
+    }
+  }
 
-      this.clock -= this.ticksForCurrentLine;
+  private nextMode(): Mode {
+    const { control, status } = this.state;
 
-      if (state.line < VBLANK_LINE) {
+    switch (this.mode) {
+      case Mode.Render: {
         const spriteHit = this.renderer.renderLine();
         status.spriteHit = status.spriteHit || spriteHit;
+        return Mode.HBlank1;
       }
 
-      ++state.line;
+      case Mode.HBlank1:
+        return Mode.HBlank2;
 
-      if (state.line === VBLANK_LINE) {
+      case Mode.HBlank2:
+        if (++this.state.line === POST_RENDER_LINE) {
+          this.screen.update();
+          return Mode.PostRender;
+        } else {
+          return Mode.Render;
+        }
+
+      case Mode.PostRender:
+        ++this.state.line;
         status.vblank = true;
+
         if (control.nmiEnabled) {
           this.interrupt.triggerNmi();
         }
-      } else if (
-        state.line === TOTAL_LINES - 1 &&
-        this.oddFrame &&
-        this.isRenderingEnabled()
-      ) {
-        // Skip a clock cycle at the end of this line
-        this.ticksForCurrentLine = TICKS_PER_LINE - 1;
-      } else if (state.line === TOTAL_LINES) {
-        // New frame
-        state.line = 0;
+
+        return Mode.VBlank;
+
+      case Mode.VBlank:
+        if (++this.state.line === PRE_RENDER_LINE) {
+          status.vblank = false;
+          status.spriteHit = false;
+          return Mode.PreRender1;
+        } else {
+          return Mode.VBlank;
+        }
+
+      case Mode.PreRender1:
+        return Mode.PreRender2;
+
+      case Mode.PreRender2:
+        return Mode.PreRender3;
+
+      case Mode.PreRender3:
+        if (this.oddFrame && this.isRenderingEnabled()) {
+          return Mode.PreRender4Short;
+        } else {
+          return Mode.PreRender4Long;
+        }
+
+      default:
+        this.state.line = 0;
         this.oddFrame = !this.oddFrame;
-        status.vblank = false;
-        status.spriteHit = false;
-
-        // Ensure this is always reset at the start of a frame (don't need to
-        // check if odd or even)
-        this.ticksForCurrentLine = TICKS_PER_LINE;
-        return true;
-      }
+        return Mode.Render;
     }
-
-    return false;
   }
 
   private isRenderingEnabled = (): boolean =>
