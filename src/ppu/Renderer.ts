@@ -110,7 +110,7 @@ export default class Renderer {
 
     const scroll = registers.getScroll();
 
-    const posY = scroll.y + line;
+    const posY = scroll.y;
     const nameTableY = Math.floor((posY % 480) / 240) << 1;
     const tileY = (posY >> 3) % 30;
     const pixelY = posY % TILE_SIZE;

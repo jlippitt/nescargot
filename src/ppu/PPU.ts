@@ -219,12 +219,15 @@ export default class PPU {
   }
 
   private nextMode(): Mode {
-    const { control, status } = this.state;
+    const { control, status, registers } = this.state;
 
     switch (this.mode) {
       case Mode.Render: {
-        const spriteHit = this.renderer.renderLine();
-        status.spriteHit = status.spriteHit || spriteHit;
+        if (this.isRenderingEnabled()) {
+          const spriteHit = this.renderer.renderLine();
+          status.spriteHit = status.spriteHit || spriteHit;
+          registers.copyHorizontalBits();
+        }
         return Mode.HBlank1;
       }
 
@@ -233,7 +236,9 @@ export default class PPU {
 
       case Mode.HBlank2:
         if (++this.state.line === POST_RENDER_LINE) {
-          this.screen.update();
+          if (this.isRenderingEnabled()) {
+            this.screen.update();
+          }
           return Mode.PostRender;
         } else {
           return Mode.Render;
@@ -259,9 +264,15 @@ export default class PPU {
         }
 
       case Mode.PreRender1:
+        if (this.isRenderingEnabled()) {
+          registers.copyHorizontalBits();
+        }
         return Mode.PreRender2;
 
       case Mode.PreRender2:
+        if (this.isRenderingEnabled()) {
+          registers.copyVerticalBits();
+        }
         return Mode.PreRender3;
 
       case Mode.PreRender3:

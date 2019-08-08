@@ -18,11 +18,11 @@ export default class Registers {
   public getVramAddress = (): number => this.vramAddress & 0x3fff;
 
   public getScroll(): Scroll {
-    const nameTableX = (this.tempAddress & 0x0400) >> 10;
-    const nameTableY = (this.tempAddress & 0x0800) >> 11;
-    const coarseX = this.tempAddress & 0x001f;
-    const coarseY = (this.tempAddress & 0x03e0) >> 5;
-    const fineY = (this.tempAddress & 0x7000) >> 12;
+    const nameTableX = (this.vramAddress & 0x0400) >> 10;
+    const nameTableY = (this.vramAddress & 0x0800) >> 11;
+    const coarseX = this.vramAddress & 0x001f;
+    const coarseY = (this.vramAddress & 0x03e0) >> 5;
+    const fineY = (this.vramAddress & 0x7000) >> 12;
 
     return {
       x: nameTableX * 256 + coarseX * 8 + this.fineXScroll,
@@ -55,6 +55,7 @@ export default class Registers {
   public setAddressByte(value: number): void {
     if (this.firstWrite) {
       this.tempAddress = (this.tempAddress & 0x00ff) | (value << 8);
+      this.vramAddress ^= 0x4000;
     } else {
       this.tempAddress = (this.tempAddress & 0xff00) | value;
       this.vramAddress = this.tempAddress;
@@ -70,6 +71,39 @@ export default class Registers {
   }
 
   public incrementVramAddress(): void {
-    this.vramAddress = (this.vramAddress + this.vramIncrement) & 0x7fff;
+    this.vramAddress =
+      (this.vramAddress & 0x4000) |
+      ((this.vramAddress + this.vramIncrement) & 0x3fff);
+  }
+
+  public copyVerticalBits(): void {
+    this.vramAddress =
+      (this.vramAddress & 0x041f) | (this.tempAddress & 0x7be0);
+  }
+
+  public copyHorizontalBits(): void {
+    // First increment Y scroll. Code 'paraphrased' from Nesdev wiki.
+    if ((this.vramAddress & 0x7000) !== 0x7000) {
+      this.vramAddress += 0x1000;
+    } else {
+      this.vramAddress &= ~0x7000;
+
+      let y = (this.vramAddress & 0x03e0) >> 5;
+
+      if (y === 29) {
+        y = 0;
+        this.vramAddress ^= 0x0800;
+      } else if (y === 31) {
+        y = 0;
+      } else {
+        y += 1;
+      }
+
+      this.vramAddress = (this.vramAddress & ~0x03e0) | (y << 5);
+    }
+
+    // Then reset horizontal scroll
+    this.vramAddress =
+      (this.vramAddress & 0x7be0) | (this.tempAddress & 0x041f);
   }
 }
