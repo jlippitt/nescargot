@@ -140,7 +140,7 @@ export default class PPU {
       case 7: {
         const value = vram.getByte(registers.getVramAddress());
         registers.incrementVramAddress();
-        if (line < POST_RENDER_LINE && this.isRenderingEnabled()) {
+        if (this.mode === Mode.Render && this.isRenderingEnabled()) {
           warn('PPUDATA accessed while rendering');
         }
         return value;
@@ -198,7 +198,7 @@ export default class PPU {
       case 7:
         vram.setByte(registers.getVramAddress(), value);
         registers.incrementVramAddress();
-        if (line < POST_RENDER_LINE && this.isRenderingEnabled()) {
+        if (this.mode === Mode.Render && this.isRenderingEnabled()) {
           warn('PPUDATA accessed while rendering');
         }
         break;
