@@ -227,6 +227,8 @@ export default class PPU {
           const spriteHit = this.renderer.renderLine();
           status.spriteHit = status.spriteHit || spriteHit;
           registers.copyHorizontalBits();
+        } else {
+          this.screen.skipLine();
         }
         return Mode.HBlank1;
       }

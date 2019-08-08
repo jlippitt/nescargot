@@ -5,6 +5,10 @@ export default class DummyScreen implements Screen {
     // Do nothing
   }
 
+  public skipLine(): void {
+    // Do nothing
+  }
+
   public update(): void {
     // Do nothing
   }
