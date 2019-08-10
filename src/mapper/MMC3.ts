@@ -68,6 +68,7 @@ export default class MMC3 extends AbstractMapper {
           debug(`IRQ latch = ${this.irqLatch}`);
         } else {
           this.irqReload = true;
+          this.interrupt.clearIrq();
           debug('IRQ reload requested');
         }
         break;
