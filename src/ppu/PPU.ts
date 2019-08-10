@@ -235,16 +235,15 @@ export default class PPU {
         } else {
           this.screen.skipLine();
         }
+        this.mapper.onPPUSpriteMemoryStart(this.state);
         return Mode.HBlank1;
       }
 
       case Mode.HBlank1:
-        this.mapper.onPPUSpriteMemoryStart(this.state);
+        this.mapper.onPPUBackgroundMemoryStart(this.state);
         return Mode.HBlank2;
 
       case Mode.HBlank2:
-        this.mapper.onPPUBackgroundMemoryStart(this.state);
-
         if (++this.state.line === POST_RENDER_LINE) {
           if (mask.renderingEnabled) {
             this.screen.update();
