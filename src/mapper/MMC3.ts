@@ -1,5 +1,3 @@
-import { times } from 'lodash';
-
 import { debug, warn } from 'log';
 import NameTable from 'ppu/NameTable';
 import Pattern from 'ppu/Pattern';
@@ -13,17 +11,20 @@ const CHR_BANK_SIZE = 64;
 export default class MMC3 extends AbstractMapper {
   private prgOffset: number[];
   private chrOffset: number[];
+  private bankMap: number[];
   private nextBank: number = 0;
-  private prgBankMode: number = 0;
-  private chrBankMode: number = 0;
+  private prgBankFlag: boolean = false;
+  private chrBankFlag: boolean = false;
   private nameTableMirroring = NameTableMirroring.Vertical;
   private prgRamEnabled: boolean = false;
   private prgRamProtected: boolean = false;
 
   constructor(options: MapperOptions) {
     super(options);
-    this.prgOffset = [0, 0, this.getPrgOffset(-2), this.getPrgOffset(-1)];
-    this.chrOffset = times(8, (i) => i * CHR_BANK_SIZE);
+    this.prgOffset = Array(4).fill(0);
+    this.chrOffset = Array(8).fill(0);
+    this.bankMap = Array(8).fill(0);
+    this.updateBanks();
     debug('MMC3 PRG banks', this.prgOffset);
   }
 
@@ -66,16 +67,15 @@ export default class MMC3 extends AbstractMapper {
       case 0x8000:
         if (offset % 2 === 0) {
           this.nextBank = value & 0x07;
-          this.prgBankMode = (value & 0x40) >> 6;
-          this.chrBankMode = (value & 0x80) >> 7;
-          const fixedOffsetBank = 2 - this.prgBankMode * 2;
-          this.prgOffset[fixedOffsetBank] = this.getPrgOffset(-2);
+          this.prgBankFlag = (value & 0x40) !== 0;
+          this.chrBankFlag = (value & 0x80) !== 0;
           debug(`MMC3 next bank = ${this.nextBank}`);
-          debug(`MMC3 PRG bank mode = ${this.prgBankMode}`);
-          debug(`MMC3 CHR bank mode = ${this.chrBankMode}`);
-          debug('MMC3 PRG banks', this.prgOffset);
+          debug(`MMC3 PRG bank flag = ${this.prgBankFlag}`);
+          debug(`MMC3 CHR bank flag = ${this.chrBankFlag}`);
+          this.updateBanks();
         } else {
-          this.selectBank(value);
+          this.bankMap[this.nextBank] = value;
+          this.updateBanks();
         }
         break;
 
@@ -102,25 +102,38 @@ export default class MMC3 extends AbstractMapper {
     }
   }
 
-  private selectBank(value: number): void {
-    if (this.nextBank < 2) {
-      // Large CHR banks
-      const index = this.chrBankMode * 4 + this.nextBank * 2;
-      this.chrOffset[index] = this.getChrOffset(value & 0xfe);
-      this.chrOffset[index + 1] = this.getChrOffset((value & 0xfe) | 0x01);
-    } else if (this.nextBank < 6) {
-      // Small CHR banks
-      const index = 2 + this.nextBank - this.chrBankMode * 4;
-      this.chrOffset[index] = this.getChrOffset(value);
-    } else if (this.nextBank === 6) {
-      // Movable location PRG bank
-      this.prgOffset[this.prgBankMode * 2] = this.getPrgOffset(value & 0x3f);
-      debug('MMC3 PRG banks', this.prgOffset);
-    } else {
-      // Fixed location PRG bank
-      this.prgOffset[1] = this.getPrgOffset(value & 0x3f);
-      debug('MMC3 PRG banks', this.prgOffset);
+  private updateBanks(): void {
+    // Large CHR banks
+    for (let i = 0; i < 2; ++i) {
+      const index = (this.chrBankFlag ? 4 : 0) + i * 2;
+      this.chrOffset[index] = this.getChrOffset(this.bankMap[i] & 0xfe);
+      this.chrOffset[index + 1] = this.getChrOffset(
+        (this.bankMap[i] & 0xfe) | 0x01,
+      );
     }
+
+    // Small CHR banks
+    for (let i = 0; i < 4; ++i) {
+      const index = (this.chrBankFlag ? 0 : 4) + i;
+      this.chrOffset[index] = this.getChrOffset(this.bankMap[2 + i]);
+    }
+
+    // Movable location PRG bank
+    this.prgOffset[this.prgBankFlag ? 2 : 0] = this.getPrgOffset(
+      this.bankMap[6] & 0x3f,
+    );
+
+    // Fixed location PRG bank
+    this.prgOffset[1] = this.getPrgOffset(this.bankMap[7] & 0x3f);
+
+    // Fixed offset PRG bank
+    this.prgOffset[this.prgBankFlag ? 0 : 2] = this.getPrgOffset(-2);
+
+    // Fixed upper bank
+    this.prgOffset[3] = this.getPrgOffset(-1);
+
+    debug('PRG banks', this.prgOffset);
+    debug('CHR banks', this.chrOffset);
   }
 
   private getPrgOffset(bankIndex: number): number {
