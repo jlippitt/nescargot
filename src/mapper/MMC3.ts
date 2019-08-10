@@ -2,7 +2,6 @@ import { times } from 'lodash';
 
 import Interrupt from 'Interrupt';
 import { debug, toHex, warn } from 'log';
-import { debug, warn } from 'log';
 import NameTable from 'ppu/NameTable';
 import Pattern from 'ppu/Pattern';
 import { PPUState } from 'ppu/PPU';
