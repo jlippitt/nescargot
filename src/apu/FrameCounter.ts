@@ -62,11 +62,13 @@ export default class FrameCounter {
         this.frame = 0;
       }
 
-      this.interrupt =
-        this.interrupt ||
-        (this.interruptEnabled &&
-          this.sequence === Sequence.Short &&
-          this.frame === 0);
+      if (
+        this.interruptEnabled &&
+        this.sequence === Sequence.Short &&
+        this.frame === 0
+      ) {
+        this.interrupt = true;
+      }
 
       return frameSequence[this.frame];
     }

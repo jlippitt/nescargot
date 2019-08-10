@@ -1,7 +1,7 @@
 import { times } from 'lodash';
 
 import Interrupt from 'Interrupt';
-import { toHex, warn } from 'log';
+import { debug, toHex, warn } from 'log';
 import SampleReader from 'SampleReader';
 
 import SampleBuffer from './buffers/SampleBuffer';
@@ -142,6 +142,9 @@ export default class APU {
     }
 
     if (this.frameCounter.isInterruptSet() || this.dmc.isInterruptSet()) {
+      debug('IRQ triggered from within APU');
+      debug(`Frame counter: ${this.frameCounter.isInterruptSet()}`);
+      debug(`DMC: ${this.dmc.isInterruptSet()}`);
       this.interrupt.triggerIrq();
     }
   }
