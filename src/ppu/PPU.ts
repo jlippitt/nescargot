@@ -11,6 +11,7 @@ import VRAM from './VRAM';
 const TOTAL_LINES = 262;
 const POST_RENDER_LINE = 240;
 const PRE_RENDER_LINE = 261;
+const CLIP_WIDTH = 8;
 
 export interface PPUOptions {
   screen: Screen;
@@ -34,6 +35,8 @@ export interface PPUState {
     renderingEnabled: boolean;
     backgroundEnabled: boolean;
     spritesEnabled: boolean;
+    backgroundXStart: number;
+    spriteXStart: number;
   };
   status: {
     vblank: boolean;
@@ -101,6 +104,8 @@ export default class PPU {
         renderingEnabled: false,
         backgroundEnabled: false,
         spritesEnabled: false,
+        backgroundXStart: CLIP_WIDTH,
+        spriteXStart: CLIP_WIDTH,
       },
       status: {
         vblank: false,
@@ -181,6 +186,8 @@ export default class PPU {
         break;
 
       case 1:
+        mask.backgroundXStart = (value & 0x02) !== 0 ? 0 : CLIP_WIDTH;
+        mask.spriteXStart = (value & 0x04) !== 0 ? 0 : CLIP_WIDTH;
         mask.backgroundEnabled = (value & 0x08) !== 0;
         mask.spritesEnabled = (value & 0x10) !== 0;
         mask.renderingEnabled = mask.backgroundEnabled || mask.spritesEnabled;

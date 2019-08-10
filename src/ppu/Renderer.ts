@@ -79,10 +79,12 @@ export default class Renderer {
 
     debug(`** Rendering line ${this.state.line} **`);
 
+    const backgroundColor = vram.getPaletteTable().getBackgroundColor();
+
     if (mask.backgroundEnabled) {
+      this.lineBuffer.fill(backgroundColor, 0, mask.backgroundXStart);
       this.renderBackground();
     } else {
-      const backgroundColor = vram.getPaletteTable().getBackgroundColor();
       this.lineBuffer.fill(backgroundColor);
       this.opacityBuffer.fill(false);
     }
@@ -102,7 +104,7 @@ export default class Renderer {
   }
 
   private renderBackground(): void {
-    const { control, line, registers, vram } = this.state;
+    const { line, vram, control, mask, registers } = this.state;
 
     const paletteTable = vram.getPaletteTable();
     const palettes = paletteTable.getBackgroundPalettes();
@@ -116,9 +118,10 @@ export default class Renderer {
     const tileY = (posY >> 3) % 30;
     const pixelY = posY % TILE_SIZE;
 
-    let nameTableX = (scroll.x & 0x1ff) >> 8;
-    let tileX = (scroll.x >> 3) & 0x1f;
-    let pixelX = scroll.x % TILE_SIZE;
+    const posX = scroll.x + mask.backgroundXStart;
+    let nameTableX = (posX & 0x1ff) >> 8;
+    let tileX = (posX >> 3) & 0x1f;
+    let pixelX = posX % TILE_SIZE;
 
     let nameTable = this.mapper.getNameTable(nameTableY | nameTableX);
 
@@ -130,7 +133,7 @@ export default class Renderer {
 
     let palette = palettes[paletteIndex];
 
-    for (let x = 0; x < RENDER_WIDTH; ++x) {
+    for (let x = mask.backgroundXStart; x < RENDER_WIDTH; ++x) {
       const pixel = patternRow[pixelX];
 
       if (pixel > 0) {
@@ -200,7 +203,7 @@ export default class Renderer {
   }
 
   private renderSprites(): void {
-    const { control, line, vram } = this.state;
+    const { line, vram, control, mask } = this.state;
 
     this.priorityBuffer.fill(undefined);
 
@@ -236,7 +239,7 @@ export default class Renderer {
   }
 
   private combineSpritesWithBackground(): void {
-    for (let x = 0; x < RENDER_WIDTH; ++x) {
+    for (let x = this.state.mask.spriteXStart; x < RENDER_WIDTH; ++x) {
       switch (this.priorityBuffer[x]) {
         case Priority.Front:
           this.lineBuffer[x] = this.spriteBuffer[x];
@@ -254,7 +257,7 @@ export default class Renderer {
   }
 
   private detectSpriteHit(): boolean {
-    const { control, line, oam, vram } = this.state;
+    const { line, oam, vram, control, mask } = this.state;
 
     const sprite = oam.getSprites()[0];
 
@@ -265,9 +268,15 @@ export default class Renderer {
     const patternRow = getSpritePatternRow(control, this.mapper, line, sprite);
 
     for (let x = 0; x < TILE_SIZE; ++x) {
+      const posX = sprite.x + x;
+
       const spriteX = flip(TILE_SIZE, sprite.flipX, x);
 
-      if (this.opacityBuffer[sprite.x + x] && patternRow[spriteX] > 0) {
+      if (
+        posX >= mask.spriteXStart &&
+        this.opacityBuffer[posX] &&
+        patternRow[spriteX] > 0
+      ) {
         return true;
       }
     }
