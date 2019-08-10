@@ -1,8 +1,10 @@
 import { isEqual, times } from 'lodash';
 
+import Interrupt from 'Interrupt';
 import { debug } from 'log';
 import NameTable, { createNameTables } from 'ppu/NameTable';
 import Pattern, { createPatternTable } from 'ppu/Pattern';
+import { PPUState } from 'ppu/PPU';
 
 import MMC1 from './MMC1';
 import MMC3 from './MMC3';
@@ -23,6 +25,8 @@ export default interface Mapper {
   setChrByte(offset: number, value: number): void;
   getPattern(index: number): Pattern;
   getNameTable(index: number): NameTable;
+  onPPUSpriteMemoryStart(state: PPUState): void;
+  onPPUBackgroundMemoryStart(state: PPUState): void;
 }
 
 export enum NameTableMirroring {
@@ -36,11 +40,12 @@ export interface MapperOptions {
   chr: Pattern[];
   nameTables: NameTable[];
   nameTableMirroring: NameTableMirroring;
+  interrupt: Interrupt;
 }
 
 const availableMappers = [NROM, MMC1, UxROM, undefined, MMC3];
 
-export function createMapper(data: Uint8Array): Mapper {
+export function createMapper(data: Uint8Array, interrupt: Interrupt): Mapper {
   if (!isEqual(data.slice(0, 4), INES_CONSTANT)) {
     throw new Error('Not a valid INES ROM');
   }
@@ -89,5 +94,6 @@ export function createMapper(data: Uint8Array): Mapper {
     chr,
     nameTables: createNameTables(nameTableCount),
     nameTableMirroring,
+    interrupt,
   });
 }

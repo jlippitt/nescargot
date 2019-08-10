@@ -1,5 +1,6 @@
 import NameTable from 'ppu/NameTable';
 import Pattern from 'ppu/Pattern';
+import { PPUState } from 'ppu/PPU';
 
 import Mapper, { MapperOptions } from './Mapper';
 
@@ -31,4 +32,12 @@ export default abstract class AbstractMapper implements Mapper {
   public abstract getPattern(index: number): Pattern;
 
   public abstract getNameTable(index: number): NameTable;
+
+  public onPPUSpriteMemoryStart(state: PPUState): void {
+    // Do nothing
+  }
+
+  public onPPUBackgroundMemoryStart(state: PPUState): void {
+    // Do nothing
+  }
 }

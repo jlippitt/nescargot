@@ -31,6 +31,7 @@ export interface PPUState {
   vram: VRAM;
   control: PPUControl;
   mask: {
+    renderingEnabled: boolean;
     backgroundEnabled: boolean;
     spritesEnabled: boolean;
   };
@@ -69,6 +70,7 @@ const MODE_TICKS: { [Key in Mode]: number } = {
 
 export default class PPU {
   private screen: Screen;
+  private mapper: Mapper;
   private interrupt: Interrupt;
   private state: PPUState;
   private renderer: Renderer;
@@ -80,6 +82,7 @@ export default class PPU {
 
   constructor({ screen, interrupt, mapper }: PPUOptions) {
     this.screen = screen;
+    this.mapper = mapper;
     this.interrupt = interrupt;
 
     this.state = {
@@ -93,6 +96,7 @@ export default class PPU {
         nmiEnabled: false,
       },
       mask: {
+        renderingEnabled: false,
         backgroundEnabled: false,
         spritesEnabled: false,
       },
@@ -121,7 +125,7 @@ export default class PPU {
   }
 
   public get(offset: number): number {
-    const { line, oam, vram, status, registers } = this.state;
+    const { line, oam, vram, mask, status, registers } = this.state;
 
     switch (offset % 8) {
       case 2: {
@@ -140,7 +144,7 @@ export default class PPU {
       case 7: {
         const value = vram.getByte(registers.getVramAddress());
         registers.incrementVramAddress();
-        if (this.mode === Mode.Render && this.isRenderingEnabled()) {
+        if (this.mode === Mode.Render && mask.renderingEnabled) {
           warn('PPUDATA accessed while rendering');
         }
         return value;
@@ -177,6 +181,7 @@ export default class PPU {
       case 1:
         mask.backgroundEnabled = (value & 0x08) !== 0;
         mask.spritesEnabled = (value & 0x10) !== 0;
+        mask.renderingEnabled = mask.backgroundEnabled || mask.spritesEnabled;
         break;
 
       case 3:
@@ -198,7 +203,7 @@ export default class PPU {
       case 7:
         vram.setByte(registers.getVramAddress(), value);
         registers.incrementVramAddress();
-        if (this.mode === Mode.Render && this.isRenderingEnabled()) {
+        if (this.mode === Mode.Render && mask.renderingEnabled) {
           warn('PPUDATA accessed while rendering');
         }
         break;
@@ -219,11 +224,11 @@ export default class PPU {
   }
 
   private nextMode(): Mode {
-    const { control, status, registers } = this.state;
+    const { control, mask, status, registers } = this.state;
 
     switch (this.mode) {
       case Mode.Render: {
-        if (this.isRenderingEnabled()) {
+        if (mask.renderingEnabled) {
           const spriteHit = this.renderer.renderLine();
           status.spriteHit = status.spriteHit || spriteHit;
           registers.copyHorizontalBits();
@@ -234,11 +239,14 @@ export default class PPU {
       }
 
       case Mode.HBlank1:
+        this.mapper.onPPUSpriteMemoryStart(this.state);
         return Mode.HBlank2;
 
       case Mode.HBlank2:
+        this.mapper.onPPUBackgroundMemoryStart(this.state);
+
         if (++this.state.line === POST_RENDER_LINE) {
-          if (this.isRenderingEnabled()) {
+          if (mask.renderingEnabled) {
             this.screen.update();
           }
           return Mode.PostRender;
@@ -266,19 +274,24 @@ export default class PPU {
         }
 
       case Mode.PreRender1:
-        if (this.isRenderingEnabled()) {
+        this.mapper.onPPUSpriteMemoryStart(this.state);
+
+        if (mask.renderingEnabled) {
           registers.copyHorizontalBits();
         }
+
         return Mode.PreRender2;
 
       case Mode.PreRender2:
-        if (this.isRenderingEnabled()) {
+        if (mask.renderingEnabled) {
           registers.copyVerticalBits();
         }
         return Mode.PreRender3;
 
       case Mode.PreRender3:
-        if (this.oddFrame && this.isRenderingEnabled()) {
+        this.mapper.onPPUBackgroundMemoryStart(this.state);
+
+        if (this.oddFrame && mask.renderingEnabled) {
           return Mode.PreRender4Short;
         } else {
           return Mode.PreRender4Long;
@@ -290,7 +303,4 @@ export default class PPU {
         return Mode.Render;
     }
   }
-
-  private isRenderingEnabled = (): boolean =>
-    this.state.mask.backgroundEnabled || this.state.mask.spritesEnabled
 }

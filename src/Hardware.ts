@@ -27,8 +27,8 @@ export function createHardware({
   screen,
   sampleBuffer,
 }: Options): Hardware {
-  const mapper = createMapper(romData);
   const interrupt = new Interrupt();
+  const mapper = createMapper(romData, interrupt);
   const ppu = new PPU({ screen, interrupt, mapper });
   const sampleReader = new SampleReader(interrupt);
   const apu = new APU({ interrupt, sampleBuffer, sampleReader });

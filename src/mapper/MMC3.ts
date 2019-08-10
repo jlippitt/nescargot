@@ -1,6 +1,11 @@
+import { times } from 'lodash';
+
+import Interrupt from 'Interrupt';
 import { debug, toHex, warn } from 'log';
+import { debug, warn } from 'log';
 import NameTable from 'ppu/NameTable';
 import Pattern from 'ppu/Pattern';
+import { PPUState } from 'ppu/PPU';
 
 import AbstractMapper from './AbstractMapper';
 import { MapperOptions, NameTableMirroring } from './Mapper';
@@ -9,6 +14,7 @@ const PRG_BANK_SIZE = 8192;
 const CHR_BANK_SIZE = 64;
 
 export default class MMC3 extends AbstractMapper {
+  private interrupt: Interrupt;
   private prgOffset: number[];
   private chrOffset: number[];
   private bankMap: number[];
@@ -18,9 +24,14 @@ export default class MMC3 extends AbstractMapper {
   private nameTableMirroring = NameTableMirroring.Vertical;
   private prgRamEnabled: boolean = false;
   private prgRamProtected: boolean = false;
+  private irqLatch: number = 0;
+  private irqReload: boolean = false;
+  private irqEnabled: boolean = false;
+  private irqCounter: number = 0;
 
   constructor(options: MapperOptions) {
     super(options);
+    this.interrupt = options.interrupt;
     this.prgOffset = Array(4).fill(0);
     this.chrOffset = Array(8).fill(0);
     this.bankMap = Array(8).fill(0);
@@ -42,13 +53,18 @@ export default class MMC3 extends AbstractMapper {
   public setPrgByte(offset: number, value: number): void {
     switch (offset & 0xe000) {
       case 0xe000:
-        // TODO: IRQ support
-        warn('MMC3 IRQ not yet supported');
+        this.irqEnabled = offset % 2 !== 0;
+        debug(`IRQ enabled = ${this.irqEnabled}`);
         break;
 
       case 0xc000:
-        // TODO: IRQ support
-        warn('MMC3 IRQ not yet supported');
+        if (offset % 2 === 0) {
+          this.irqLatch = value;
+          debug(`IRQ latch = ${this.irqLatch}`);
+        } else {
+          this.irqReload = true;
+          debug('IRQ reload requested');
+        }
         break;
 
       case 0xa000:
@@ -102,6 +118,28 @@ export default class MMC3 extends AbstractMapper {
     }
   }
 
+  public onPPUSpriteMemoryStart({ line, control, mask }: PPUState): void {
+    if (
+      mask.renderingEnabled &&
+      control.backgroundPatternOffset === 0 &&
+      control.spritePatternOffset !== 0
+    ) {
+      debug(`IRQ counter update on line ${line}, cycle 256`);
+      this.updateIrqCounter();
+    }
+  }
+
+  public onPPUBackgroundMemoryStart({ line, control, mask }: PPUState): void {
+    if (
+      mask.renderingEnabled &&
+      control.spritePatternOffset === 0 &&
+      control.backgroundPatternOffset !== 0
+    ) {
+      debug(`IRQ counter update on line ${line}, cycle 321`);
+      this.updateIrqCounter();
+    }
+  }
+
   private updateBanks(): void {
     // Large CHR banks
     for (let i = 0; i < 2; ++i) {
@@ -146,4 +184,15 @@ export default class MMC3 extends AbstractMapper {
 
   private getChrOffset = (bankIndex: number): number =>
     (bankIndex * CHR_BANK_SIZE) % this.chr.length
+
+  private updateIrqCounter(): void {
+    if (this.irqReload || this.irqCounter === 0) {
+      this.irqCounter = this.irqLatch;
+      this.irqReload = false;
+      debug(`IRQ counter = ${this.irqCounter}`);
+    } else if (--this.irqCounter === 0 && this.irqEnabled) {
+      debug('IRQ triggered');
+      this.interrupt.triggerIrq();
+    }
+  }
 }
