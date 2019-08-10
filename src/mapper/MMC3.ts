@@ -53,12 +53,12 @@ export default class MMC3 extends AbstractMapper {
     switch (offset & 0xe000) {
       case 0xe000:
         if (offset % 2 === 0) {
-          this.irqEnabled = true;
-          debug('IRQ enabled');
-        } else {
           this.irqEnabled = false;
           this.interrupt.clearIrq();
           debug('IRQ disabled');
+        } else {
+          this.irqEnabled = true;
+          debug('IRQ enabled');
         }
         break;
 
