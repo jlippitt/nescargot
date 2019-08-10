@@ -1,4 +1,4 @@
-import { debug, warn } from 'log';
+import { debug, toHex, warn } from 'log';
 import NameTable from 'ppu/NameTable';
 import Pattern from 'ppu/Pattern';
 
@@ -73,6 +73,7 @@ export default class MMC3 extends AbstractMapper {
           debug(`MMC3 CHR bank flag = ${this.chrBankFlag}`);
           this.updateBanks();
         } else {
+          debug(`MMC3 bank ${this.nextBank} = ${toHex(value, 2)}`);
           this.bankMap[this.nextBank] = value;
           this.updateBanks();
         }
