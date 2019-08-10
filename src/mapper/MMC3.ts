@@ -25,7 +25,6 @@ export default class MMC3 extends AbstractMapper {
     this.chrOffset = Array(8).fill(0);
     this.bankMap = Array(8).fill(0);
     this.updateBanks();
-    debug('MMC3 PRG banks', this.prgOffset);
   }
 
   public getPrgByte(offset: number): number {
@@ -132,8 +131,8 @@ export default class MMC3 extends AbstractMapper {
     // Fixed upper bank
     this.prgOffset[3] = this.getPrgOffset(-1);
 
-    debug('PRG banks', this.prgOffset);
-    debug('CHR banks', this.chrOffset);
+    debug('MMC3 PRG banks', this.prgOffset);
+    debug('MMC3 CHR banks', this.chrOffset);
   }
 
   private getPrgOffset(bankIndex: number): number {
