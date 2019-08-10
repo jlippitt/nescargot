@@ -83,6 +83,7 @@ export default class Renderer {
 
     if (mask.backgroundEnabled) {
       this.lineBuffer.fill(backgroundColor, 0, mask.backgroundXStart);
+      this.opacityBuffer.fill(false, 0, mask.backgroundXStart);
       this.renderBackground();
     } else {
       this.lineBuffer.fill(backgroundColor);
