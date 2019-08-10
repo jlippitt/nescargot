@@ -170,30 +170,11 @@ export default class Renderer {
     const { control, line, oam } = this.state;
     let spriteIndex = 0;
 
-    // Select front priority sprites
     for (const sprite of oam.getSprites()) {
-      if (
-        sprite.priority === Priority.Front &&
-        isOnLine(control.spriteSize, line, sprite)
-      ) {
+      if (isOnLine(control.spriteSize, line, sprite)) {
         this.selectedSprites[spriteIndex++] = sprite;
         if (spriteIndex >= SPRITES_PER_LINE) {
           break;
-        }
-      }
-    }
-
-    if (spriteIndex < SPRITES_PER_LINE) {
-      // Select back priority sprites
-      for (const sprite of oam.getSprites()) {
-        if (
-          sprite.priority === Priority.Back &&
-          isOnLine(control.spriteSize, line, sprite)
-        ) {
-          this.selectedSprites[spriteIndex++] = sprite;
-          if (spriteIndex >= SPRITES_PER_LINE) {
-            break;
-          }
         }
       }
     }
