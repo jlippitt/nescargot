@@ -46,6 +46,7 @@ enum Mode {
   Render,
   HBlank1,
   HBlank2,
+  HBlank3,
   PostRender,
   VBlank,
   PreRender1,
@@ -57,8 +58,9 @@ enum Mode {
 
 const MODE_TICKS: { [Key in Mode]: number } = {
   [Mode.Render]: 257,
-  [Mode.HBlank1]: 64,
-  [Mode.HBlank2]: 20,
+  [Mode.HBlank1]: 4,
+  [Mode.HBlank2]: 60,
+  [Mode.HBlank3]: 20,
   [Mode.PostRender]: 341,
   [Mode.VBlank]: 341,
   [Mode.PreRender1]: 257,
@@ -216,7 +218,7 @@ export default class PPU {
   public tick(cpuTicks: number): void {
     this.ticks += cpuTicks * 3;
 
-    if (this.ticks >= this.modeTicks) {
+    while (this.ticks >= this.modeTicks) {
       this.ticks -= this.modeTicks;
       this.mode = this.nextMode();
       this.modeTicks = MODE_TICKS[this.mode];
@@ -235,15 +237,18 @@ export default class PPU {
         } else {
           this.screen.skipLine();
         }
-        this.mapper.onPPUSpriteMemoryStart(this.state);
         return Mode.HBlank1;
       }
 
       case Mode.HBlank1:
-        this.mapper.onPPUBackgroundMemoryStart(this.state);
+        this.mapper.onPPUSpriteMemoryStart(this.state);
         return Mode.HBlank2;
 
       case Mode.HBlank2:
+        this.mapper.onPPUBackgroundMemoryStart(this.state);
+        return Mode.HBlank3;
+
+      case Mode.HBlank3:
         if (++this.state.line === POST_RENDER_LINE) {
           if (mask.renderingEnabled) {
             this.screen.update();
