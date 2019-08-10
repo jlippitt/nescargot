@@ -52,8 +52,14 @@ export default class MMC3 extends AbstractMapper {
   public setPrgByte(offset: number, value: number): void {
     switch (offset & 0xe000) {
       case 0xe000:
-        this.irqEnabled = offset % 2 !== 0;
-        debug(`IRQ enabled = ${this.irqEnabled}`);
+        if (offset % 2 === 0) {
+          this.irqEnabled = true;
+          debug('IRQ enabled');
+        } else {
+          this.irqEnabled = false;
+          this.interrupt.clearIrq();
+          debug('IRQ disabled');
+        }
         break;
 
       case 0xc000:
@@ -75,6 +81,8 @@ export default class MMC3 extends AbstractMapper {
         } else {
           this.prgRamEnabled = (value & 0x80) !== 0;
           this.prgRamProtected = (value & 0x40) !== 0;
+          debug(`PRG RAM Enabled = ${this.prgRamEnabled}`);
+          debug(`PRG RAM Protected = ${this.prgRamProtected}`);
         }
         break;
 

@@ -48,6 +48,11 @@ export default class Interrupt {
     this.updateAnyCondition();
   }
 
+  public clearIrq(): void {
+    this.irq = false;
+    this.updateAnyCondition();
+  }
+
   public checkIrq(): boolean {
     if (this.irq) {
       this.irq = false;
