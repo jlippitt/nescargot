@@ -1,6 +1,6 @@
 import { times } from 'lodash';
 
-import { warn } from 'log';
+import { debug, warn } from 'log';
 import NameTable from 'ppu/NameTable';
 import Pattern from 'ppu/Pattern';
 
@@ -24,6 +24,7 @@ export default class MMC3 extends AbstractMapper {
     super(options);
     this.prgOffset = [0, 0, this.getPrgOffset(-2), this.getPrgOffset(-1)];
     this.chrOffset = times(8, (i) => i * CHR_BANK_SIZE);
+    debug('MMC3 PRG banks', this.prgOffset);
   }
 
   public getPrgByte(offset: number): number {
@@ -67,7 +68,12 @@ export default class MMC3 extends AbstractMapper {
           this.nextBank = value & 0x07;
           this.prgBankMode = (value & 0x40) >> 6;
           this.chrBankMode = (value & 0x80) >> 7;
-          this.prgOffset[2 - this.prgBankMode * 2] = this.getPrgOffset(-2);
+          const fixedOffsetBank = 2 - this.prgBankMode * 2;
+          this.prgOffset[fixedOffsetBank] = this.getPrgOffset(-2);
+          debug(`MMC3 next bank = ${this.nextBank}`);
+          debug(`MMC3 PRG bank mode = ${this.prgBankMode}`);
+          debug(`MMC3 CHR bank mode = ${this.chrBankMode}`);
+          debug('MMC3 PRG banks', this.prgOffset);
         } else {
           this.selectBank(value);
         }
@@ -109,9 +115,11 @@ export default class MMC3 extends AbstractMapper {
     } else if (this.nextBank === 6) {
       // Movable location PRG bank
       this.prgOffset[this.prgBankMode * 2] = this.getPrgOffset(value & 0x3f);
+      debug('MMC3 PRG banks', this.prgOffset);
     } else {
       // Fixed location PRG bank
       this.prgOffset[1] = this.getPrgOffset(value & 0x3f);
+      debug('MMC3 PRG banks', this.prgOffset);
     }
   }
 
