@@ -84,6 +84,7 @@ export default class Renderer {
     if (mask.backgroundEnabled) {
       this.lineBuffer.fill(backgroundColor, 0, mask.backgroundXStart);
       this.opacityBuffer.fill(false, 0, mask.backgroundXStart);
+      this.mapper.onPPUBackgroundRenderStart(this.state);
       this.renderBackground();
     } else {
       this.lineBuffer.fill(backgroundColor);
@@ -94,6 +95,7 @@ export default class Renderer {
 
     if (mask.spritesEnabled) {
       this.selectSprites();
+      this.mapper.onPPUSpriteRenderStart(this.state);
       this.renderSprites();
       this.combineSpritesWithBackground();
       spriteHit = this.detectSpriteHit();

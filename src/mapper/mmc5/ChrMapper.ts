@@ -1,5 +1,7 @@
 import { debug } from 'log';
 import Pattern from 'ppu/Pattern';
+import { PPUState } from 'ppu/PPU';
+import { SpriteSize } from 'ppu/Renderer';
 
 const BANK_SIZE = 64;
 
@@ -8,6 +10,7 @@ export default class ChrMapper {
   private mode: number = 3;
   private register: number[];
   private offset: number[];
+  private bankOffset = 0;
 
   constructor(chr: Pattern[]) {
     this.chr = chr;
@@ -17,8 +20,8 @@ export default class ChrMapper {
   }
 
   public getPattern(index: number): Pattern {
-    // TODO: Higher pattern tables?
-    return this.chr[this.offset[(index & 0x01c0) >> 6] | (index & 0x003f)];
+    const bankIndex = this.bankOffset | ((index & 0x01c0) >> 6);
+    return this.chr[this.offset[bankIndex] | (index & 0x003f)];
   }
 
   public setMode(value: number): void {
@@ -30,6 +33,14 @@ export default class ChrMapper {
   public setRegister(index: number, value: number): void {
     this.register[index] = value;
     this.updateBanks();
+  }
+
+  public onPPUBackgroundRenderStart({ control }: PPUState): void {
+    this.bankOffset = control.spriteSize === SpriteSize.Large ? 8 : 0;
+  }
+
+  public onPPUSpriteRenderStart(state: PPUState): void {
+    this.bankOffset = 0;
   }
 
   private updateBanks(): void {

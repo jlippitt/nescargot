@@ -61,6 +61,14 @@ export default class MMC5 extends AbstractMapper {
     this.irqControl.onPPULineStart(state);
   }
 
+  public onPPUBackgroundRenderStart(state: PPUState): void {
+    this.chrMapper.onPPUBackgroundRenderStart(state);
+  }
+
+  public onPPUSpriteRenderStart(state: PPUState): void {
+    this.chrMapper.onPPUSpriteRenderStart(state);
+  }
+
   private setRegisterValue(offset: number, value: number): void {
     debug(`MMC5 register write: ${toHex(offset, 4)} <= ${toHex(value, 2)}`);
 

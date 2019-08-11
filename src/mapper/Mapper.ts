@@ -29,6 +29,8 @@ export default interface Mapper {
   onPPULineStart(state: PPUState): void;
   onPPUSpriteMemoryStart(state: PPUState): void;
   onPPUBackgroundMemoryStart(state: PPUState): void;
+  onPPUSpriteRenderStart(state: PPUState): void;
+  onPPUBackgroundRenderStart(state: PPUState): void;
 }
 
 export enum NameTableMirroring {

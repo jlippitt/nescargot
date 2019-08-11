@@ -44,4 +44,12 @@ export default abstract class AbstractMapper implements Mapper {
   public onPPUBackgroundMemoryStart(state: PPUState): void {
     // Do nothing
   }
+
+  public onPPUSpriteRenderStart(state: PPUState): void {
+    // Do nothing
+  }
+
+  public onPPUBackgroundRenderStart(state: PPUState): void {
+    // Do nothing
+  }
 }
