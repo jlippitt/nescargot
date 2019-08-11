@@ -1,7 +1,7 @@
 import { isEqual, times } from 'lodash';
 
 import Interrupt from 'Interrupt';
-import { debug } from 'log';
+import { debug, toHex } from 'log';
 import NameTable, { createNameTables } from 'ppu/NameTable';
 import Pattern, { createPatternTable } from 'ppu/Pattern';
 import { PPUState } from 'ppu/PPU';
@@ -50,6 +50,8 @@ export function createMapper(data: Uint8Array, interrupt: Interrupt): Mapper {
   if (!isEqual(data.slice(0, 4), INES_CONSTANT)) {
     throw new Error('Not a valid INES ROM');
   }
+
+  debug('INES header', Array.from(data.slice(0, 16)).map((i) => toHex(i, 2)));
 
   const prgRomSize = data[4] * PRG_BANK_SIZE;
   const chrRomSize = data[5] * CHR_ROM_SIZE_MULTIPLIER;
