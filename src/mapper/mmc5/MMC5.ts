@@ -14,14 +14,16 @@ export default class MMC5 extends AbstractMapper {
   private prgMapper: PrgMapper;
   private chrMapper: ChrMapper;
   private irqControl: IrqControl;
-  private nameTableOffset: number[];
+  private selectedNameTables: NameTable[];
+  private expansionRam: NameTable;
 
   constructor(options: MapperOptions) {
     super(options);
     this.prgMapper = new PrgMapper({ rom: this.prgRom, ram: this.prgRam });
     this.chrMapper = new ChrMapper(this.chr);
     this.irqControl = new IrqControl(options.interrupt);
-    this.nameTableOffset = Array(4).fill(0);
+    this.selectedNameTables = Array(4).fill(this.nameTables[0]);
+    this.expansionRam = new NameTable();
   }
 
   public getPrgByte(offset: number): number {
@@ -50,7 +52,7 @@ export default class MMC5 extends AbstractMapper {
   }
 
   public getNameTable(index: number): NameTable {
-    return this.nameTables[this.nameTableOffset[index]];
+    return this.selectedNameTables[index];
   }
 
   public onPPULineStart(state: PPUState): void {
@@ -59,6 +61,11 @@ export default class MMC5 extends AbstractMapper {
 
   private setRegisterValue(offset: number, value: number): void {
     debug(`MMC5 register write: ${toHex(offset, 4)} <= ${toHex(value, 2)}`);
+
+    if (offset >= 0x5c00) {
+      this.expansionRam.setByte(offset & 0x03ff, value);
+      return;
+    }
 
     if (offset >= 0x5000 && offset < 0x5100) {
       debug('MMC5 audio not implemented');
@@ -75,18 +82,19 @@ export default class MMC5 extends AbstractMapper {
         break;
 
       case 0x5104:
-        debug('Extended RAM mode setting ignored');
+        if (value > 0) {
+          warn('Extended RAM modes other than Mode 0 are not implemented');
+        }
         break;
 
       case 0x5105:
-        if ((value & 0xaaaa) !== 0) {
+        if ((value & 0x8888) !== 0) {
           warn(`Unsupported name table options selected: ${toHex(value, 2)}`);
         }
-        this.nameTableOffset[0] = value & 0x01;
-        this.nameTableOffset[1] = (value & 0x04) >> 2;
-        this.nameTableOffset[2] = (value & 0x10) >> 4;
-        this.nameTableOffset[3] = (value & 0x40) >> 6;
-        debug('Name Tables:', this.nameTableOffset);
+        this.selectNameTable(0, value & 0x03);
+        this.selectNameTable(1, (value & 0x0c) >> 2);
+        this.selectNameTable(2, (value & 0x30) >> 4);
+        this.selectNameTable(3, (value & 0xc0) >> 6);
         break;
 
       case 0x5106:
@@ -135,6 +143,30 @@ export default class MMC5 extends AbstractMapper {
         throw new Error(
           `Register not implemented: ${toHex(offset, 4)} <= ${toHex(value, 2)}`,
         );
+    }
+  }
+
+  private selectNameTable(index: number, value: number): void {
+    switch (value) {
+      case 0:
+      case 1:
+        // Regular VRAM-accessible name tables
+        this.selectedNameTables[index] = this.nameTables[value];
+        break;
+
+      case 2:
+        // Extended RAM name table
+        this.selectedNameTables[index] = this.expansionRam;
+        break;
+
+      case 3:
+        // Fill mode
+        warn('Fill mode not yet implemented');
+        this.selectedNameTables[index] = this.nameTables[0];
+        break;
+
+      default:
+        throw new Error('Should not happen');
     }
   }
 }
