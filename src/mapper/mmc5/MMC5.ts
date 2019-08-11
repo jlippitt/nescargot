@@ -2,38 +2,32 @@ import { debug, toHex, warn } from 'log';
 import NameTable from 'ppu/NameTable';
 import Pattern from 'ppu/Pattern';
 
-import AbstractMapper from './AbstractMapper';
-import { MapperOptions } from './Mapper';
+import AbstractMapper from '../AbstractMapper';
+import { MapperOptions } from '../Mapper';
 
-const PRG_BANK_SIZE = 8192;
+import PrgMapper from './PrgMapper';
+
 const CHR_BANK_SIZE = 64;
 
 export default class MMC5 extends AbstractMapper {
-  private prgMode: number = 3;
+  private prgMapper: PrgMapper;
   private chrMode: number = 3;
-  private prgRegister: number[];
-  private prgArea: Uint8Array[];
-  private prgOffset: number[];
   private chrRegister: number[];
   private chrOffset: number[];
   private nameTableOffset: number[];
 
   constructor(options: MapperOptions) {
     super(options);
-    this.prgRegister = [0, 0, 0, 0, 0xff];
-    this.prgArea = Array(5).fill(this.prgRom);
-    this.prgOffset = Array(5).fill(0);
+    this.prgMapper = new PrgMapper({ rom: this.prgRom, ram: this.prgRam });
     this.chrRegister = Array(12).fill(0);
     this.chrOffset = Array(16).fill(0);
     this.nameTableOffset = Array(4).fill(0);
-    this.updatePrgBanks();
     this.updateChrBanks();
   }
 
   public getPrgByte(offset: number): number {
     if (offset >= 0x6000) {
-      const index = ((offset & 0xe000) >> 13) - 3;
-      return this.prgArea[index][this.prgOffset[index] | (offset & 0x1fff)];
+      return this.prgMapper.getByte(offset);
     } else if (offset === 0x5204) {
       warn('Scanline IRQ not yet implemented');
       return 0;
@@ -44,11 +38,7 @@ export default class MMC5 extends AbstractMapper {
 
   public setPrgByte(offset: number, value: number): void {
     if (offset >= 0x6000) {
-      // TODO: PRG RAM protection?
-      const index = ((offset & 0xe000) >> 13) - 3;
-      if (this.prgArea[index] === this.prgRam) {
-        this.prgRam[this.prgOffset[index] | (offset & 0x1fff)] = value;
-      }
+      this.prgMapper.setByte(offset, value);
     } else {
       this.setRegisterValue(offset, value);
     }
@@ -73,9 +63,7 @@ export default class MMC5 extends AbstractMapper {
 
     switch (offset) {
       case 0x5100:
-        this.prgMode = value & 0x03;
-        debug(`PRG Mode ${this.prgMode}`);
-        this.updatePrgBanks();
+        this.prgMapper.setMode(value);
         break;
 
       case 0x5101:
@@ -108,8 +96,7 @@ export default class MMC5 extends AbstractMapper {
       case 0x5115:
       case 0x5116:
       case 0x5117:
-        this.prgRegister[offset - 0x5113] = value;
-        this.updatePrgBanks();
+        this.prgMapper.setRegister(offset - 0x5113, value);
         break;
 
       case 0x5120:
@@ -145,70 +132,6 @@ export default class MMC5 extends AbstractMapper {
         );
     }
   }
-
-  private updatePrgBanks(): void {
-    this.setPrgBankValue(0, this.prgRegister[0] & 0x0f);
-
-    switch (this.prgMode) {
-      case 0:
-        this.setPrgBankValue(1, (this.prgRegister[4] & 0xec) | 0xf0);
-        this.setPrgBankValue(2, (this.prgRegister[4] & 0xec) | 0xf1);
-        this.setPrgBankValue(3, (this.prgRegister[4] & 0xec) | 0xf2);
-        this.setPrgBankValue(4, (this.prgRegister[4] & 0xec) | 0xf3);
-        break;
-
-      case 1:
-        this.setPrgBankValue(1, this.prgRegister[2] & 0xfe);
-        this.setPrgBankValue(2, (this.prgRegister[2] & 0xfe) | 0x01);
-        this.setPrgBankValue(3, (this.prgRegister[4] & 0xee) | 0xf0);
-        this.setPrgBankValue(4, (this.prgRegister[4] & 0xee) | 0xf1);
-        break;
-
-      case 2:
-        this.setPrgBankValue(1, this.prgRegister[2] & 0xfe);
-        this.setPrgBankValue(2, (this.prgRegister[2] & 0xfe) | 0x01);
-        this.setPrgBankValue(3, this.prgRegister[3]);
-        this.setPrgBankValue(4, (this.prgRegister[4] & 0xef) | 0xf0);
-        break;
-
-      case 3:
-        this.setPrgBankValue(1, this.prgRegister[1]);
-        this.setPrgBankValue(2, this.prgRegister[2]);
-        this.setPrgBankValue(3, this.prgRegister[3]);
-        this.setPrgBankValue(4, (this.prgRegister[4] & 0xef) | 0xf0);
-        break;
-
-      default:
-        throw new Error('Should not happen');
-    }
-
-    for (let i = 0; i < 5; ++i) {
-      debug(this.getPrgBankInfo(i));
-    }
-  }
-
-  private setPrgBankValue(index: number, value: number): void {
-    if ((value & 0x80) !== 0) {
-      this.prgArea[index] = this.prgRom;
-      this.prgOffset[index] = this.getPrgRomOffset(value & 0x7f);
-    } else {
-      this.prgArea[index] = this.prgRam;
-      this.prgOffset[index] = this.getPrgRamOffset(value & 0x0f);
-    }
-  }
-
-  private getPrgBankInfo(index: number): string {
-    const address = toHex(0x6000 + index * 0x2000, 2);
-    const area = this.prgArea[index] === this.prgRom ? 'ROM' : 'RAM';
-
-    return `PRG ${address} = ${area} = ${this.prgOffset[index]}`;
-  }
-
-  private getPrgRomOffset = (value: number): number =>
-    (value * PRG_BANK_SIZE) % this.prgRom.length
-
-  private getPrgRamOffset = (value: number): number =>
-    (value * PRG_BANK_SIZE) % this.prgRam.length
 
   private updateChrBanks(): void {
     switch (this.chrMode) {

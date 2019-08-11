@@ -8,7 +8,7 @@ import { PPUState } from 'ppu/PPU';
 
 import MMC1 from './MMC1';
 import MMC3 from './MMC3';
-import MMC5 from './MMC5';
+import MMC5 from './mmc5/MMC5';
 import NROM from './NROM';
 import UxROM from './UxROM';
 
