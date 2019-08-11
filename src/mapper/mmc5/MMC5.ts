@@ -15,6 +15,7 @@ export default class MMC5 extends AbstractMapper {
   private chrMapper: ChrMapper;
   private irqControl: IrqControl;
   private selectedNameTables: NameTable[];
+  private fillMode: NameTable;
   private expansionRam: NameTable;
 
   constructor(options: MapperOptions) {
@@ -23,6 +24,7 @@ export default class MMC5 extends AbstractMapper {
     this.chrMapper = new ChrMapper(this.chr);
     this.irqControl = new IrqControl(options.interrupt);
     this.selectedNameTables = Array(4).fill(this.nameTables[0]);
+    this.fillMode = new NameTable();
     this.expansionRam = new NameTable();
   }
 
@@ -88,9 +90,6 @@ export default class MMC5 extends AbstractMapper {
         break;
 
       case 0x5105:
-        if ((value & 0x8888) !== 0) {
-          warn(`Unsupported name table options selected: ${toHex(value, 2)}`);
-        }
         this.selectNameTable(0, value & 0x03);
         this.selectNameTable(1, (value & 0x0c) >> 2);
         this.selectNameTable(2, (value & 0x30) >> 4);
@@ -98,9 +97,23 @@ export default class MMC5 extends AbstractMapper {
         break;
 
       case 0x5106:
-      case 0x5107:
-        debug('Fill mode not implemented');
+        for (let i = 0x0000; i < 0x03c0; ++i) {
+          this.fillMode.setByte(i, value);
+        }
         break;
+
+      case 0x5107: {
+        const attributeValue =
+          ((value & 0x03) << 6) |
+          ((value & 0x03) << 4) |
+          ((value & 0x03) << 2) |
+          (value & 0x03);
+
+        for (let i = 0x03c0; i < 0x0400; ++i) {
+          this.fillMode.setByte(i, attributeValue);
+        }
+        break;
+      }
 
       case 0x5113:
       case 0x5114:
@@ -161,8 +174,7 @@ export default class MMC5 extends AbstractMapper {
 
       case 3:
         // Fill mode
-        warn('Fill mode not yet implemented');
-        this.selectedNameTables[index] = this.nameTables[0];
+        this.selectedNameTables[index] = this.fillMode;
         break;
 
       default:
