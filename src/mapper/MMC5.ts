@@ -63,6 +63,11 @@ export default class MMC5 extends AbstractMapper {
   private setRegisterValue(offset: number, value: number): void {
     debug(`MMC5 register write: ${toHex(offset, 4)} <= ${toHex(value, 2)}`);
 
+    if (offset >= 0x5000 && offset < 0x5100) {
+      debug('MMC5 audio not implemented');
+      return;
+    }
+
     switch (offset) {
       case 0x5100:
         this.prgMode = value & 0x03;
@@ -75,6 +80,10 @@ export default class MMC5 extends AbstractMapper {
         debug(`CHR Mode ${this.chrMode}`);
         break;
 
+      case 0x5104:
+        debug('Extended RAM mode setting ignored');
+        break;
+
       case 0x5105:
         if ((value & 0xaaaa) !== 0) {
           warn(`Unsupported name table options selected: ${toHex(value, 2)}`);
@@ -83,6 +92,12 @@ export default class MMC5 extends AbstractMapper {
         this.nameTableOffset[1] = (value & 0x04) >> 2;
         this.nameTableOffset[2] = (value & 0x10) >> 4;
         this.nameTableOffset[3] = (value & 0x40) >> 6;
+        debug('Name Tables:', this.nameTableOffset);
+        break;
+
+      case 0x5106:
+      case 0x5107:
+        debug('Fill mode not implemented');
         break;
 
       case 0x5113:
@@ -108,6 +123,12 @@ export default class MMC5 extends AbstractMapper {
       case 0x512b:
         this.chrRegister[offset - 0x5120] = value;
         this.updateChrBanks();
+        break;
+
+      case 0x5200:
+        if (value > 0) {
+          warn('Vertical split mode not implemented');
+        }
         break;
 
       default:
@@ -172,7 +193,7 @@ export default class MMC5 extends AbstractMapper {
     const address = toHex(0x6000 + index * 0x2000, 2);
     const area = this.prgArea[index] === this.prgRom ? 'ROM' : 'RAM';
 
-    return `MMC5 PRG ${address} = ${area} = ${this.prgOffset[index]}`;
+    return `PRG ${address} = ${area} = ${this.prgOffset[index]}`;
   }
 
   private getPrgRomOffset = (value: number): number =>
@@ -256,7 +277,7 @@ export default class MMC5 extends AbstractMapper {
     }
 
     for (let i = 0; i < 16; ++i) {
-      debug(`MMC5 CHR ${i} = ${this.chrOffset[i]}`);
+      debug(`CHR ${i} = ${this.chrOffset[i]}`);
     }
   }
 
