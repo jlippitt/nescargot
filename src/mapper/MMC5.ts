@@ -34,8 +34,11 @@ export default class MMC5 extends AbstractMapper {
     if (offset >= 0x6000) {
       const index = ((offset & 0xe000) >> 13) - 3;
       return this.prgArea[index][this.prgOffset[index] | (offset & 0x1fff)];
+    } else if (offset === 0x5204) {
+      warn('Scanline IRQ not yet implemented');
+      return 0;
     } else {
-      throw new Error('Unexpected mapper read');
+      throw new Error(`Unexpected mapper read: ${toHex(offset, 4)}`);
     }
   }
 
@@ -129,6 +132,11 @@ export default class MMC5 extends AbstractMapper {
         if (value > 0) {
           warn('Vertical split mode not implemented');
         }
+        break;
+
+      case 0x5203:
+      case 0x5204:
+        warn('Scanline IRQ not yet implemented');
         break;
 
       default:
