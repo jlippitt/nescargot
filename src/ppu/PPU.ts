@@ -262,6 +262,7 @@ export default class PPU {
           }
           return Mode.PostRender;
         } else {
+          this.mapper.onPPULineStart(this.state);
           return Mode.Render;
         }
 
@@ -311,6 +312,7 @@ export default class PPU {
       default:
         this.state.line = 0;
         this.oddFrame = !this.oddFrame;
+        this.mapper.onPPULineStart(this.state);
         return Mode.Render;
     }
   }

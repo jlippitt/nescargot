@@ -1,31 +1,37 @@
 import { debug, toHex, warn } from 'log';
 import NameTable from 'ppu/NameTable';
 import Pattern from 'ppu/Pattern';
+import { PPUState } from 'ppu/PPU';
 
 import AbstractMapper from '../AbstractMapper';
 import { MapperOptions } from '../Mapper';
 
 import ChrMapper from './ChrMapper';
+import IrqControl from './IrqControl';
 import PrgMapper from './PrgMapper';
 
 export default class MMC5 extends AbstractMapper {
   private prgMapper: PrgMapper;
   private chrMapper: ChrMapper;
+  private irqControl: IrqControl;
   private nameTableOffset: number[];
 
   constructor(options: MapperOptions) {
     super(options);
     this.prgMapper = new PrgMapper({ rom: this.prgRom, ram: this.prgRam });
     this.chrMapper = new ChrMapper(this.chr);
+    this.irqControl = new IrqControl(options.interrupt);
     this.nameTableOffset = Array(4).fill(0);
   }
 
   public getPrgByte(offset: number): number {
     if (offset >= 0x6000) {
+      if ((offset & 0xfffe) === 0xfffa) {
+        this.irqControl.reset();
+      }
       return this.prgMapper.getByte(offset);
     } else if (offset === 0x5204) {
-      warn('Scanline IRQ not yet implemented');
-      return 0;
+      return this.irqControl.getStatus();
     } else {
       throw new Error(`Unexpected mapper read: ${toHex(offset, 4)}`);
     }
@@ -45,6 +51,10 @@ export default class MMC5 extends AbstractMapper {
 
   public getNameTable(index: number): NameTable {
     return this.nameTables[this.nameTableOffset[index]];
+  }
+
+  public onPPULineStart(state: PPUState): void {
+    this.irqControl.onPPULineStart(state);
   }
 
   private setRegisterValue(offset: number, value: number): void {
@@ -114,8 +124,11 @@ export default class MMC5 extends AbstractMapper {
         break;
 
       case 0x5203:
+        this.irqControl.setScanline(value);
+        break;
+
       case 0x5204:
-        warn('Scanline IRQ not yet implemented');
+        this.irqControl.setEnabled((value & 0x80) !== 0);
         break;
 
       default:
