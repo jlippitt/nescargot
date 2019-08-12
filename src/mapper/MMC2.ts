@@ -8,6 +8,9 @@ import { MapperOptions, NameTableMirroring } from './Mapper';
 const PRG_BANK_SIZE = 8192;
 const CHR_BANK_SIZE = 256;
 
+const LATCH_TILE_0 = 0xfd;
+const LATCH_TILE_1 = 0xfe;
+
 export default class MMC2 extends AbstractMapper {
   private prgOffset: number[];
   private chrOffset: number[][];
@@ -54,14 +57,15 @@ export default class MMC2 extends AbstractMapper {
   public getPattern(index: number): Pattern {
     const bankIndex = (index & 0x0100) >> 8;
     const latchIndex = this.chrLatch[bankIndex];
+    const patternIndex = index & 0x00ff;
 
     const pattern = this.chr[
-      this.chrOffset[bankIndex][latchIndex] | (index & 0x00ff)
+      this.chrOffset[bankIndex][latchIndex] | patternIndex
     ];
 
-    if ((index & 0x00ff) === 0x00fd) {
+    if (patternIndex === LATCH_TILE_0) {
       this.updateLatch(bankIndex, 0);
-    } else if ((index & 0x00ff) === 0x00fe) {
+    } else if (patternIndex === LATCH_TILE_1) {
       this.updateLatch(bankIndex, 1);
     }
 
