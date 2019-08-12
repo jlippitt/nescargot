@@ -193,11 +193,9 @@ export default class Renderer {
 
     const palettes = vram.getPaletteTable().getSpritePalettes();
 
-    for (let i = this.selectedSprites.length - 1; i >= 0; --i) {
-      const sprite = this.selectedSprites[i];
-
+    for (const sprite of this.selectedSprites) {
       if (!sprite) {
-        continue;
+        break;
       }
 
       const patternRow = getSpritePatternRow(
@@ -206,6 +204,7 @@ export default class Renderer {
         line,
         sprite,
       );
+
       const palette = palettes[sprite.paletteIndex];
 
       for (let x = 0; x < TILE_SIZE; ++x) {
@@ -215,8 +214,11 @@ export default class Renderer {
 
         if (pixel > 0) {
           const bufferIndex = sprite.x + x;
-          this.spriteBuffer[bufferIndex] = palette[pixel];
-          this.priorityBuffer[bufferIndex] = sprite.priority;
+
+          if (!this.priorityBuffer[bufferIndex]) {
+            this.spriteBuffer[bufferIndex] = palette[pixel];
+            this.priorityBuffer[bufferIndex] = sprite.priority;
+          }
         }
       }
     }
