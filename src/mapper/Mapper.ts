@@ -9,6 +9,7 @@ import { PPUState } from 'ppu/PPU';
 import AxROM from './AxROM';
 import CNROM from './CNROM';
 import MMC1 from './MMC1';
+import MMC2 from './MMC2';
 import MMC3 from './MMC3';
 import MMC5 from './mmc5/MMC5';
 import NROM from './NROM';
@@ -58,6 +59,8 @@ const availableMappers = [
   MMC5,
   undefined,
   AxROM,
+  undefined,
+  MMC2,
 ];
 
 export function createMapper(data: Uint8Array, interrupt: Interrupt): Mapper {
