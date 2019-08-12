@@ -14,7 +14,9 @@ export default abstract class GenericMapper extends AbstractMapper {
   }
 
   public getPrgByte(offset: number): number {
-    if (offset >= 0x6000 && offset < 0x8000) {
+    if (offset >= 0x8000) {
+      return this.getPrgRomByte(offset);
+    } else if (offset >= 0x6000) {
       return this.prgRam[offset & 0x1fff];
     } else {
       warn('Attempted read from unexpected mapper location');
@@ -23,7 +25,9 @@ export default abstract class GenericMapper extends AbstractMapper {
   }
 
   public setPrgByte(offset: number, value: number): void {
-    if (offset >= 0x6000 && offset < 0x8000) {
+    if (offset >= 0x8000) {
+      this.setRegisterValue(offset, value);
+    } else if (offset >= 0x6000) {
       this.prgRam[offset & 0x1fff] = value;
     } else {
       warn('Attempted write to unexpected mapper location');
@@ -41,4 +45,8 @@ export default abstract class GenericMapper extends AbstractMapper {
       return this.nameTables[index >> 1];
     }
   }
+
+  protected abstract getPrgRomByte(offset: number): number;
+
+  protected abstract setRegisterValue(offset: number, value: number): void;
 }
