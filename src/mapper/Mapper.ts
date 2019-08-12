@@ -6,6 +6,7 @@ import NameTable, { createNameTables } from 'ppu/NameTable';
 import Pattern, { createPatternTable } from 'ppu/Pattern';
 import { PPUState } from 'ppu/PPU';
 
+import CNROM from './CNROM';
 import MMC1 from './MMC1';
 import MMC3 from './MMC3';
 import MMC5 from './mmc5/MMC5';
@@ -47,7 +48,7 @@ export interface MapperOptions {
   interrupt: Interrupt;
 }
 
-const availableMappers = [NROM, MMC1, UxROM, undefined, MMC3, MMC5];
+const availableMappers = [NROM, MMC1, UxROM, CNROM, MMC3, MMC5];
 
 export function createMapper(data: Uint8Array, interrupt: Interrupt): Mapper {
   if (!isEqual(data.slice(0, 4), INES_CONSTANT)) {
