@@ -11,7 +11,7 @@ const CHR_BANK_SIZE = 256;
 export default class MMC2 extends AbstractMapper {
   private prgOffset: number[];
   private chrOffset: number[][];
-  private activeChrOffset: number[];
+  private chrLatch: number[];
   private seenThisFrame: boolean[];
   private nameTableMirroring: NameTableMirroring;
 
@@ -24,7 +24,7 @@ export default class MMC2 extends AbstractMapper {
       this.getPrgOffset(-1),
     ];
     this.chrOffset = [[0, 0], [0, 0]];
-    this.activeChrOffset = [0, 0];
+    this.chrLatch = [1, 1];
     this.seenThisFrame = [false, false];
     this.nameTableMirroring = NameTableMirroring.Vertical;
   }
@@ -53,15 +53,16 @@ export default class MMC2 extends AbstractMapper {
 
   public getPattern(index: number): Pattern {
     const bankIndex = (index & 0x0100) >> 8;
+    const latchIndex = this.chrLatch[bankIndex];
 
     const pattern = this.chr[
-      this.activeChrOffset[bankIndex] | (index & 0x00ff)
+      this.chrOffset[bankIndex][latchIndex] | (index & 0x00ff)
     ];
 
     if ((index & 0x00ff) === 0x00fd) {
-      this.updateActiveChrOffset(bankIndex, 0);
+      this.updateLatch(bankIndex, 0);
     } else if ((index & 0x00ff) === 0x00fe) {
-      this.updateActiveChrOffset(bankIndex, 1);
+      this.updateLatch(bankIndex, 1);
     }
 
     return pattern;
@@ -118,11 +119,11 @@ export default class MMC2 extends AbstractMapper {
     }
   }
 
-  private updateActiveChrOffset(bankIndex: number, latchIndex: number) {
+  private updateLatch(bankIndex: number, latchIndex: number) {
     if (bankIndex === 1) {
-      this.activeChrOffset[1] = this.chrOffset[1][latchIndex];
+      this.chrLatch[1] = latchIndex;
     } else if (!this.seenThisFrame[latchIndex]) {
-      this.activeChrOffset[0] = this.chrOffset[0][latchIndex];
+      this.chrLatch[0] = latchIndex;
       this.seenThisFrame[latchIndex] = true;
     }
   }
