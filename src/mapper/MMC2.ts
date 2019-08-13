@@ -1,3 +1,4 @@
+import { toHex, warn } from 'log';
 import NameTable from 'ppu/NameTable';
 import Pattern from 'ppu/Pattern';
 import { PPUState } from 'ppu/PPU';
@@ -40,7 +41,8 @@ export default class MMC2 extends AbstractMapper {
     } else if (offset >= 0x6000) {
       return this.prgRam[offset & 0x1fff];
     } else {
-      throw new Error('Unexpected mapper read');
+      warn(`Unexpected mapper read: ${toHex(offset, 4)}`);
+      return 0;
     }
   }
 
@@ -50,7 +52,9 @@ export default class MMC2 extends AbstractMapper {
     } else if (offset >= 0x6000 && offset < 0x8000) {
       this.prgRam[offset & 0x1fff] = value;
     } else {
-      throw new Error('Unexpected mapper write');
+      warn(
+        `Unexpected mapper write: ${toHex(offset, 4)} <= ${toHex(value, 2)}`,
+      );
     }
   }
 
