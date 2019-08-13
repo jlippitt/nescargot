@@ -146,6 +146,9 @@ export default class PPU {
       }
 
       case 4:
+        if (this.mode === Mode.Render && mask.renderingEnabled) {
+          warn('OAMDATA accessed while rendering');
+        }
         return oam.getDataByte();
 
       case 7: {
@@ -199,6 +202,9 @@ export default class PPU {
 
       case 4:
         oam.setDataByte(value);
+        if (this.mode === Mode.Render && mask.renderingEnabled) {
+          warn('OAMDATA accessed while rendering');
+        }
         break;
 
       case 5:
