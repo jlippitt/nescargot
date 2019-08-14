@@ -3,6 +3,14 @@ import Screen from './Screen';
 const SCREEN_WIDTH = 256;
 const SCREEN_HEIGHT = 240;
 
+const calculateCanvasSize = (container: HTMLElement): [number, number] => {
+  const maxWidthScale = Math.floor(container.offsetWidth / SCREEN_WIDTH);
+  const maxHeightScale = Math.floor(container.offsetHeight / SCREEN_HEIGHT);
+  const scaleFactor = Math.min(maxWidthScale, maxHeightScale);
+
+  return [scaleFactor * SCREEN_WIDTH, scaleFactor * SCREEN_HEIGHT];
+};
+
 const createCanvas = (
   width: number,
   height: number,
@@ -34,14 +42,9 @@ export default class CanvasScreen implements Screen {
   private position: number;
 
   constructor(container: HTMLElement) {
-    const maxWidthScale = Math.floor(container.offsetWidth / SCREEN_WIDTH);
-    const maxHeightScale = Math.floor(container.offsetHeight / SCREEN_HEIGHT);
-    const scaleFactor = Math.min(maxWidthScale, maxHeightScale);
+    const [width, height] = calculateCanvasSize(container);
 
-    const [outerCanvas, outerContext] = createCanvas(
-      SCREEN_WIDTH * scaleFactor,
-      SCREEN_HEIGHT * scaleFactor,
-    );
+    const [outerCanvas, outerContext] = createCanvas(width, height);
 
     container.appendChild(outerCanvas);
 
@@ -56,6 +59,12 @@ export default class CanvasScreen implements Screen {
     this.innerContext = innerContext;
     this.image = innerContext.createImageData(SCREEN_WIDTH, SCREEN_HEIGHT);
     this.position = 0;
+
+    window.addEventListener('resize', () => {
+      const [newWidth, newHeight] = calculateCanvasSize(container);
+      outerCanvas.width = newWidth;
+      outerCanvas.height = newHeight;
+    });
   }
 
   public drawLine(lineBuffer: number[]): void {
