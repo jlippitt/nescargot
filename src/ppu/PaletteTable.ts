@@ -85,19 +85,39 @@ const rgbMap: Rgb[] = [
   [0, 0, 0],
 ];
 
-const colorMap = rgbMap.map(rgbToColor);
+const colorTable: Color[][] = times(16, (tint: number) =>
+  times(rgbMap.length, (index: number) => {
+    return rgbToColor(rgbMap[index]);
+  }),
+);
 
 export default class PaletteTable {
   private ram: number[];
+  private colorMap: Color[];
   private backgroundColor: Color;
   private backgroundPalettes: Palette[];
   private spritePalettes: Palette[];
 
   constructor() {
     this.ram = Array(32).fill(0);
-    this.backgroundColor = colorMap[0];
-    this.backgroundPalettes = times(4, () => Array(4).fill(colorMap[0]));
-    this.spritePalettes = times(4, () => Array(4).fill(colorMap[0]));
+    this.colorMap = colorTable[0];
+    this.backgroundColor = this.colorMap[0];
+    this.backgroundPalettes = times(4, () => Array(4).fill(this.colorMap[0]));
+    this.spritePalettes = times(4, () => Array(4).fill(this.colorMap[0]));
+  }
+
+  public setMask(value: number) {
+    const oldColorMap = this.colorMap;
+
+    const colorTableIndex = ((value & 0xe0) >> 4) | (value & 0x01);
+    this.colorMap = colorTable[colorTableIndex];
+
+    if (this.colorMap !== oldColorMap) {
+      // Update all the stored colours
+      for (let i = 0; i < this.ram.length; ++i) {
+        this.setByte(i, this.getByte(i));
+      }
+    }
   }
 
   public getBackgroundColor(): Color {
@@ -127,17 +147,19 @@ export default class PaletteTable {
 
     if ((offset & 0x03) !== 0) {
       if ((offset & 0x10) === 0) {
-        this.backgroundPalettes[(offset & 0x0c) >> 2][offset & 0x03] =
-          colorMap[colorIndex];
+        this.backgroundPalettes[(offset & 0x0c) >> 2][
+          offset & 0x03
+        ] = this.colorMap[colorIndex];
       } else {
-        this.spritePalettes[(offset & 0x0c) >> 2][offset & 0x03] =
-          colorMap[colorIndex];
+        this.spritePalettes[(offset & 0x0c) >> 2][
+          offset & 0x03
+        ] = this.colorMap[colorIndex];
       }
 
       this.ram[offset & 0x1f] = colorIndex;
     } else {
       if ((offset & 0x0f) === 0) {
-        this.backgroundColor = colorMap[colorIndex];
+        this.backgroundColor = this.colorMap[colorIndex];
       }
 
       this.ram[offset & 0x0f] = colorIndex;

@@ -196,6 +196,7 @@ export default class PPU {
         mask.backgroundEnabled = (value & 0x08) !== 0;
         mask.spritesEnabled = (value & 0x10) !== 0;
         mask.renderingEnabled = mask.backgroundEnabled || mask.spritesEnabled;
+        vram.getPaletteTable().setMask(value);
         break;
 
       case 3:
