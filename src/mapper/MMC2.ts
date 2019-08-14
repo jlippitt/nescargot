@@ -1,3 +1,4 @@
+import { OPEN_BUS } from 'cpu/MMU';
 import { toHex, warn } from 'log';
 import NameTable from 'ppu/NameTable';
 import Pattern from 'ppu/Pattern';
@@ -42,7 +43,7 @@ export default class MMC2 extends AbstractMapper {
       return this.prgRam[offset & 0x1fff];
     } else {
       warn(`Unexpected mapper read: ${toHex(offset, 4)}`);
-      return 0;
+      return OPEN_BUS;
     }
   }
 

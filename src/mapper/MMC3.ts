@@ -1,5 +1,6 @@
 import { times } from 'lodash';
 
+import { OPEN_BUS } from 'cpu/MMU';
 import Interrupt from 'Interrupt';
 import { debug, toHex, warn } from 'log';
 import NameTable from 'ppu/NameTable';
@@ -45,7 +46,8 @@ export default class MMC3 extends AbstractMapper {
     } else if (offset >= 0x6000) {
       return this.prgRamEnabled ? this.prgRam[offset & 0x1fff] : 0;
     } else {
-      throw new Error('Unexpected mapper write');
+      warn('Unexpected mapper read');
+      return OPEN_BUS;
     }
   }
 
@@ -110,7 +112,7 @@ export default class MMC3 extends AbstractMapper {
         break;
 
       default:
-        throw new Error('Unexpected mapper write');
+        warn('Unexpected mapper write');
     }
   }
 

@@ -1,3 +1,4 @@
+import { OPEN_BUS } from 'cpu/MMU';
 import { debug, toHex, warn } from 'log';
 import NameTable from 'ppu/NameTable';
 import Pattern from 'ppu/Pattern';
@@ -83,7 +84,7 @@ export default class MMC1 extends AbstractMapper {
       return this.prgRamEnabled ? this.prgRam[offset & 0x1fff] : 0;
     } else {
       warn('Attempted read from unexpected mapper location');
-      return 0;
+      return OPEN_BUS;
     }
   }
 

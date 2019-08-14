@@ -1,3 +1,4 @@
+import { OPEN_BUS } from 'cpu/MMU';
 import { debug, toHex, warn } from 'log';
 import NameTable from 'ppu/NameTable';
 import Pattern from 'ppu/Pattern';
@@ -37,7 +38,8 @@ export default class MMC5 extends AbstractMapper {
     } else if (offset === 0x5204) {
       return this.irqControl.getStatus();
     } else {
-      throw new Error(`Unexpected mapper read: ${toHex(offset, 4)}`);
+      warn(`Unexpected mapper read: ${toHex(offset, 4)}`);
+      return OPEN_BUS;
     }
   }
 
