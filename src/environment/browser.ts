@@ -34,7 +34,7 @@ export async function runInBrowser(): Promise<void> {
 
   const sampleBuffer = new Float32SampleBuffer();
 
-  const { cpu, ppu, apu } = createHardware({
+  const { cpu, ppu, apu, joypad } = createHardware({
     romData,
     screen,
     sampleBuffer,
@@ -50,6 +50,8 @@ export async function runInBrowser(): Promise<void> {
       ((now - prevFrameTime) * MASTER_CLOCK_RATE) / 12 / 1000 - excessTicks;
 
     let currentTicks = 0;
+
+    joypad.poll();
 
     while (currentTicks < Math.ceil(allowedTicks)) {
       const ticks = cpu.tick();
