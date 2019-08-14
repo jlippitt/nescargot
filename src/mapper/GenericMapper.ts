@@ -1,3 +1,4 @@
+import { OPEN_BUS } from 'cpu/MMU';
 import { warn } from 'log';
 import NameTable from 'ppu/NameTable';
 import Pattern from 'ppu/Pattern';
@@ -17,10 +18,10 @@ export default abstract class GenericMapper extends AbstractMapper {
     if (offset >= 0x8000) {
       return this.getPrgRomByte(offset);
     } else if (offset >= 0x6000) {
-      return this.prgRam[offset & 0x1fff];
+      return this.getPrgRamByte(offset);
     } else {
       warn('Attempted read from unexpected mapper location');
-      return 0;
+      return OPEN_BUS;
     }
   }
 
@@ -28,7 +29,7 @@ export default abstract class GenericMapper extends AbstractMapper {
     if (offset >= 0x8000) {
       this.setRegisterValue(offset, value);
     } else if (offset >= 0x6000) {
-      this.prgRam[offset & 0x1fff] = value;
+      this.setPrgRamByte(offset, value);
     } else {
       warn('Attempted write to unexpected mapper location');
     }
@@ -47,6 +48,14 @@ export default abstract class GenericMapper extends AbstractMapper {
   }
 
   protected abstract getPrgRomByte(offset: number): number;
+
+  protected getPrgRamByte(offset: number): number {
+    return OPEN_BUS;
+  }
+
+  protected setPrgRamByte(offset: number, value: number): void {
+    // No RAM
+  }
 
   protected abstract setRegisterValue(offset: number, value: number): void;
 }
