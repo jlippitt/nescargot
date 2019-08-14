@@ -74,7 +74,7 @@ export default class Renderer {
     this.priorityBuffer = Array(RENDER_WIDTH).fill(undefined);
   }
 
-  public renderLine(): boolean {
+  public renderLine(): void {
     const { mask, vram } = this.state;
 
     debug(`** Rendering line ${this.state.line} **`);
@@ -91,19 +91,15 @@ export default class Renderer {
       this.opacityBuffer.fill(false);
     }
 
-    let spriteHit = false;
-
     if (mask.spritesEnabled) {
       this.selectSprites();
       this.mapper.onPPUSpriteRenderStart(this.state);
       this.renderSprites();
       this.combineSpritesWithBackground();
-      spriteHit = this.detectSpriteHit();
+      this.detectSpriteHit();
     }
 
     this.screen.drawLine(this.lineBuffer);
-
-    return spriteHit;
   }
 
   private renderBackground(): void {
@@ -169,13 +165,15 @@ export default class Renderer {
   }
 
   private selectSprites(): void {
-    const { control, line, oam } = this.state;
+    const { line, oam, control, status } = this.state;
     let spriteIndex = 0;
 
     for (const sprite of oam.getSprites()) {
       if (isOnLine(control.spriteSize, line, sprite)) {
-        this.selectedSprites[spriteIndex++] = sprite;
-        if (spriteIndex >= SPRITES_PER_LINE) {
+        if (spriteIndex < SPRITES_PER_LINE) {
+          this.selectedSprites[spriteIndex++] = sprite;
+        } else {
+          status.spriteOverflow = true;
           break;
         }
       }
@@ -242,13 +240,20 @@ export default class Renderer {
     }
   }
 
-  private detectSpriteHit(): boolean {
+  private detectSpriteHit(): void {
+    const { status } = this.state;
+
+    if (status.spriteHit) {
+      // No need to waste the cycles!
+      return;
+    }
+
     const { line, oam, vram, control, mask } = this.state;
 
     const sprite = oam.getSprites()[0];
 
     if (!isOnLine(control.spriteSize, line, sprite) || sprite.x === 255) {
-      return false;
+      return;
     }
 
     const patternRow = getSpritePatternRow(control, this.mapper, line, sprite);
@@ -263,10 +268,9 @@ export default class Renderer {
         this.opacityBuffer[posX] &&
         patternRow[spriteX] > 0
       ) {
-        return true;
+        status.spriteHit = true;
+        break;
       }
     }
-
-    return false;
   }
 }

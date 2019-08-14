@@ -41,6 +41,7 @@ export interface PPUState {
   status: {
     vblank: boolean;
     spriteHit: boolean;
+    spriteOverflow: boolean;
   };
   registers: Registers;
 }
@@ -110,6 +111,7 @@ export default class PPU {
       status: {
         vblank: false,
         spriteHit: false,
+        spriteOverflow: false,
       },
       registers: new Registers(),
     };
@@ -139,7 +141,7 @@ export default class PPU {
         let value = this.previousWrite & 0x1f;
         value |= status.vblank ? 0x80 : 0x00;
         value |= status.spriteHit ? 0x40 : 0x00;
-        // TODO: Sprite overflow
+        value |= status.spriteOverflow ? 0x20 : 0x00;
         status.vblank = false;
         registers.clearWriteLatch();
         return value;
@@ -244,8 +246,7 @@ export default class PPU {
     switch (this.mode) {
       case Mode.Render: {
         if (mask.renderingEnabled) {
-          const spriteHit = this.renderer.renderLine();
-          status.spriteHit = status.spriteHit || spriteHit;
+          this.renderer.renderLine();
           registers.copyHorizontalBits();
         } else {
           this.screen.skipLine();
@@ -286,6 +287,7 @@ export default class PPU {
         if (++this.state.line === PRE_RENDER_LINE) {
           status.vblank = false;
           status.spriteHit = false;
+          status.spriteOverflow = false;
           return Mode.PreRender1;
         } else {
           return Mode.VBlank;
