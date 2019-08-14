@@ -44,7 +44,7 @@ export default class MMC3 extends AbstractMapper {
         this.prgOffset[(offset & 0x6000) >> 13] | (offset & 0x1fff)
       ];
     } else if (offset >= 0x6000) {
-      return this.prgRamEnabled ? this.prgRam[offset & 0x1fff] : 0;
+      return this.prgRamEnabled ? this.prgRam[offset & 0x1fff] : OPEN_BUS;
     } else {
       warn('Unexpected mapper read');
       return OPEN_BUS;

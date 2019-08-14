@@ -81,7 +81,7 @@ export default class MMC1 extends AbstractMapper {
       debug(`Mapped address: ${toHex(address, 4)}`);
       return this.prgRom[address];
     } else if (offset >= 0x6000) {
-      return this.prgRamEnabled ? this.prgRam[offset & 0x1fff] : 0;
+      return this.prgRamEnabled ? this.prgRam[offset & 0x1fff] : OPEN_BUS;
     } else {
       warn('Attempted read from unexpected mapper location');
       return OPEN_BUS;
