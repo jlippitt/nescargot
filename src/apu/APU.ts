@@ -1,5 +1,6 @@
 import { times } from 'lodash';
 
+import { OPEN_BUS } from 'cpu/MMU';
 import Interrupt from 'Interrupt';
 import { debug, toHex, warn } from 'log';
 import SampleReader from 'SampleReader';
@@ -64,7 +65,7 @@ export default class APU {
       return result;
     } else {
       warn(`Unexpected APU read: ${toHex(offset, 4)}`);
-      return 0;
+      return OPEN_BUS;
     }
   }
 
