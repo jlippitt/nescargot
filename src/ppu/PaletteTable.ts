@@ -1,6 +1,9 @@
 import { times } from 'lodash';
 import { debug, toHex } from 'log';
 
+const COLOR_TABLE_SIZE = 16;
+const DE_EMPHASIS_MULTIPLIER = 0.85;
+
 export type Color = number;
 export type Palette = Color[];
 export type Rgb = [number, number, number];
@@ -85,9 +88,27 @@ const rgbMap: Rgb[] = [
   [0, 0, 0],
 ];
 
-const colorTable: Color[][] = times(16, (tint: number) =>
+const colorTable: Color[][] = times(COLOR_TABLE_SIZE, (tint: number) =>
   times(rgbMap.length, (index: number) => {
-    return rgbToColor(rgbMap[index]);
+    const baseColorIndex = (tint & 0x01) !== 0 ? index & 0x30 : index;
+    let [red, green, blue] = rgbMap[baseColorIndex];
+
+    if ((tint & 0x02) !== 0) {
+      green *= DE_EMPHASIS_MULTIPLIER;
+      blue *= DE_EMPHASIS_MULTIPLIER;
+    }
+
+    if ((tint & 0x04) !== 0) {
+      red *= DE_EMPHASIS_MULTIPLIER;
+      blue *= DE_EMPHASIS_MULTIPLIER;
+    }
+
+    if ((tint & 0x08) !== 0) {
+      red *= DE_EMPHASIS_MULTIPLIER;
+      green *= DE_EMPHASIS_MULTIPLIER;
+    }
+
+    return rgbToColor([Math.floor(red), Math.floor(green), Math.floor(blue)]);
   }),
 );
 
