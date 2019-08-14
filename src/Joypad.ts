@@ -1,3 +1,4 @@
+import { partialOpenBus } from 'cpu/MMU';
 import { debug } from 'log';
 
 interface ButtonMap {
@@ -50,19 +51,24 @@ export default class Joypad {
   }
 
   public getByte(offset: number): number {
+    let value: number;
+
     switch (offset) {
       case 0x4016:
         if (this.strobe) {
-          return this.buttonState[0] ? 1 : 0;
+          value = this.buttonState[0] ? 1 : 0;
         } else if (this.buttonIndex < this.polledState.length) {
           debug(`Button read: ${this.buttonIndex}`);
-          return this.polledState[this.buttonIndex++] ? 1 : 0;
+          value = this.polledState[this.buttonIndex++] ? 1 : 0;
         } else {
-          return 1;
+          value = 1;
         }
+        break;
       default:
-        return 0;
+        value = 0;
     }
+
+    return partialOpenBus(value, 0xe0);
   }
 
   public setByte(offset: number, value: number): void {

@@ -7,6 +7,11 @@ import PPU from 'ppu/PPU';
 
 import Hardware from './Hardware';
 
+export const OPEN_BUS = 0xff00;
+
+export const partialOpenBus = (value: number, mask: number) =>
+  (mask << 8) | value;
+
 const RAM_SIZE = 2048;
 
 export default class MMU {
@@ -16,6 +21,7 @@ export default class MMU {
   private joypad: Joypad;
   private dma: DMA;
   private ram: Uint8Array;
+  private storedValue: number = 0;
 
   constructor({ mapper, ppu, apu, joypad, dma }: Hardware) {
     this.mapper = mapper;
@@ -55,9 +61,16 @@ export default class MMU {
         value = this.mapper.getPrgByte(offset);
     }
 
-    debug(`Read: ${toHex(offset, 4)} => ${toHex(value, 2)}`);
+    // Here's how we do open bus behaviour without any branching and without
+    // leaving the nice, fast world of integers. Simply use a 16-bit value:
+    // Bits 0-7: The actual value (if any)
+    // Bits 8-15: Mask for bits that should be considered 'open bus'
+    const mask = value >> 8;
+    this.storedValue = (value & 0xff & ~mask) | (this.storedValue & mask);
 
-    return value;
+    debug(`Read: ${toHex(offset, 4)} => ${toHex(this.storedValue, 2)}`);
+
+    return this.storedValue;
   }
 
   public getWord(offset: number): number {
