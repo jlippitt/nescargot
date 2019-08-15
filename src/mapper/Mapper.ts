@@ -79,14 +79,23 @@ const parseHeader = (header: Uint8Array): Header => {
 
   debug('INES header', Array.from(header).map((i) => toHex(i, 2)));
 
-  const mapperNumber = (header[7] & 0xf0) | ((header[6] & 0xf0) >> 4);
-
   const hasTrainer = (header[6] & 0x04) !== 0;
   const prgRomSize = header[4] * PRG_BANK_SIZE;
   const chrRomSize = header[5] * CHR_ROM_SIZE_MULTIPLIER;
 
   const nameTableCount = (header[6] & 0x08) !== 0 ? 4 : 2;
   const nameTableMirroring = (header[6] & 0x01) as NameTableMirroring;
+
+  let mapperNumber: number;
+
+  // TODO: Properly support NES 2.0
+  if ((header[7] & 0x0c) === 0) {
+    // Standard iNES
+    mapperNumber = (header[7] & 0xf0) | ((header[6] & 0xf0) >> 4);
+  } else {
+    // Assume archaic iNES
+    mapperNumber = (header[6] & 0xf0) >> 4;
+  }
 
   return {
     mapperNumber,
@@ -109,7 +118,7 @@ export function createMapper(data: Uint8Array, interrupt: Interrupt): Mapper {
   } = parseHeader(data.slice(0, 16));
 
   debug(`Mapper Type: ${mapperNumber}`);
-  debug(`PRG ROM Length: ${prgRomData.length}`);
+  debug(`PRG ROM Length: ${prgRomSize}`);
 
   const prgRomStart = 16 + (hasTrainer ? 512 : 0);
   const prgRomEnd = prgRomStart + prgRomSize;
@@ -119,7 +128,7 @@ export function createMapper(data: Uint8Array, interrupt: Interrupt): Mapper {
   let chr: Pattern[];
 
   if (chrRomSize > 0) {
-    debug(`CHR ROM Length: ${chrRomData.length}`);
+    debug(`CHR ROM Length: ${chrRomSize}`);
     chr = createPatternTable(data.slice(prgRomEnd, prgRomEnd + chrRomSize));
   } else {
     debug('CHR RAM Enabled');
