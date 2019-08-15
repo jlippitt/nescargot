@@ -1,3 +1,5 @@
+import { times } from 'lodash';
+
 import APU from 'apu/APU';
 import DMA from 'DMA';
 import Joypad from 'Joypad';
@@ -29,7 +31,9 @@ export default class MMU {
     this.apu = apu;
     this.joypad = joypad;
     this.dma = dma;
-    this.ram = new Uint8Array(RAM_SIZE);
+    this.ram = Uint8Array.from(
+      times(RAM_SIZE, () => Math.floor(Math.random() * 256)),
+    );
   }
 
   public getByte(offset: number): number {
