@@ -43,13 +43,15 @@ export const absolute = {
 
 export const absoluteX = {
   lookup: (state: State, pageCheck: boolean = false): number => {
-    const { regs, clock } = state;
+    const { regs, mmu, clock } = state;
     const immediate = state.nextWord();
     const address = (immediate + regs.x) & 0xffff;
 
     if (pageCheck && (address & 0xff00) === (immediate & 0xff00)) {
       clock.tick(2);
     } else {
+      // Dummy read
+      mmu.getByte((immediate & 0xff00) | (address & 0x00ff));
       clock.tick(3);
     }
 
@@ -60,13 +62,15 @@ export const absoluteX = {
 
 export const absoluteY = {
   lookup: (state: State, pageCheck: boolean = false): number => {
-    const { regs, clock } = state;
+    const { regs, mmu, clock } = state;
     const immediate = state.nextWord();
     const address = (immediate + regs.y) & 0xffff;
 
     if (pageCheck && (address & 0xff00) === (immediate & 0xff00)) {
       clock.tick(2);
     } else {
+      // Dummy read
+      mmu.getByte((immediate & 0xff00) | (address & 0x00ff));
       clock.tick(3);
     }
 
@@ -79,6 +83,10 @@ export const indirectX = {
   lookup: (state: State): number => {
     const { regs, mmu, clock } = state;
     const immediate = state.nextByte();
+
+    // Dummy read
+    mmu.getByte(immediate);
+
     clock.tick(4);
     return mmu.getWordWithinPage((immediate + regs.x) & 0xff);
   },
@@ -95,6 +103,8 @@ export const indirectY = {
     if (pageCheck && (address & 0xff00) === (pointer & 0xff00)) {
       clock.tick(3);
     } else {
+      // Dummy read
+      mmu.getByte((pointer & 0xff00) | (address & 0x00ff));
       clock.tick(4);
     }
 
