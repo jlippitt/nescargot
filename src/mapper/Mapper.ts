@@ -50,6 +50,15 @@ export interface MapperOptions {
   interrupt: Interrupt;
 }
 
+interface Header {
+  mapperNumber: number;
+  hasTrainer: boolean;
+  prgRomSize: number;
+  chrRomSize: number;
+  nameTableCount: number;
+  nameTableMirroring: NameTableMirroring;
+}
+
 const availableMappers = [
   NROM,
   MMC1,
@@ -63,50 +72,67 @@ const availableMappers = [
   MMC2,
 ];
 
+const parseHeader = (header: Uint8Array): Header => {
+  if (!isEqual(header.slice(0, 4), INES_CONSTANT)) {
+    throw new Error('Not a valid INES-compatible ROM');
+  }
+
+  debug('INES header', Array.from(header).map((i) => toHex(i, 2)));
+
+  const mapperNumber = (header[7] & 0xf0) | ((header[6] & 0xf0) >> 4);
+
+  const hasTrainer = (header[6] & 0x04) !== 0;
+  const prgRomSize = header[4] * PRG_BANK_SIZE;
+  const chrRomSize = header[5] * CHR_ROM_SIZE_MULTIPLIER;
+
+  const nameTableCount = (header[6] & 0x08) !== 0 ? 4 : 2;
+  const nameTableMirroring = (header[6] & 0x01) as NameTableMirroring;
+
+  return {
+    mapperNumber,
+    hasTrainer,
+    prgRomSize,
+    chrRomSize,
+    nameTableCount,
+    nameTableMirroring,
+  };
+};
+
 export function createMapper(data: Uint8Array, interrupt: Interrupt): Mapper {
-  if (!isEqual(data.slice(0, 4), INES_CONSTANT)) {
-    throw new Error('Not a valid INES ROM');
-  }
-
-  debug('INES header', Array.from(data.slice(0, 16)).map((i) => toHex(i, 2)));
-
-  const prgRomSize = data[4] * PRG_BANK_SIZE;
-  const chrRomSize = data[5] * CHR_ROM_SIZE_MULTIPLIER;
-
-  const hasTrainer = (data[6] & 0x04) !== 0;
-
-  const prgRomStart = 16 + (hasTrainer ? 512 : 0);
-  const chrRomStart = prgRomStart + prgRomSize;
-
-  const prgRomData = data.slice(prgRomStart, chrRomStart);
-  const chrRomData = data.slice(chrRomStart, chrRomStart + chrRomSize);
-
-  const nameTableCount = (data[6] & 0x08) !== 0 ? 4 : 2;
-
-  const nameTableMirroring = (data[6] & 0x01) as NameTableMirroring;
-
-  const mapperNumber = (data[7] & 0xf0) | ((data[6] & 0xf0) >> 4);
-
-  const MapperConstructor = availableMappers[mapperNumber];
-
-  if (!MapperConstructor) {
-    throw new Error(`Unimplemented mapper number: ${mapperNumber}`);
-  }
+  const {
+    mapperNumber,
+    hasTrainer,
+    prgRomSize,
+    chrRomSize,
+    nameTableCount,
+    nameTableMirroring,
+  } = parseHeader(data.slice(0, 16));
 
   debug(`Mapper Type: ${mapperNumber}`);
   debug(`PRG ROM Length: ${prgRomData.length}`);
 
+  const prgRomStart = 16 + (hasTrainer ? 512 : 0);
+  const prgRomEnd = prgRomStart + prgRomSize;
+
+  const prgRomData = data.slice(prgRomStart, prgRomEnd);
+
   let chr: Pattern[];
 
-  if (chrRomData.length > 0) {
+  if (chrRomSize > 0) {
     debug(`CHR ROM Length: ${chrRomData.length}`);
-    chr = createPatternTable(chrRomData);
+    chr = createPatternTable(data.slice(prgRomEnd, prgRomEnd + chrRomSize));
   } else {
     debug('CHR RAM Enabled');
     chr = times(CHR_RAM_SIZE, () => new Pattern());
   }
 
   debug(`Nametable Mirroring: ${nameTableMirroring}`);
+
+  const MapperConstructor = availableMappers[mapperNumber];
+
+  if (!MapperConstructor) {
+    throw new Error(`Unimplemented mapper number: ${mapperNumber}`);
+  }
 
   return new MapperConstructor({
     prgRom: prgRomData,
