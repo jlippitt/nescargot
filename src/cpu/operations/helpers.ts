@@ -19,10 +19,18 @@ export const mutateMemory = (instruction: string, mutate: Mutator) => (
   addressMode: AddressMode,
 ) => (state: State) => {
   const { flags, mmu, clock } = state;
+
   debug(`${instruction} ${addressMode}`);
+
   const address = addressMode.lookup(state, false);
   const value = mmu.getByte(address);
+
+  // Write the dummy (unmodified) value
+  mmu.setByte(address, value);
+
+  // Write real value
   const result = mutate(value, flags);
   mmu.setByte(address, result);
+
   clock.tick(4);
 };
