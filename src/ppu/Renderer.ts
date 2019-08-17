@@ -220,18 +220,14 @@ export default class Renderer {
 
   private combineSpritesWithBackground(): void {
     for (let x = this.state.mask.spriteXStart; x < RENDER_WIDTH; ++x) {
-      switch (this.priorityBuffer[x]) {
-        case Priority.Front:
-          this.lineBuffer[x] = this.spriteBuffer[x];
-          break;
-        case Priority.Back:
-          if (!this.opacityBuffer[x]) {
-            this.lineBuffer[x] = this.spriteBuffer[x];
-          }
-          break;
-        default:
-          // No sprite on this pixel
-          break;
+      const priority = this.priorityBuffer[x];
+
+      if (priority === undefined) {
+        continue;
+      }
+
+      if (priority === Priority.Front || !this.opacityBuffer[x]) {
+        this.lineBuffer[x] = this.spriteBuffer[x];
       }
     }
   }
