@@ -4,4 +4,6 @@ export default interface AudioComponent {
   reset(): void;
 
   advance(increment: number): void;
+
+  sample(): number;
 }

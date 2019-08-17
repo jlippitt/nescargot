@@ -20,11 +20,15 @@ export default class SawAccumulator implements AudioComponent {
     for (let i = 0; i < increment; ++i) {
       if (++this.counter < ACCUMULATOR_SEQUENCE_LENGTH) {
         if (this.counter % 2 === 0) {
-          this.value += this.rate;
+          this.value = (this.value + this.rate) & 0xff;
         }
       } else {
         this.reset();
       }
     }
+  }
+
+  public sample(): number {
+    return (this.value & 0xf8) >> 3;
   }
 }

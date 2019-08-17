@@ -37,6 +37,11 @@ export default abstract class AbstractMapper implements Mapper {
     // Do nothing
   }
 
+  public sample(): number {
+    // No audio
+    return 0;
+  }
+
   public onPPULineStart(state: PPUState): void {
     // Do nothing
   }

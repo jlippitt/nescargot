@@ -19,6 +19,18 @@ export default class PulseDuty implements AudioComponent {
   }
 
   public advance(increment: number): void {
-    this.counter = (this.counter + increment) % DUTY_CYCLE_LENGTH;
+    this.counter -= increment;
+
+    if (this.counter < 0) {
+      this.counter += DUTY_CYCLE_LENGTH;
+    }
+  }
+
+  public sample(): number {
+    if (this.ignoreDuty || this.counter <= this.threshold) {
+      return this.volume;
+    } else {
+      return 0;
+    }
   }
 }

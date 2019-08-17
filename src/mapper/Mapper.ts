@@ -31,6 +31,7 @@ export default interface Mapper {
   getPattern(index: number): Pattern;
   getNameTable(index: number): NameTable;
   tick(cpuTicks: number): void;
+  sample(): number;
   onPPULineStart(state: PPUState): void;
   onPPUSpriteMemoryStart(state: PPUState): void;
   onPPUBackgroundMemoryStart(state: PPUState): void;

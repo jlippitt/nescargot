@@ -15,6 +15,9 @@ import SawAccumulator from './SawAccumulator';
 const PRG_BANK_SIZE = 8192;
 const CHR_BANK_SIZE = 64;
 
+// VRC6 pulse volume = 2A03 pulse volume
+const VOLUME_MULTIPLIER = 95.88 / (8128 / 30 + 100) / 30;
+
 enum NameTableArrangement {
   VerticalMirroring = 0,
   HorizontalMirroring = 1,
@@ -98,6 +101,13 @@ export default class VRC6 extends AbstractMapper {
     this.pulse1.tick(cpuTicks);
     this.pulse2.tick(cpuTicks);
     this.saw.tick(cpuTicks);
+  }
+
+  public sample(): number {
+    return (
+      (this.pulse1.sample() + this.pulse2.sample() + this.saw.sample()) *
+      VOLUME_MULTIPLIER
+    );
   }
 
   private setRegisterValue(offset: number, value: number): void {

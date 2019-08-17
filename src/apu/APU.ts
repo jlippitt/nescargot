@@ -3,6 +3,7 @@ import { times } from 'lodash';
 import { OPEN_BUS } from 'cpu/MMU';
 import Interrupt from 'Interrupt';
 import { debug, toHex, warn } from 'log';
+import Mapper from 'mapper/Mapper';
 import SampleReader from 'SampleReader';
 
 import SampleBuffer from './buffers/SampleBuffer';
@@ -25,12 +26,14 @@ const TND_TABLE = times(203, (n) => 163.67 / (24329.0 / n + 100));
 
 export interface APUOptions {
   interrupt: Interrupt;
+  mapper: Mapper;
   sampleBuffer: SampleBuffer;
   sampleReader: SampleReader;
 }
 
 export default class APU {
   private interrupt: Interrupt;
+  private mapper: Mapper;
   private sampleBuffer: SampleBuffer;
   private pulse1: PulseChannel;
   private pulse2: PulseChannel;
@@ -40,8 +43,9 @@ export default class APU {
   private frameCounter: FrameCounter;
   private sampleClock: number = 0;
 
-  constructor({ interrupt, sampleBuffer, sampleReader }: APUOptions) {
+  constructor({ interrupt, mapper, sampleBuffer, sampleReader }: APUOptions) {
     this.interrupt = interrupt;
+    this.mapper = mapper;
     this.sampleBuffer = sampleBuffer;
     this.pulse1 = new PulseChannel(-1);
     this.pulse2 = new PulseChannel(0);
@@ -137,7 +141,7 @@ export default class APU {
 
       const pulseOut = PULSE_TABLE[pulse1 + pulse2];
       const tndOut = TND_TABLE[triangle * 3 + noise * 2 + dmc];
-      const sample = pulseOut + tndOut;
+      const sample = pulseOut + tndOut + this.mapper.sample();
 
       this.sampleBuffer.writeSample(sample, sample);
     }

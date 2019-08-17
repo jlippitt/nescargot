@@ -47,4 +47,8 @@ export default class AudioChannel {
       this.component.advance(this.timer.tick(cpuTicks));
     }
   }
+
+  public sample(): number {
+    return this.enabled ? this.component.sample() : 0;
+  }
 }
