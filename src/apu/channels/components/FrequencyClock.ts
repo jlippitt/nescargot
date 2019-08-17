@@ -26,11 +26,11 @@ export default class FrequencyClock {
   }
 
   public setLowerByte(value: number): void {
-    this.setValue((this.getValue() & 0x0700) | (value & 0xff));
+    this.setValue((this.getValue() & 0xff00) | (value & 0xff));
   }
 
   public setUpperByte(value: number): void {
-    this.setValue(((value << 8) & 0x0700) | (this.getValue() & 0xff));
+    this.setValue(((value << 8) & 0xff00) | (this.getValue() & 0xff));
   }
 
   public tick(ticks: number): number {

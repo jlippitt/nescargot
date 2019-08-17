@@ -8,6 +8,8 @@ import AbstractMapper from '../AbstractMapper';
 import { MapperOptions } from '../Mapper';
 
 import IrqControl from './IrqControl';
+import PulseChannel from './PulseChannel';
+import SawChannel from './SawChannel';
 
 const PRG_BANK_SIZE = 8192;
 const CHR_BANK_SIZE = 64;
@@ -25,6 +27,9 @@ export default class VRC6 extends AbstractMapper {
   private chrOffset: number[];
   private nameTableArrangement: NameTableArrangement;
   private irqControl: IrqControl;
+  private pulse1: PulseChannel;
+  private pulse2: PulseChannel;
+  private saw: SawChannel;
 
   constructor(options: MapperOptions) {
     super(options);
@@ -32,6 +37,9 @@ export default class VRC6 extends AbstractMapper {
     this.chrOffset = Array(8).fill(0);
     this.nameTableArrangement = NameTableArrangement.VerticalMirroring;
     this.irqControl = new IrqControl(options.interrupt);
+    this.pulse1 = new PulseChannel();
+    this.pulse2 = new PulseChannel();
+    this.saw = new SawChannel();
     debug('VRC6 PRG Banks:', this.prgOffset);
     debug('VRC6 CHR Banks:', this.chrOffset);
     debug('VRC6 Name Tables:', this.nameTableArrangement);
@@ -86,6 +94,9 @@ export default class VRC6 extends AbstractMapper {
 
   public tick(cpuTicks: number): void {
     this.irqControl.tick(cpuTicks);
+    this.pulse1.tick(cpuTicks);
+    this.pulse2.tick(cpuTicks);
+    this.saw.tick(cpuTicks);
   }
 
   private setRegisterValue(offset: number, value: number): void {
@@ -99,13 +110,19 @@ export default class VRC6 extends AbstractMapper {
         break;
 
       case 0x9000:
+        this.pulse1.setByte(subRegister, value);
+        // No commercial game uses frequency control
+        // TODO: Implement frequency control?
         break;
 
       case 0xa000:
+        this.pulse2.setByte(subRegister, value);
         break;
 
       case 0xb000:
-        if (subRegister === 3) {
+        if (subRegister < 3) {
+          this.saw.setByte(subRegister, value);
+        } else {
           // Only mode 0 is ever used in commercial games
           // TODO: Other modes?
           this.nameTableArrangement = ((value & 0x0c) >>

@@ -73,7 +73,7 @@ export default class TriangleChannel {
         break;
       case 3:
         this.lengthCounter.setValue((value & 0xf8) >> 3);
-        this.timer.setUpperByte(value);
+        this.timer.setUpperByte(value & 0x07);
         this.linearCounter.setReload();
         break;
       default:
