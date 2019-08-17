@@ -109,28 +109,24 @@ export default class Renderer {
     const palettes = paletteTable.getBackgroundPalettes();
     const backgroundColor = paletteTable.getBackgroundColor();
 
-    const posY = registers.getScrollY();
-    const nameTableY = Math.floor((posY % 480) / 240) << 1;
-    const tileY = (posY >> 3) % 30;
-    const pixelY = posY % TILE_SIZE;
+    const scroll = registers.getScroll();
+    const { coarseY, fineY } = scroll;
+    let { nameTableIndex, coarseX, fineX } = scroll;
 
-    const posX = registers.getScrollX() + mask.backgroundXStart;
-    let nameTableX = (posX & 0x1ff) >> 8;
-    let tileX = (posX >> 3) & 0x1f;
-    let pixelX = posX % TILE_SIZE;
+    coarseX = (coarseX + (mask.backgroundXStart >> 3)) % NAME_TABLE_WIDTH;
 
-    let nameTable = this.mapper.getNameTable(nameTableY | nameTableX);
+    let nameTable = this.mapper.getNameTable(nameTableIndex);
 
-    let { patternIndex, paletteIndex } = nameTable.getTile(tileX, tileY);
+    let { patternIndex, paletteIndex } = nameTable.getTile(coarseX, coarseY);
 
     let patternRow = this.mapper
       .getPattern(control.backgroundPatternOffset | patternIndex)
-      .getRow(pixelY);
+      .getRow(fineY);
 
     let palette = palettes[paletteIndex];
 
     for (let x = mask.backgroundXStart; x < RENDER_WIDTH; ++x) {
-      const pixel = patternRow[pixelX];
+      const pixel = patternRow[fineX];
 
       if (pixel > 0) {
         this.lineBuffer[x] = palette[pixel];
@@ -140,20 +136,20 @@ export default class Renderer {
         this.opacityBuffer[x] = false;
       }
 
-      if (++pixelX === TILE_SIZE) {
-        pixelX = 0;
+      if (++fineX === TILE_SIZE) {
+        fineX = 0;
 
-        if (++tileX === NAME_TABLE_WIDTH) {
-          tileX = 0;
-          nameTableX ^= 1;
-          nameTable = this.mapper.getNameTable(nameTableY | nameTableX);
+        if (++coarseX === NAME_TABLE_WIDTH) {
+          coarseX = 0;
+          nameTableIndex ^= 1;
+          nameTable = this.mapper.getNameTable(nameTableIndex);
         }
 
-        ({ patternIndex, paletteIndex } = nameTable.getTile(tileX, tileY));
+        ({ patternIndex, paletteIndex } = nameTable.getTile(coarseX, coarseY));
 
         patternRow = this.mapper
           .getPattern(control.backgroundPatternOffset | patternIndex)
-          .getRow(pixelY);
+          .getRow(fineY);
 
         palette = palettes[paletteIndex];
       }

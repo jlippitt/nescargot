@@ -3,6 +3,14 @@ import { debug, toHex } from 'log';
 const HORIZONTAL_INCREMENT = 1;
 const VERTICAL_INCREMENT = 32;
 
+export interface Scroll {
+  nameTableIndex: number;
+  coarseY: number;
+  fineY: number;
+  coarseX: number;
+  fineX: number;
+}
+
 export default class Registers {
   private vramAddress: number = 0;
   private vramIncrement: number = HORIZONTAL_INCREMENT;
@@ -12,18 +20,13 @@ export default class Registers {
 
   public getVramAddress = (): number => this.vramAddress & 0x3fff;
 
-  public getScrollX(): number {
-    const nameTableX = (this.vramAddress & 0x0400) >> 10;
-    const coarseX = this.vramAddress & 0x001f;
-    return nameTableX * 256 + coarseX * 8 + this.fineXScroll;
-  }
-
-  public getScrollY(): number {
-    const nameTableY = (this.vramAddress & 0x0800) >> 11;
-    const coarseY = (this.vramAddress & 0x03e0) >> 5;
-    const fineY = (this.vramAddress & 0x7000) >> 12;
-    return nameTableY * 240 + coarseY * 8 + fineY;
-  }
+  public getScroll = (): Scroll => ({
+    nameTableIndex: (this.vramAddress & 0x0c00) >> 10,
+    coarseY: (this.vramAddress & 0x03e0) >> 5,
+    fineY: (this.vramAddress & 0x7000) >> 12,
+    coarseX: this.vramAddress & 0x001f,
+    fineX: this.fineXScroll,
+  })
 
   public clearWriteLatch(): void {
     this.firstWrite = true;
