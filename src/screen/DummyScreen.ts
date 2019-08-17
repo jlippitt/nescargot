@@ -8,8 +8,4 @@ export default class DummyScreen implements Screen {
   public skipLine(): void {
     // Do nothing
   }
-
-  public update(): void {
-    // Do nothing
-  }
 }

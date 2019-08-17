@@ -77,6 +77,11 @@ export default class Renderer {
   public renderLine(): void {
     const { mask, vram } = this.state;
 
+    if (!mask.renderingEnabled) {
+      this.screen.skipLine();
+      return;
+    }
+
     debug(`** Rendering line ${this.state.line} **`);
 
     const backgroundColor = vram.getPaletteTable().getBackgroundColor();

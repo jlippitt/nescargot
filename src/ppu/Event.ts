@@ -14,20 +14,19 @@ export interface EventOptions {
   interrupt: Interrupt;
   mapper: Mapper;
   renderer: Renderer;
-  screen: Screen;
 }
 
 export type Event = (options: EventOptions) => NextEvent;
 
 export type NextEvent = [Event, number];
 
-export function render({ state, renderer, screen }: EventOptions): NextEvent {
+export function render({ state, renderer }: EventOptions): NextEvent {
+  renderer.renderLine();
+
   if (state.mask.renderingEnabled) {
-    renderer.renderLine();
     state.registers.copyHorizontalBits();
-  } else {
-    screen.skipLine();
   }
+
   return [hblank1, 4];
 }
 
@@ -41,11 +40,8 @@ export function hblank2({ state, mapper }: EventOptions): NextEvent {
   return [hblank3, 20];
 }
 
-export function hblank3({ state, mapper, screen }: EventOptions): NextEvent {
+export function hblank3({ state, mapper }: EventOptions): NextEvent {
   if (++state.line === POST_RENDER_LINE) {
-    if (state.mask.renderingEnabled) {
-      screen.update();
-    }
     return [postRender, 341];
   } else {
     mapper.onPPULineStart(state);

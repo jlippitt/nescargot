@@ -199,7 +199,6 @@ export default class PPU {
         interrupt: this.interrupt,
         mapper: this.mapper,
         renderer: this.renderer,
-        screen: this.screen,
       });
     }
   }
