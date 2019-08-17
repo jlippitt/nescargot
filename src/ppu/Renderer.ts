@@ -109,15 +109,12 @@ export default class Renderer {
     const palettes = paletteTable.getBackgroundPalettes();
     const backgroundColor = paletteTable.getBackgroundColor();
 
-    const scroll = registers.getScroll();
-
-    const posY = scroll.y;
-
+    const posY = registers.getScrollY();
     const nameTableY = Math.floor((posY % 480) / 240) << 1;
     const tileY = (posY >> 3) % 30;
     const pixelY = posY % TILE_SIZE;
 
-    const posX = scroll.x + mask.backgroundXStart;
+    const posX = registers.getScrollX() + mask.backgroundXStart;
     let nameTableX = (posX & 0x1ff) >> 8;
     let tileX = (posX >> 3) & 0x1f;
     let pixelX = posX % TILE_SIZE;
