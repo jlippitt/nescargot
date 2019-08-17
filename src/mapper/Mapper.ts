@@ -89,7 +89,10 @@ const parseHeader = (header: Uint8Array): Header => {
   let mapperNumber: number;
 
   // TODO: Properly support NES 2.0
-  if ((header[7] & 0x0c) === 0 && isEqual(header.slice(12, 4), [0, 0, 0, 0])) {
+  if (
+    (header[7] & 0x0c) === 0 &&
+    isEqual(header.slice(12, 16), new Uint8Array([0, 0, 0, 0]))
+  ) {
     // Standard iNES
     mapperNumber = (header[7] & 0xf0) | ((header[6] & 0xf0) >> 4);
   } else {
