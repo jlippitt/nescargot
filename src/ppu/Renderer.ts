@@ -149,9 +149,8 @@ export default class Renderer {
         if (++tileX === NAME_TABLE_WIDTH) {
           tileX = 0;
           nameTableX ^= 1;
+          nameTable = this.mapper.getNameTable(nameTableY | nameTableX);
         }
-
-        nameTable = this.mapper.getNameTable(nameTableY | nameTableX);
 
         ({ patternIndex, paletteIndex } = nameTable.getTile(tileX, tileY));
 
