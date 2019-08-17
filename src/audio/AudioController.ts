@@ -9,6 +9,14 @@ export default class AudioController {
     this.expectedTime = this.context.currentTime;
   }
 
+  public suspend() {
+    this.context.suspend();
+  }
+
+  public resume() {
+    this.context.resume();
+  }
+
   public sendAudioData(buffer: AudioBuffer) {
     this.expectedTime += buffer.duration;
 

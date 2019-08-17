@@ -44,6 +44,7 @@ export async function runInBrowser(): Promise<void> {
 
   let prevFrameTime = window.performance.now();
   let excessTicks = 0;
+  let frameRequest: number;
 
   function renderFrame(now: number): void {
     const allowedTicks =
@@ -70,8 +71,22 @@ export async function runInBrowser(): Promise<void> {
       audioController.sendAudioData(audioBuffer);
     }
 
-    window.requestAnimationFrame(renderFrame);
+    if (!document.hidden) {
+      frameRequest = window.requestAnimationFrame(renderFrame);
+    }
   }
 
-  window.requestAnimationFrame(renderFrame);
+  window.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      audioController.suspend();
+      window.cancelAnimationFrame(frameRequest);
+    } else {
+      audioController.resume();
+      frameRequest = window.requestAnimationFrame(renderFrame);
+      prevFrameTime = window.performance.now();
+      excessTicks = 0;
+    }
+  });
+
+  frameRequest = window.requestAnimationFrame(renderFrame);
 }
