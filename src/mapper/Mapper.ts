@@ -14,6 +14,7 @@ import MMC3 from './MMC3';
 import MMC5 from './mmc5/MMC5';
 import NROM from './NROM';
 import UxROM from './UxROM';
+import VRC6 from './vrc6/VRC6';
 
 const INES_CONSTANT = new Uint8Array([0x4e, 0x45, 0x53, 0x1a]);
 
@@ -59,18 +60,19 @@ interface Header {
   nameTableMirroring: NameTableMirroring;
 }
 
-const availableMappers = [
-  NROM,
-  MMC1,
-  UxROM,
-  CNROM,
-  MMC3,
-  MMC5,
-  undefined,
-  AxROM,
-  undefined,
-  MMC2,
-];
+type MapperConstructor = new (options: MapperOptions) => Mapper;
+
+const availableMappers: { [index: string]: MapperConstructor } = {
+  0: NROM,
+  1: MMC1,
+  2: UxROM,
+  3: CNROM,
+  4: MMC3,
+  5: MMC5,
+  7: AxROM,
+  9: MMC2,
+  24: VRC6,
+};
 
 const parseHeader = (header: Uint8Array): Header => {
   if (!isEqual(header.slice(0, 4), INES_CONSTANT)) {
@@ -140,13 +142,13 @@ export function createMapper(data: Uint8Array, interrupt: Interrupt): Mapper {
 
   debug(`Nametable Mirroring: ${nameTableMirroring}`);
 
-  const MapperConstructor = availableMappers[mapperNumber];
+  const mapperConstructor = availableMappers[mapperNumber];
 
-  if (!MapperConstructor) {
+  if (!mapperConstructor) {
     throw new Error(`Unimplemented mapper number: ${mapperNumber}`);
   }
 
-  return new MapperConstructor({
+  return new mapperConstructor({
     prgRom: prgRomData,
     prgRam: new Uint8Array(8192),
     chr,
