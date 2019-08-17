@@ -33,6 +33,10 @@ export default abstract class AbstractMapper implements Mapper {
 
   public abstract getNameTable(index: number): NameTable;
 
+  public tick(cpuTicks: number): void {
+    // Do nothing
+  }
+
   public onPPULineStart(state: PPUState): void {
     // Do nothing
   }

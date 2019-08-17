@@ -11,7 +11,7 @@ export function runInConsole(): void {
 
   const romData = fs.readFileSync(process.argv[2]);
 
-  const { cpu, ppu, apu } = createHardware({
+  const { cpu, ppu, apu, mapper } = createHardware({
     romData: new Uint8Array(romData.buffer),
     screen: new DummyScreen(),
     sampleBuffer: new DummySampleBuffer(),
@@ -21,5 +21,6 @@ export function runInConsole(): void {
     const ticks = cpu.tick();
     ppu.tick(ticks);
     apu.tick(ticks);
+    mapper.tick(ticks);
   }
 }

@@ -30,6 +30,7 @@ export default interface Mapper {
   setChrByte(offset: number, value: number): void;
   getPattern(index: number): Pattern;
   getNameTable(index: number): NameTable;
+  tick(cpuTicks: number): void;
   onPPULineStart(state: PPUState): void;
   onPPUSpriteMemoryStart(state: PPUState): void;
   onPPUBackgroundMemoryStart(state: PPUState): void;

@@ -4,7 +4,7 @@ import CPU from 'cpu/CPU';
 import DMA from 'DMA';
 import Interrupt from 'Interrupt';
 import Joypad from 'Joypad';
-import { createMapper } from 'mapper/Mapper';
+import Mapper, { createMapper } from 'mapper/Mapper';
 import PPU from 'ppu/PPU';
 import SampleReader from 'SampleReader';
 import Screen from 'screen/Screen';
@@ -13,6 +13,7 @@ export default interface Hardware {
   cpu: CPU;
   ppu: PPU;
   apu: APU;
+  mapper: Mapper;
   joypad: Joypad;
 }
 
@@ -43,5 +44,5 @@ export function createHardware({
     dma,
     sampleReader,
   });
-  return { cpu, ppu, apu, joypad };
+  return { cpu, ppu, apu, mapper, joypad };
 }

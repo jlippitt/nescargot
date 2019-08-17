@@ -7,6 +7,8 @@ import Pattern from 'ppu/Pattern';
 import AbstractMapper from '../AbstractMapper';
 import { MapperOptions } from '../Mapper';
 
+import IrqControl from './IrqControl';
+
 const PRG_BANK_SIZE = 8192;
 const CHR_BANK_SIZE = 64;
 
@@ -22,12 +24,14 @@ export default class VRC6 extends AbstractMapper {
   private prgRamEnabled: boolean = false;
   private chrOffset: number[];
   private nameTableArrangement: NameTableArrangement;
+  private irqControl: IrqControl;
 
   constructor(options: MapperOptions) {
     super(options);
     this.prgOffset = [0, PRG_BANK_SIZE, 0, this.prgRom.length - PRG_BANK_SIZE];
     this.chrOffset = Array(8).fill(0);
     this.nameTableArrangement = NameTableArrangement.VerticalMirroring;
+    this.irqControl = new IrqControl(options.interrupt);
     debug('VRC6 PRG Banks:', this.prgOffset);
     debug('VRC6 CHR Banks:', this.chrOffset);
     debug('VRC6 Name Tables:', this.nameTableArrangement);
@@ -80,6 +84,10 @@ export default class VRC6 extends AbstractMapper {
     }
   }
 
+  public tick(cpuTicks: number): void {
+    this.irqControl.tick(cpuTicks);
+  }
+
   private setRegisterValue(offset: number, value: number): void {
     const subRegister = offset & 0x03;
 
@@ -128,6 +136,7 @@ export default class VRC6 extends AbstractMapper {
         break;
 
       case 0xf000:
+        this.irqControl.setByte(subRegister, value);
         break;
 
       default:

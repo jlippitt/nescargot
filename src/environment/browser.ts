@@ -34,7 +34,7 @@ export async function runInBrowser(): Promise<void> {
 
   const sampleBuffer = new Float32SampleBuffer();
 
-  const { cpu, ppu, apu, joypad } = createHardware({
+  const { cpu, ppu, apu, mapper, joypad } = createHardware({
     romData,
     screen,
     sampleBuffer,
@@ -57,6 +57,7 @@ export async function runInBrowser(): Promise<void> {
       const ticks = cpu.tick();
       ppu.tick(ticks);
       apu.tick(ticks);
+      mapper.tick(ticks);
       currentTicks += ticks;
     }
 
