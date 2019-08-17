@@ -8,15 +8,29 @@ import AbstractMapper from '../AbstractMapper';
 import { MapperOptions } from '../Mapper';
 
 const PRG_BANK_SIZE = 8192;
+const CHR_BANK_SIZE = 64;
+
+enum NameTableArrangement {
+  VerticalMirroring = 0,
+  HorizontalMirroring = 1,
+  SingleScreenLower = 2,
+  SingleScreenUpper = 3,
+}
 
 export default class VRC6 extends AbstractMapper {
   private prgOffset: number[];
   private prgRamEnabled: boolean = false;
+  private chrOffset: number[];
+  private nameTableArrangement: NameTableArrangement;
 
   constructor(options: MapperOptions) {
     super(options);
     this.prgOffset = [0, PRG_BANK_SIZE, 0, this.prgRom.length - PRG_BANK_SIZE];
+    this.chrOffset = Array(8).fill(0);
+    this.nameTableArrangement = NameTableArrangement.VerticalMirroring;
     debug('VRC6 PRG Banks:', this.prgOffset);
+    debug('VRC6 CHR Banks:', this.chrOffset);
+    debug('VRC6 Name Tables:', this.nameTableArrangement);
   }
 
   public getPrgByte(offset: number): number {
@@ -47,13 +61,23 @@ export default class VRC6 extends AbstractMapper {
   }
 
   public getPattern(index: number): Pattern {
-    // TODO
-    return this.chr[index];
+    return this.chr[this.chrOffset[(index & 0x01c0) >> 6] | (index & 0x3f)];
   }
 
   public getNameTable(index: number): NameTable {
-    // TODO
-    return this.nameTables[index & 1];
+    switch (this.nameTableArrangement) {
+      case NameTableArrangement.VerticalMirroring:
+        return this.nameTables[index & 1];
+
+      case NameTableArrangement.HorizontalMirroring:
+        return this.nameTables[index >> 1];
+
+      case NameTableArrangement.SingleScreenLower:
+        return this.nameTables[0];
+
+      case NameTableArrangement.SingleScreenUpper:
+        return this.nameTables[1];
+    }
   }
 
   private setRegisterValue(offset: number, value: number): void {
@@ -61,8 +85,8 @@ export default class VRC6 extends AbstractMapper {
 
     switch (offset & 0xf000) {
       case 0x8000:
-        this.prgOffset[0] = this.getPrgOffset(value << 1);
-        this.prgOffset[1] = this.getPrgOffset((value << 1) | 0x01);
+        this.prgOffset[0] = this.getPrgOffset((value & 0x0f) << 1);
+        this.prgOffset[1] = this.getPrgOffset(((value & 0x0f) << 1) | 0x01);
         debug('VRC6 PRG Banks:', this.prgOffset);
         break;
 
@@ -74,20 +98,33 @@ export default class VRC6 extends AbstractMapper {
 
       case 0xb000:
         if (subRegister === 3) {
+          // Only mode 0 is ever used in commercial games
+          // TODO: Other modes?
+          this.nameTableArrangement = ((value & 0x0c) >>
+            2) as NameTableArrangement;
           this.prgRamEnabled = (value & 0x80) !== 0;
+          debug('VRC6 Name Tables:', this.nameTableArrangement);
           debug('VRC6 PRG RAM Enabled:', this.prgRamEnabled);
         }
         break;
 
       case 0xc000:
-        this.prgOffset[2] = this.getPrgOffset(value);
+        this.prgOffset[2] = this.getPrgOffset(value & 0x1f);
         debug('VRC6 PRG Banks:', this.prgOffset);
         break;
 
       case 0xd000:
+        // Only mode 0 is ever used in commercial games
+        // TODO: Other modes?
+        this.chrOffset[subRegister] = this.getChrOffset(value);
+        debug('VRC6 CHR Banks:', this.chrOffset);
         break;
 
       case 0xe000:
+        // Only mode 0 is ever used in commercial games
+        // TODO: Other modes?
+        this.chrOffset[4 + subRegister] = this.getChrOffset(value);
+        debug('VRC6 CHR Banks:', this.chrOffset);
         break;
 
       case 0xf000:
@@ -100,4 +137,7 @@ export default class VRC6 extends AbstractMapper {
 
   private getPrgOffset = (index: number): number =>
     (index * PRG_BANK_SIZE) % this.prgRom.length
+
+  private getChrOffset = (index: number): number =>
+    (index * CHR_BANK_SIZE) % this.chr.length
 }
