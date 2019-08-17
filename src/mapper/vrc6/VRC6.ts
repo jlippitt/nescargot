@@ -7,9 +7,10 @@ import Pattern from 'ppu/Pattern';
 import AbstractMapper from '../AbstractMapper';
 import { MapperOptions } from '../Mapper';
 
+import AudioChannel from './AudioChannel';
 import IrqControl from './IrqControl';
-import PulseChannel from './PulseChannel';
-import SawChannel from './SawChannel';
+import PulseDuty from './PulseDuty';
+import SawAccumulator from './SawAccumulator';
 
 const PRG_BANK_SIZE = 8192;
 const CHR_BANK_SIZE = 64;
@@ -27,9 +28,9 @@ export default class VRC6 extends AbstractMapper {
   private chrOffset: number[];
   private nameTableArrangement: NameTableArrangement;
   private irqControl: IrqControl;
-  private pulse1: PulseChannel;
-  private pulse2: PulseChannel;
-  private saw: SawChannel;
+  private pulse1: AudioChannel;
+  private pulse2: AudioChannel;
+  private saw: AudioChannel;
 
   constructor(options: MapperOptions) {
     super(options);
@@ -37,9 +38,9 @@ export default class VRC6 extends AbstractMapper {
     this.chrOffset = Array(8).fill(0);
     this.nameTableArrangement = NameTableArrangement.VerticalMirroring;
     this.irqControl = new IrqControl(options.interrupt);
-    this.pulse1 = new PulseChannel();
-    this.pulse2 = new PulseChannel();
-    this.saw = new SawChannel();
+    this.pulse1 = new AudioChannel(new PulseDuty());
+    this.pulse2 = new AudioChannel(new PulseDuty());
+    this.saw = new AudioChannel(new SawAccumulator());
     debug('VRC6 PRG Banks:', this.prgOffset);
     debug('VRC6 CHR Banks:', this.chrOffset);
     debug('VRC6 Name Tables:', this.nameTableArrangement);
