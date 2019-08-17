@@ -59,6 +59,8 @@ export default class IrqControl {
         this.enabled = (value & 0x02) !== 0;
         this.enableAfterAcknowledge = (value & 0x01) !== 0;
 
+        this.interrupt.clearIrq();
+
         if (this.enabled) {
           this.counter = this.latch;
           this.scanlineDivider.reset();
