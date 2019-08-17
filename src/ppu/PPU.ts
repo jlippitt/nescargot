@@ -3,14 +3,12 @@ import { toHex, warn } from 'log';
 import Mapper from 'mapper/Mapper';
 import Screen from 'screen/Screen';
 
+import { Event, initialEventState } from './Event';
 import OAM from './OAM';
 import Registers from './Registers';
 import Renderer, { SpriteSize } from './Renderer';
 import VRAM from './VRAM';
 
-const TOTAL_LINES = 262;
-const POST_RENDER_LINE = 240;
-const PRE_RENDER_LINE = 261;
 const CLIP_WIDTH = 8;
 
 export interface PPUOptions {
@@ -28,6 +26,7 @@ export interface PPUControl {
 
 export interface PPUState {
   line: number;
+  oddFrame: boolean;
   oam: OAM;
   vram: VRAM;
   control: PPUControl;
@@ -46,34 +45,6 @@ export interface PPUState {
   registers: Registers;
 }
 
-enum Mode {
-  Render,
-  HBlank1,
-  HBlank2,
-  HBlank3,
-  PostRender,
-  VBlank,
-  PreRender1,
-  PreRender2,
-  PreRender3,
-  PreRender4Short,
-  PreRender4Long,
-}
-
-const MODE_TICKS: { [Key in Mode]: number } = {
-  [Mode.Render]: 257,
-  [Mode.HBlank1]: 4,
-  [Mode.HBlank2]: 60,
-  [Mode.HBlank3]: 20,
-  [Mode.PostRender]: 341,
-  [Mode.VBlank]: 341,
-  [Mode.PreRender1]: 257,
-  [Mode.PreRender2]: 47,
-  [Mode.PreRender3]: 17,
-  [Mode.PreRender4Short]: 19,
-  [Mode.PreRender4Long]: 20,
-};
-
 export default class PPU {
   private screen: Screen;
   private mapper: Mapper;
@@ -81,9 +52,8 @@ export default class PPU {
   private state: PPUState;
   private renderer: Renderer;
   private ticks: number;
-  private mode: Mode;
-  private modeTicks: number;
-  private oddFrame: boolean;
+  private nextEvent: Event;
+  private nextEventTime: number;
   private previousWrite: number;
 
   constructor({ screen, interrupt, mapper }: PPUOptions) {
@@ -93,6 +63,7 @@ export default class PPU {
 
     this.state = {
       line: 0,
+      oddFrame: false,
       oam: new OAM(),
       vram: new VRAM(mapper),
       control: {
@@ -123,9 +94,7 @@ export default class PPU {
     });
 
     this.ticks = 0;
-    this.mode = Mode.Render;
-    this.modeTicks = MODE_TICKS[Mode.Render];
-    this.oddFrame = false;
+    [this.nextEvent, this.nextEventTime] = initialEventState;
     this.previousWrite = 0;
   }
 
@@ -148,17 +117,11 @@ export default class PPU {
       }
 
       case 4:
-        if (this.mode === Mode.Render && mask.renderingEnabled) {
-          warn('OAMDATA accessed while rendering');
-        }
         return oam.getDataByte();
 
       case 7: {
         const value = vram.getByte(registers.getVramAddress());
         registers.incrementVramAddress();
-        if (this.mode === Mode.Render && mask.renderingEnabled) {
-          warn('PPUDATA accessed while rendering');
-        }
         return value;
       }
 
@@ -205,9 +168,6 @@ export default class PPU {
 
       case 4:
         oam.setDataByte(value);
-        if (this.mode === Mode.Render && mask.renderingEnabled) {
-          warn('OAMDATA accessed while rendering');
-        }
         break;
 
       case 5:
@@ -221,9 +181,6 @@ export default class PPU {
       case 7:
         vram.setByte(registers.getVramAddress(), value);
         registers.incrementVramAddress();
-        if (this.mode === Mode.Render && mask.renderingEnabled) {
-          warn('PPUDATA accessed while rendering');
-        }
         break;
 
       default:
@@ -234,95 +191,16 @@ export default class PPU {
   public tick(cpuTicks: number): void {
     this.ticks += cpuTicks * 3;
 
-    while (this.ticks >= this.modeTicks) {
-      this.ticks -= this.modeTicks;
-      this.mode = this.nextMode();
-      this.modeTicks = MODE_TICKS[this.mode];
-    }
-  }
+    while (this.ticks >= this.nextEventTime) {
+      this.ticks -= this.nextEventTime;
 
-  private nextMode(): Mode {
-    const { control, mask, status, registers } = this.state;
-
-    switch (this.mode) {
-      case Mode.Render: {
-        if (mask.renderingEnabled) {
-          this.renderer.renderLine();
-          registers.copyHorizontalBits();
-        } else {
-          this.screen.skipLine();
-        }
-        return Mode.HBlank1;
-      }
-
-      case Mode.HBlank1:
-        this.mapper.onPPUSpriteMemoryStart(this.state);
-        return Mode.HBlank2;
-
-      case Mode.HBlank2:
-        this.mapper.onPPUBackgroundMemoryStart(this.state);
-        return Mode.HBlank3;
-
-      case Mode.HBlank3:
-        if (++this.state.line === POST_RENDER_LINE) {
-          if (mask.renderingEnabled) {
-            this.screen.update();
-          }
-          return Mode.PostRender;
-        } else {
-          this.mapper.onPPULineStart(this.state);
-          return Mode.Render;
-        }
-
-      case Mode.PostRender:
-        ++this.state.line;
-        status.vblank = true;
-
-        if (control.nmiEnabled) {
-          this.interrupt.triggerNmi();
-        }
-
-        return Mode.VBlank;
-
-      case Mode.VBlank:
-        if (++this.state.line === PRE_RENDER_LINE) {
-          status.vblank = false;
-          status.spriteHit = false;
-          status.spriteOverflow = false;
-          return Mode.PreRender1;
-        } else {
-          return Mode.VBlank;
-        }
-
-      case Mode.PreRender1:
-        this.mapper.onPPUSpriteMemoryStart(this.state);
-
-        if (mask.renderingEnabled) {
-          registers.copyHorizontalBits();
-        }
-
-        return Mode.PreRender2;
-
-      case Mode.PreRender2:
-        if (mask.renderingEnabled) {
-          registers.copyVerticalBits();
-        }
-        return Mode.PreRender3;
-
-      case Mode.PreRender3:
-        this.mapper.onPPUBackgroundMemoryStart(this.state);
-
-        if (this.oddFrame && mask.renderingEnabled) {
-          return Mode.PreRender4Short;
-        } else {
-          return Mode.PreRender4Long;
-        }
-
-      default:
-        this.state.line = 0;
-        this.oddFrame = !this.oddFrame;
-        this.mapper.onPPULineStart(this.state);
-        return Mode.Render;
+      [this.nextEvent, this.nextEventTime] = this.nextEvent({
+        state: this.state,
+        interrupt: this.interrupt,
+        mapper: this.mapper,
+        renderer: this.renderer,
+        screen: this.screen,
+      });
     }
   }
 }
