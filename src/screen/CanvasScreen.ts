@@ -83,15 +83,6 @@ export default class CanvasScreen implements Screen {
     }
   }
 
-  public skipLine(): void {
-    this.position += SCREEN_WIDTH * 4;
-
-    if (this.position >= this.image.data.length) {
-      this.position = 0;
-      this.update();
-    }
-  }
-
   private update(): void {
     this.innerContext.putImageData(this.image, 0, 0);
 
