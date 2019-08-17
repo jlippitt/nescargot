@@ -10,10 +10,11 @@ export default class AudioController {
   }
 
   public sendAudioData(buffer: AudioBuffer) {
-    this.expectedTime = Math.max(
-      this.expectedTime + buffer.duration,
-      this.context.currentTime,
-    );
+    this.expectedTime += buffer.duration;
+
+    if (this.expectedTime < this.context.currentTime) {
+      this.expectedTime = this.context.currentTime;
+    }
 
     const source = this.context.createBufferSource();
     source.buffer = buffer;
