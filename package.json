@@ -10,7 +10,6 @@
     "format": "prettier --write './src/**/*'",
     "lint": "tslint './src/**/*'",
     "test": "./node_modules/.bin/jest",
-    "start": "http-server ./public",
     "start:headless": "NODE_PATH=./dist node ./dist/index.js"
   },
   "jest": {
@@ -64,7 +63,6 @@
     "worklet-loader": "^1.0.0"
   },
   "dependencies": {
-    "http-server": "^0.11.1",
     "lodash": "^4.17.11",
     "snek-client": "git+ssh://git@github.com:jlippitt/snek-client"
   }
