@@ -3,11 +3,12 @@ import Mapper from 'mapper/Mapper';
 import { PPUState } from 'ppu/PPU';
 import Screen from 'screen/Screen';
 
+import { SCREEN_HEIGHT } from '../constants';
 import Renderer from './Renderer';
 
 const TOTAL_LINES = 262;
-const POST_RENDER_LINE = 240;
-const PRE_RENDER_LINE = 261;
+const POST_RENDER_LINE = SCREEN_HEIGHT;
+const PRE_RENDER_LINE = TOTAL_LINES - 1;
 
 export interface EventOptions {
   state: PPUState;

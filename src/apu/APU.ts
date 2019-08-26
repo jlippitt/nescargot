@@ -6,6 +6,7 @@ import { debug, toHex, warn } from 'log';
 import Mapper from 'mapper/Mapper';
 import SampleReader from 'SampleReader';
 
+import { MASTER_CLOCK_RATE, SAMPLE_RATE } from '../constants';
 import SampleBuffer from './buffers/SampleBuffer';
 import DMCChannel from './channels/DMCChannel';
 import NoiseChannel from './channels/NoiseChannel';
@@ -14,11 +15,9 @@ import TriangleChannel from './channels/TriangleChannel';
 import { APU_CLOCK_MULTIPLIER, APU_CLOCK_SHIFT } from './constants';
 import FrameCounter from './FrameCounter';
 
-export const SAMPLE_RATE = 11025;
+const APU_CLOCK_RATE = (MASTER_CLOCK_RATE * APU_CLOCK_MULTIPLIER) / 12;
 
-const MASTER_CLOCK_RATE = (21477270 * APU_CLOCK_MULTIPLIER) / 12;
-
-const TICKS_PER_SAMPLE = Math.ceil(MASTER_CLOCK_RATE / SAMPLE_RATE);
+const TICKS_PER_SAMPLE = Math.ceil(APU_CLOCK_RATE / SAMPLE_RATE);
 
 const PULSE_TABLE = times(31, (n) => 95.52 / (8128.0 / n + 100));
 

@@ -4,8 +4,12 @@ import Float32SampleBuffer from 'apu/buffers/Float32SampleBuffer';
 import { createHardware } from 'Hardware';
 import CanvasScreen, { ExternalScreenInterface } from 'screen/CanvasScreen';
 
-const MASTER_CLOCK_RATE = 21477270;
-const CPU_CLOCK_RATE = MASTER_CLOCK_RATE / 12;
+import {
+  CPU_CLOCK_RATE,
+  SAMPLE_RATE,
+  SCREEN_HEIGHT,
+  SCREEN_WIDTH,
+} from '../constants';
 
 function bootstrap({ audio, screen, romData }: BootstrapOptions): GuiInterface {
   const sampleBuffer = new Float32SampleBuffer();
@@ -65,11 +69,11 @@ export const runInBrowser = (): void =>
     system: 'NES',
     fileExtensions: ['nes'],
     screen: {
-      width: 256,
-      height: 240,
+      width: SCREEN_WIDTH,
+      height: SCREEN_HEIGHT,
     },
     audio: {
-      sampleRate: 11025,
+      sampleRate: SAMPLE_RATE,
     },
     bootstrap,
   });

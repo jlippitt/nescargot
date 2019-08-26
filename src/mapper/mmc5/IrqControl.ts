@@ -2,6 +2,8 @@ import Interrupt from 'Interrupt';
 import { debug } from 'log';
 import { PPUState } from 'ppu/PPU';
 
+import { SCREEN_HEIGHT } from '../../constants';
+
 export default class IrqControl {
   private interrupt: Interrupt;
   private enabled: boolean = false;
@@ -45,7 +47,7 @@ export default class IrqControl {
       return;
     }
 
-    if (line < 240) {
+    if (line < SCREEN_HEIGHT) {
       if (line === 0) {
         this.acknowledge();
       }
@@ -58,10 +60,10 @@ export default class IrqControl {
         debug(`MMC5 IRQ pending at line ${line}`);
         this.irqPending = true;
       }
-    } else if (line === 240) {
+    } else if (line === SCREEN_HEIGHT) {
       debug('MMC5 IRQ end of frame');
       this.inFrame = false;
-    } else if (line === 241) {
+    } else if (line === SCREEN_HEIGHT + 1) {
       this.reset();
     }
 

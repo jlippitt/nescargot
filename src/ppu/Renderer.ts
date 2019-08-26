@@ -2,12 +2,12 @@ import { debug } from 'log';
 import Mapper from 'mapper/Mapper';
 import Screen from 'screen/Screen';
 
+import { SCREEN_WIDTH } from '../constants';
 import { Priority, Sprite } from './OAM';
 import { Color } from './PaletteTable';
 import Pattern from './Pattern';
 import { PPUControl, PPUState } from './PPU';
 
-const RENDER_WIDTH = 256;
 const NAME_TABLE_WIDTH = 32;
 const TILE_SIZE = 8;
 const SPRITES_PER_LINE = 8;
@@ -67,11 +67,11 @@ export default class Renderer {
     this.screen = screen;
     this.state = state;
     this.mapper = mapper;
-    this.lineBuffer = Array(RENDER_WIDTH).fill(0);
-    this.opacityBuffer = Array(RENDER_WIDTH).fill(false);
+    this.lineBuffer = Array(SCREEN_WIDTH).fill(0);
+    this.opacityBuffer = Array(SCREEN_WIDTH).fill(false);
     this.selectedSprites = Array(SPRITES_PER_LINE).fill(undefined);
-    this.spriteBuffer = Array(RENDER_WIDTH).fill(0);
-    this.priorityBuffer = Array(RENDER_WIDTH).fill(undefined);
+    this.spriteBuffer = Array(SCREEN_WIDTH).fill(0);
+    this.priorityBuffer = Array(SCREEN_WIDTH).fill(undefined);
   }
 
   public renderLine(): void {
@@ -125,7 +125,7 @@ export default class Renderer {
 
     let palette = palettes[paletteIndex];
 
-    for (let x = mask.backgroundXStart; x < RENDER_WIDTH; ++x) {
+    for (let x = mask.backgroundXStart; x < SCREEN_WIDTH; ++x) {
       const pixel = patternRow[fineX];
 
       if (pixel > 0) {
@@ -215,7 +215,7 @@ export default class Renderer {
   }
 
   private combineSpritesWithBackground(): void {
-    for (let x = this.state.mask.spriteXStart; x < RENDER_WIDTH; ++x) {
+    for (let x = this.state.mask.spriteXStart; x < SCREEN_WIDTH; ++x) {
       const priority = this.priorityBuffer[x];
 
       if (priority === undefined) {

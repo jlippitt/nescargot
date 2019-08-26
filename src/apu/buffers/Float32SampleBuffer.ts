@@ -1,4 +1,4 @@
-import { SAMPLE_RATE } from '../APU';
+import { SAMPLE_RATE } from '../../constants';
 import SampleBuffer from './SampleBuffer';
 
 const BUFFER_SIZE = 1024;

@@ -1,6 +1,5 @@
+import { SCREEN_WIDTH } from '../constants';
 import Screen from './Screen';
-
-const SCREEN_WIDTH = 256;
 
 export interface ExternalScreenInterface {
   image: ImageData;
