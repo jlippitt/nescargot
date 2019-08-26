@@ -1,51 +1,11 @@
+import { BootstrapOptions, GuiInterface, register } from 'snek-client';
+
 import Float32SampleBuffer from 'apu/buffers/Float32SampleBuffer';
 import { createHardware } from 'Hardware';
 import CanvasScreen, { ExternalScreenInterface } from 'screen/CanvasScreen';
 
 const MASTER_CLOCK_RATE = 21477270;
 const CPU_CLOCK_RATE = MASTER_CLOCK_RATE / 12;
-
-declare global {
-  interface Window {
-    snek?: {
-      register(options: EmulatorOptions): void;
-    };
-  }
-}
-
-interface Size {
-  width: number;
-  height: number;
-}
-
-interface AudioOptions {
-  sampleRate: number;
-}
-
-interface EmulatorOptions {
-  name: string;
-  system: string;
-  fileExtensions: string[];
-  screen: Size;
-  audio: AudioOptions;
-  bootstrap(options: BootstrapOptions): GuiInterface;
-}
-
-interface AudioController {
-  sendAudioData(buffer: AudioBuffer): void;
-}
-
-interface BootstrapOptions {
-  audio: AudioController;
-  screen: ExternalScreenInterface;
-  romData: Uint8Array;
-}
-
-interface GuiInterface {
-  update(now: number): void;
-  suspend(): void;
-  resume(): void;
-}
 
 function bootstrap({ audio, screen, romData }: BootstrapOptions): GuiInterface {
   const sampleBuffer = new Float32SampleBuffer();
@@ -99,12 +59,8 @@ function bootstrap({ audio, screen, romData }: BootstrapOptions): GuiInterface {
   };
 }
 
-export async function runInBrowser(): Promise<void> {
-  if (!window.snek) {
-    throw new Error('GUI module not found');
-  }
-
-  window.snek.register({
+export const runInBrowser = (): void =>
+  register({
     name: 'NEScargot',
     system: 'NES',
     fileExtensions: ['nes'],
@@ -117,4 +73,3 @@ export async function runInBrowser(): Promise<void> {
     },
     bootstrap,
   });
-}
