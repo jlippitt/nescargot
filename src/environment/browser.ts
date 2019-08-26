@@ -1,54 +1,67 @@
 import Float32SampleBuffer from 'apu/buffers/Float32SampleBuffer';
-import AudioController from 'audio/AudioController';
 import { createHardware } from 'Hardware';
-import CanvasScreen from 'screen/CanvasScreen';
+import CanvasScreen, { ExternalScreenInterface } from 'screen/CanvasScreen';
 
 const MASTER_CLOCK_RATE = 21477270;
+const CPU_CLOCK_RATE = MASTER_CLOCK_RATE / 12;
 
-async function loadRomData(): Promise<Uint8Array> {
-  const romUrl = new URLSearchParams(location.search).get('url');
-
-  if (!romUrl) {
-    throw new Error('No ROM specified');
+declare global {
+  interface Window {
+    snek?: {
+      register(options: EmulatorOptions): void;
+    };
   }
-
-  const response = await fetch(romUrl);
-
-  if (!response.ok) {
-    throw new Error('Failed to fetch ROM data');
-  }
-
-  return new Uint8Array(await response.arrayBuffer());
 }
 
-export async function runInBrowser(): Promise<void> {
-  const container = document.getElementById('nescargot');
+interface Size {
+  width: number;
+  height: number;
+}
 
-  if (!container) {
-    throw new Error('No container element found on page');
-  }
+interface AudioOptions {
+  sampleRate: number;
+}
 
-  const romData = await loadRomData();
+interface EmulatorOptions {
+  name: string;
+  system: string;
+  fileExtensions: string[];
+  screen: Size;
+  audio: AudioOptions;
+  bootstrap(options: BootstrapOptions): GuiInterface;
+}
 
-  const screen = new CanvasScreen(container);
+interface AudioController {
+  sendAudioData(buffer: AudioBuffer): void;
+}
 
+interface BootstrapOptions {
+  audio: AudioController;
+  screen: ExternalScreenInterface;
+  romData: Uint8Array;
+}
+
+interface GuiInterface {
+  update(now: number): void;
+  suspend(): void;
+  resume(): void;
+}
+
+function bootstrap({ audio, screen, romData }: BootstrapOptions): GuiInterface {
   const sampleBuffer = new Float32SampleBuffer();
 
   const { cpu, ppu, apu, mapper, joypad } = createHardware({
     romData,
-    screen,
+    screen: new CanvasScreen(screen),
     sampleBuffer,
   });
 
-  const audioController = new AudioController();
-
   let prevFrameTime = window.performance.now();
   let excessTicks = 0;
-  let frameRequest: number;
 
-  function renderFrame(now: number): void {
+  const update = (now: number) => {
     const allowedTicks =
-      ((now - prevFrameTime) * MASTER_CLOCK_RATE) / 12 / 1000 - excessTicks;
+      ((now - prevFrameTime) * CPU_CLOCK_RATE) / 1000 - excessTicks;
 
     let currentTicks = 0;
 
@@ -68,25 +81,40 @@ export async function runInBrowser(): Promise<void> {
     const audioBuffer = sampleBuffer.fetchAvailableAudioData();
 
     if (audioBuffer) {
-      audioController.sendAudioData(audioBuffer);
+      audio.sendAudioData(audioBuffer);
     }
+  };
 
-    if (!document.hidden) {
-      frameRequest = window.requestAnimationFrame(renderFrame);
-    }
+  const suspend = () => {};
+
+  const resume = () => {
+    prevFrameTime = window.performance.now();
+    excessTicks = 0;
+  };
+
+  return {
+    update,
+    suspend,
+    resume,
+  };
+}
+
+export async function runInBrowser(): Promise<void> {
+  if (!window.snek) {
+    throw new Error('GUI module not found');
   }
 
-  window.addEventListener('visibilitychange', () => {
-    if (document.hidden) {
-      audioController.suspend();
-      window.cancelAnimationFrame(frameRequest);
-    } else {
-      audioController.resume();
-      frameRequest = window.requestAnimationFrame(renderFrame);
-      prevFrameTime = window.performance.now();
-      excessTicks = 0;
-    }
+  window.snek.register({
+    name: 'NEScargot',
+    system: 'NES',
+    fileExtensions: ['nes'],
+    screen: {
+      width: 256,
+      height: 240,
+    },
+    audio: {
+      sampleRate: 11025,
+    },
+    bootstrap,
   });
-
-  frameRequest = window.requestAnimationFrame(renderFrame);
 }
