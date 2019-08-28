@@ -11,7 +11,12 @@ import {
   SCREEN_WIDTH,
 } from '../constants';
 
-function bootstrap({ audio, screen, romData }: BootstrapOptions): GuiInterface {
+function bootstrap({
+  audio,
+  screen,
+  joypad: joypadState,
+  romData,
+}: BootstrapOptions): GuiInterface {
   const sampleBuffer = new Float32SampleBuffer();
 
   const { cpu, ppu, apu, mapper, joypad } = createHardware({
@@ -29,7 +34,7 @@ function bootstrap({ audio, screen, romData }: BootstrapOptions): GuiInterface {
 
     let currentTicks = 0;
 
-    joypad.poll();
+    joypad.update(joypadState.poll());
 
     while (currentTicks < Math.ceil(allowedTicks)) {
       const ticks = cpu.tick();
