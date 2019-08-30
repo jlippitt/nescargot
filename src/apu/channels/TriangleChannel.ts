@@ -76,6 +76,13 @@ export default class TriangleChannel {
   }
 
   public sample(): number {
-    return this.sequencer.sample();
+    if (this.timer.getValue() >= 2) {
+      return this.sequencer.sample();
+    } else {
+      // Due to the effects of the lowpass filter, these frequencies get
+      // silenced. As we've no plans to implement a lowpass filter(!),
+      // silence them here.
+      return 0;
+    }
   }
 }
