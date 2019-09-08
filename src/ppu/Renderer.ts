@@ -120,31 +120,26 @@ export default class Renderer {
     const { coarseY, fineY } = scroll;
     let { nameTableIndex, coarseX, fineX } = scroll;
 
-    coarseX = (coarseX + (mask.backgroundXStart >> 3)) % NAME_TABLE_WIDTH;
-
-    let nameTable = this.mapper.getNameTable(nameTableIndex);
+    let nameTableRow = this.mapper.getNameTable(nameTableIndex).getRow(coarseY);
 
     for (let i = 0; i < BG_TILES_PER_LINE; ++i) {
-      const tileX = coarseX + i;
-
-      if (tileX === NAME_TABLE_WIDTH) {
-        nameTableIndex ^= 1;
-        nameTable = this.mapper.getNameTable(nameTableIndex);
-      }
-
-      const { patternIndex, paletteIndex } = nameTable.getTile(
-        tileX % NAME_TABLE_WIDTH,
-        coarseY,
-      );
+      const { patternIndex, paletteIndex } = nameTableRow[coarseX];
 
       this.tileBuffer[i] = this.mapper
         .getPattern(control.backgroundPatternOffset | patternIndex)
         .getRow(fineY);
 
       this.paletteBuffer[i] = palettes[paletteIndex];
+
+      if (++coarseX === NAME_TABLE_WIDTH) {
+        nameTableIndex ^= 1;
+        coarseX = 0;
+
+        nameTableRow = this.mapper.getNameTable(nameTableIndex).getRow(coarseY);
+      }
     }
 
-    let tileBufferIndex = 0;
+    let tileBufferIndex = mask.backgroundXStart >> 3;
     let patternRow = this.tileBuffer[0];
     let palette = this.paletteBuffer[0];
 

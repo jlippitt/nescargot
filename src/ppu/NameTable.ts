@@ -24,8 +24,12 @@ export default class NameTable {
     );
   }
 
+  public getRow(y: number): Tile[] {
+    return this.tiles[y];
+  }
+
   public getTile(x: number, y: number): Tile {
-    return this.tiles[y][x];
+    return this.getRow(y)[x];
   }
 
   public getByte(offset: number): number {
