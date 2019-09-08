@@ -61,7 +61,7 @@ export default class Renderer {
   private state: PPUState;
   private mapper: Mapper;
   private lineBuffer: Color[];
-  private tileBuffer: number[][];
+  private patternBuffer: number[][];
   private paletteBuffer: number[][];
   private opacityBuffer: boolean[];
   private selectedSprites: Array<Sprite | undefined>;
@@ -73,7 +73,7 @@ export default class Renderer {
     this.state = state;
     this.mapper = mapper;
     this.lineBuffer = Array(SCREEN_WIDTH).fill(0);
-    this.tileBuffer = times(BG_TILES_PER_LINE, () => Array(8).fill(0));
+    this.patternBuffer = times(BG_TILES_PER_LINE, () => Array(8).fill(0));
     this.paletteBuffer = times(BG_TILES_PER_LINE, () => Array(4).fill(0));
     this.opacityBuffer = Array(SCREEN_WIDTH).fill(false);
     this.selectedSprites = Array(SPRITES_PER_LINE).fill(undefined);
@@ -123,13 +123,13 @@ export default class Renderer {
     let nameTableRow = this.mapper.getNameTable(nameTableIndex).getRow(coarseY);
 
     for (let i = 0; i < BG_TILES_PER_LINE; ++i) {
-      const { patternIndex, paletteIndex } = nameTableRow[coarseX];
+      const tile = nameTableRow[coarseX];
 
-      this.tileBuffer[i] = this.mapper
-        .getPattern(control.backgroundPatternOffset | patternIndex)
+      this.patternBuffer[i] = this.mapper
+        .getPattern(control.backgroundPatternOffset | tile.patternIndex)
         .getRow(fineY);
 
-      this.paletteBuffer[i] = palettes[paletteIndex];
+      this.paletteBuffer[i] = palettes[tile.paletteIndex];
 
       if (++coarseX === NAME_TABLE_WIDTH) {
         nameTableIndex ^= 1;
@@ -139,8 +139,8 @@ export default class Renderer {
       }
     }
 
-    let tileBufferIndex = mask.backgroundXStart >> 3;
-    let patternRow = this.tileBuffer[0];
+    let patternBufferIndex = mask.backgroundXStart >> 3;
+    let patternRow = this.patternBuffer[0];
     let palette = this.paletteBuffer[0];
 
     for (let x = mask.backgroundXStart; x < SCREEN_WIDTH; ++x) {
@@ -156,9 +156,9 @@ export default class Renderer {
 
       if (++fineX === TILE_SIZE) {
         fineX = 0;
-        ++tileBufferIndex;
-        patternRow = this.tileBuffer[tileBufferIndex];
-        palette = this.paletteBuffer[tileBufferIndex];
+        ++patternBufferIndex;
+        patternRow = this.patternBuffer[patternBufferIndex];
+        palette = this.paletteBuffer[patternBufferIndex];
       }
     }
   }
