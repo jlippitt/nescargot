@@ -140,8 +140,8 @@ export default class Renderer {
     }
 
     let patternBufferIndex = mask.backgroundXStart >> 3;
-    let patternRow = this.patternBuffer[0];
-    let palette = this.paletteBuffer[0];
+    let patternRow = this.patternBuffer[patternBufferIndex];
+    let palette = this.paletteBuffer[patternBufferIndex];
 
     for (let x = mask.backgroundXStart; x < SCREEN_WIDTH; ++x) {
       const pixel = patternRow[fineX];
