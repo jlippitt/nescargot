@@ -1,3 +1,5 @@
+import { times } from 'lodash';
+
 import { debug } from 'log';
 import Mapper from 'mapper/Mapper';
 import Screen from 'screen/Screen';
@@ -10,6 +12,7 @@ import { PPUControl, PPUState } from './PPU';
 
 const NAME_TABLE_WIDTH = 32;
 const TILE_SIZE = 8;
+const BG_TILES_PER_LINE = 34;
 const SPRITES_PER_LINE = 8;
 
 const isOnLine = (spriteSize: number, line: number, sprite: Sprite) =>
@@ -58,6 +61,8 @@ export default class Renderer {
   private state: PPUState;
   private mapper: Mapper;
   private lineBuffer: Color[];
+  private tileBuffer: number[][];
+  private paletteBuffer: number[][];
   private opacityBuffer: boolean[];
   private selectedSprites: Array<Sprite | undefined>;
   private spriteBuffer: Color[];
@@ -68,6 +73,8 @@ export default class Renderer {
     this.state = state;
     this.mapper = mapper;
     this.lineBuffer = Array(SCREEN_WIDTH).fill(0);
+    this.tileBuffer = times(BG_TILES_PER_LINE, () => Array(8).fill(0));
+    this.paletteBuffer = times(BG_TILES_PER_LINE, () => Array(4).fill(0));
     this.opacityBuffer = Array(SCREEN_WIDTH).fill(false);
     this.selectedSprites = Array(SPRITES_PER_LINE).fill(undefined);
     this.spriteBuffer = Array(SCREEN_WIDTH).fill(0);
@@ -117,13 +124,29 @@ export default class Renderer {
 
     let nameTable = this.mapper.getNameTable(nameTableIndex);
 
-    let { patternIndex, paletteIndex } = nameTable.getTile(coarseX, coarseY);
+    for (let i = 0; i < BG_TILES_PER_LINE; ++i) {
+      const tileX = coarseX + i;
 
-    let patternRow = this.mapper
-      .getPattern(control.backgroundPatternOffset | patternIndex)
-      .getRow(fineY);
+      if (tileX === NAME_TABLE_WIDTH) {
+        nameTableIndex ^= 1;
+        nameTable = this.mapper.getNameTable(nameTableIndex);
+      }
 
-    let palette = palettes[paletteIndex];
+      const { patternIndex, paletteIndex } = nameTable.getTile(
+        tileX % NAME_TABLE_WIDTH,
+        coarseY,
+      );
+
+      this.tileBuffer[i] = this.mapper
+        .getPattern(control.backgroundPatternOffset | patternIndex)
+        .getRow(fineY);
+
+      this.paletteBuffer[i] = palettes[paletteIndex];
+    }
+
+    let tileBufferIndex = 0;
+    let patternRow = this.tileBuffer[0];
+    let palette = this.paletteBuffer[0];
 
     for (let x = mask.backgroundXStart; x < SCREEN_WIDTH; ++x) {
       const pixel = patternRow[fineX];
@@ -138,20 +161,9 @@ export default class Renderer {
 
       if (++fineX === TILE_SIZE) {
         fineX = 0;
-
-        if (++coarseX === NAME_TABLE_WIDTH) {
-          coarseX = 0;
-          nameTableIndex ^= 1;
-          nameTable = this.mapper.getNameTable(nameTableIndex);
-        }
-
-        ({ patternIndex, paletteIndex } = nameTable.getTile(coarseX, coarseY));
-
-        patternRow = this.mapper
-          .getPattern(control.backgroundPatternOffset | patternIndex)
-          .getRow(fineY);
-
-        palette = palettes[paletteIndex];
+        ++tileBufferIndex;
+        patternRow = this.tileBuffer[tileBufferIndex];
+        palette = this.paletteBuffer[tileBufferIndex];
       }
     }
   }
