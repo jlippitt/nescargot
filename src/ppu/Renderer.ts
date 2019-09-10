@@ -212,7 +212,7 @@ export default class Renderer {
         if (pixel > 0) {
           const bufferIndex = sprite.x + x;
 
-          if (!this.priorityBuffer[bufferIndex]) {
+          if (this.priorityBuffer[bufferIndex] === undefined) {
             this.spriteBuffer[bufferIndex] = palette[pixel];
             this.priorityBuffer[bufferIndex] = sprite.priority;
           }
