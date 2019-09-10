@@ -148,13 +148,13 @@ export default class Renderer {
     }
 
     let tileBufferIndex = mask.backgroundXStart >> 3;
-    let selectedTile = this.tileBuffer[tileBufferIndex];
+    let { patternRow, palette } = this.tileBuffer[tileBufferIndex];
 
     for (let x = mask.backgroundXStart; x < SCREEN_WIDTH; ++x) {
-      const pixel = selectedTile.patternRow[fineX];
+      const pixel = patternRow[fineX];
 
       if (pixel > 0) {
-        this.lineBuffer[x] = selectedTile.palette[pixel];
+        this.lineBuffer[x] = palette[pixel];
         this.opacityBuffer[x] = true;
       } else {
         this.lineBuffer[x] = backgroundColor;
@@ -163,7 +163,7 @@ export default class Renderer {
 
       if (++fineX === TILE_SIZE) {
         fineX = 0;
-        selectedTile = this.tileBuffer[++tileBufferIndex];
+        ({ patternRow, palette } = this.tileBuffer[++tileBufferIndex]);
       }
     }
   }
