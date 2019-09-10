@@ -117,7 +117,7 @@ export default class PPU {
       }
 
       case 4:
-        return oam.getDataByte();
+        return oam.getByte();
 
       case 7: {
         const value = vram.getByte(registers.getVramAddress());
@@ -167,7 +167,7 @@ export default class PPU {
         break;
 
       case 4:
-        oam.setDataByte(value);
+        oam.setByte(value);
         break;
 
       case 5:

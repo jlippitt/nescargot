@@ -34,7 +34,7 @@ export default class DMA {
     clock.tick(2);
 
     const value = mmu.getByte(this.startAddress + this.offset);
-    this.oam.setDmaByte(this.offset, value);
+    this.oam.setByte(value);
     ++this.offset;
 
     if (this.offset >= OAM_SIZE) {

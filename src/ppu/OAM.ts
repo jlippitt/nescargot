@@ -46,26 +46,21 @@ export default class OAM {
     this.address = value;
   }
 
-  public getDataByte(): number {
+  public getByte(): number {
     // Note: Reads do not increment address
     const value = this.ram[this.address];
     debug(`OAM Read: ${toHex(this.address, 2)} => ${toHex(value, 2)}`);
     return value;
   }
 
-  public setDataByte(value: number): void {
-    this.setDmaByte(this.address, value);
-    this.address = (this.address + 1) % OAM_SIZE;
-  }
+  public setByte(value: number): void {
+    debug(`OAM Write: ${toHex(this.address, 2)} <= ${toHex(value, 2)}`);
 
-  public setDmaByte(offset: number, value: number): void {
-    debug(`OAM Write: ${toHex(offset, 2)} <= ${toHex(value, 2)}`);
+    this.ram[this.address] = value;
 
-    this.ram[offset] = value;
+    const sprite = this.sprites[(this.address & 0xff) >> 2];
 
-    const sprite = this.sprites[(offset & 0xff) >> 2];
-
-    switch (offset & 0x03) {
+    switch (this.address & 0x03) {
       case 0:
         sprite.y = value + 1;
         break;
@@ -84,6 +79,8 @@ export default class OAM {
       default:
       // Can't happen
     }
+
+    this.address = (this.address + 1) % OAM_SIZE;
   }
 
   public getSprites(): Sprite[] {
