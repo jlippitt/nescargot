@@ -6,7 +6,7 @@ import Screen from 'screen/Screen';
 
 import { SCREEN_WIDTH } from '../constants';
 import { Priority, Sprite } from './OAM';
-import { Color } from './PaletteTable';
+import { Color, Palette } from './PaletteTable';
 import Pattern from './Pattern';
 import { PPUControl, PPUState } from './PPU';
 
@@ -50,6 +50,11 @@ export enum SpriteSize {
   Large = 16,
 }
 
+interface TileBufferEntry {
+  patternRow: number[];
+  palette: Palette;
+}
+
 interface RendererOptions {
   screen: Screen;
   state: PPUState;
@@ -61,8 +66,7 @@ export default class Renderer {
   private state: PPUState;
   private mapper: Mapper;
   private lineBuffer: Color[];
-  private patternBuffer: number[][];
-  private paletteBuffer: number[][];
+  private tileBuffer: TileBufferEntry[];
   private opacityBuffer: boolean[];
   private selectedSprites: Array<Sprite | undefined>;
   private spriteBuffer: Color[];
@@ -73,8 +77,10 @@ export default class Renderer {
     this.state = state;
     this.mapper = mapper;
     this.lineBuffer = Array(SCREEN_WIDTH).fill(0);
-    this.patternBuffer = times(BG_TILES_PER_LINE, () => Array(8).fill(0));
-    this.paletteBuffer = times(BG_TILES_PER_LINE, () => Array(4).fill(0));
+    this.tileBuffer = times(BG_TILES_PER_LINE, () => ({
+      patternRow: Array(8).fill(0),
+      palette: Array(4).fill(0),
+    }));
     this.opacityBuffer = Array(SCREEN_WIDTH).fill(false);
     this.selectedSprites = Array(SPRITES_PER_LINE).fill(undefined);
     this.spriteBuffer = Array(SCREEN_WIDTH).fill(0);
@@ -125,11 +131,13 @@ export default class Renderer {
     for (let i = 0; i < BG_TILES_PER_LINE; ++i) {
       const tile = nameTableRow[coarseX];
 
-      this.patternBuffer[i] = this.mapper
+      const tileBufferEntry = this.tileBuffer[i];
+
+      tileBufferEntry.patternRow = this.mapper
         .getPattern(control.backgroundPatternOffset | tile.patternIndex)
         .getRow(fineY);
 
-      this.paletteBuffer[i] = palettes[tile.paletteIndex];
+      tileBufferEntry.palette = palettes[tile.paletteIndex];
 
       if (++coarseX === NAME_TABLE_WIDTH) {
         nameTableIndex ^= 1;
@@ -139,15 +147,14 @@ export default class Renderer {
       }
     }
 
-    let patternBufferIndex = mask.backgroundXStart >> 3;
-    let patternRow = this.patternBuffer[patternBufferIndex];
-    let palette = this.paletteBuffer[patternBufferIndex];
+    let tileBufferIndex = mask.backgroundXStart >> 3;
+    let selectedTile = this.tileBuffer[tileBufferIndex];
 
     for (let x = mask.backgroundXStart; x < SCREEN_WIDTH; ++x) {
-      const pixel = patternRow[fineX];
+      const pixel = selectedTile.patternRow[fineX];
 
       if (pixel > 0) {
-        this.lineBuffer[x] = palette[pixel];
+        this.lineBuffer[x] = selectedTile.palette[pixel];
         this.opacityBuffer[x] = true;
       } else {
         this.lineBuffer[x] = backgroundColor;
@@ -156,9 +163,7 @@ export default class Renderer {
 
       if (++fineX === TILE_SIZE) {
         fineX = 0;
-        ++patternBufferIndex;
-        patternRow = this.patternBuffer[patternBufferIndex];
-        palette = this.paletteBuffer[patternBufferIndex];
+        selectedTile = this.tileBuffer[++tileBufferIndex];
       }
     }
   }
