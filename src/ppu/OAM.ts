@@ -55,7 +55,7 @@ export default class OAM {
 
   public setDataByte(value: number): void {
     this.setDmaByte(this.address, value);
-    this.address = (this.address + 1) & OAM_SIZE;
+    this.address = (this.address + 1) % OAM_SIZE;
   }
 
   public setDmaByte(offset: number, value: number): void {
