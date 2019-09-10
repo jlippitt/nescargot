@@ -61,6 +61,7 @@ export default class MMC1 extends AbstractMapper {
   private prgOffset: number[];
   private prgRamEnabled: boolean = true;
   private chrOffset: number[];
+  private successiveWriteLatch: boolean = false;
 
   constructor(options: MapperOptions) {
     super(options);
@@ -94,6 +95,11 @@ export default class MMC1 extends AbstractMapper {
     if (offset >= 0x8000) {
       debug('setPrgByte', toHex(value, 2));
 
+      if (this.successiveWriteLatch) {
+        warn('Successive MMC1 writes');
+        return;
+      }
+
       if ((value & 0x80) !== 0) {
         debug('Reset');
         this.shift.reset();
@@ -110,6 +116,8 @@ export default class MMC1 extends AbstractMapper {
       if (shiftValue !== undefined) {
         this.setMapperValue(offset, shiftValue);
       }
+
+      this.successiveWriteLatch = true;
     } else if (offset >= 0x6000) {
       if (this.prgRamEnabled) {
         this.prgRam[offset & 0x1fff] = value;
@@ -141,6 +149,10 @@ export default class MMC1 extends AbstractMapper {
       default:
         throw new Error('Should not happen');
     }
+  }
+
+  public tick(): void {
+    this.successiveWriteLatch = false;
   }
 
   private setMapperValue(offset: number, value: number): void {
