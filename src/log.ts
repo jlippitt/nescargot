@@ -1,21 +1,39 @@
+type LogFunction = (...args: any[]) => void;
+
+export let debug: LogFunction;
+export let error: LogFunction;
+export let warn: LogFunction;
+
 if (typeof window === 'undefined') {
   // tslint:disable-next-line:no-eval
   eval("require('log-buffer')");
-}
 
-export function debug(...args: any[]): void {
-  // tslint:disable-next-line:no-console
-  console.log(...args);
-}
+  debug = (...args: any[]): void => {
+    // tslint:disable-next-line:no-console
+    console.log(...args);
+  };
 
-export function error(...args: any[]): void {
-  // tslint:disable-next-line:no-console
-  console.error(...args);
-}
+  error = (...args: any[]): void => {
+    // tslint:disable-next-line:no-console
+    console.log(...args);
+  };
 
-export function warn(...args: any[]): void {
-  // tslint:disable-next-line:no-console
-  console.warn(...args);
+  warn = (...args: any[]): void => {
+    // tslint:disable-next-line:no-console
+    console.log(...args);
+  };
+} else {
+  debug = (...args: any[]): void => {};
+
+  error = (...args: any[]): void => {
+    // tslint:disable-next-line:no-console
+    console.error(...args);
+  };
+
+  warn = (...args: any[]): void => {
+    // tslint:disable-next-line:no-console
+    console.warn(...args);
+  };
 }
 
 export function toHex(value: number, width: number): string {
