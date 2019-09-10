@@ -32,11 +32,12 @@ export default class Joypad {
 
     switch (offset) {
       case 0x4016:
-        if (this.strobe) {
-          value = this.buttonState[0] ? 1 : 0;
-        } else if (this.buttonIndex < this.polledState.length) {
+        if (this.buttonIndex < this.polledState.length) {
           debug(`Button read: ${this.buttonIndex}`);
-          value = this.polledState[this.buttonIndex++] ? 1 : 0;
+          value = this.polledState[this.buttonIndex] ? 1 : 0;
+          if (!this.strobe) {
+            ++this.buttonIndex;
+          }
         } else {
           value = 1;
         }
@@ -51,12 +52,14 @@ export default class Joypad {
   public setByte(offset: number, value: number): void {
     switch (offset) {
       case 0x4016:
-        if (this.strobe) {
+        if ((value & 0x01) === 0x01) {
           this.polledState = this.buttonState;
           debug(`Button state: ${this.polledState}`);
           this.buttonIndex = 0;
+          this.strobe = true;
+        } else {
+          this.strobe = false;
         }
-        this.strobe = !this.strobe;
         break;
       default:
         // Ignore for now
