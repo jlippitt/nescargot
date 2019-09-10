@@ -67,7 +67,7 @@ export default class APU {
       this.frameCounter.clearInterrupt();
       return result;
     } else {
-      debug(`Unexpected APU read: ${toHex(offset, 4)}`);
+      warn(`Unexpected APU read: ${toHex(offset, 4)}`);
       return OPEN_BUS;
     }
   }
