@@ -113,7 +113,12 @@ export default class MMC1 extends AbstractMapper {
         this.prgRam[offset & 0x1fff] = value;
       }
     } else {
-      warn('Attempted write to unexpected mapper location');
+      warn(
+        `Attempted write to unexpected mapper location: ${toHex(
+          offset,
+          4,
+        )} <= ${toHex(value, 2)}`,
+      );
     }
   }
 
