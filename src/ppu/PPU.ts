@@ -127,7 +127,7 @@ export default class PPU {
 
       default:
         warn(`Unexpected PPU read: ${toHex(offset, 4)}`);
-        return 0;
+        return this.previousWrite;
     }
   }
 
