@@ -2914,6 +2914,11 @@ lodash@^4.17.13:
   version "4.17.15"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.15.tgz#b447f6670a0455bbfeedd11392eff330ea097548"
 
+log-buffer@^0.0.3:
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/log-buffer/-/log-buffer-0.0.3.tgz#8303058d4da031bb8c23b6e34e5c4f7a0778b390"
+  integrity sha1-gwMFjU2gMbuMI7bjTlxPegd4s5A=
+
 log-symbols@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/log-symbols/-/log-symbols-1.0.2.tgz#376ff7b58ea3086a0f09facc74617eca501e1a18"

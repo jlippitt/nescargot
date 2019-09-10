@@ -1,3 +1,8 @@
+if (typeof window === 'undefined') {
+  // tslint:disable-next-line:no-eval
+  eval("require('log-buffer')");
+}
+
 export function debug(...args: any[]): void {
   // tslint:disable-next-line:no-console
   console.log(...args);

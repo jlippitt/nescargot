@@ -63,6 +63,7 @@
   },
   "dependencies": {
     "lodash": "^4.17.11",
+    "log-buffer": "^0.0.3",
     "snek-client": "git+ssh://git@github.com:jlippitt/snek-client"
   }
 }
