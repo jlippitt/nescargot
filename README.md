@@ -1,4 +1,4 @@
-# nescargot
+# NEScargot
 
 https://jlippitt.github.io/nescargot/
 
