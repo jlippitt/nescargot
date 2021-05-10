@@ -62,7 +62,7 @@
     "webpack-cli": "^3.2.3"
   },
   "dependencies": {
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.21",
     "log-buffer": "^0.0.3",
     "snek-client": "git+ssh://git@github.com:jlippitt/snek-client"
   }
